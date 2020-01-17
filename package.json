@@ -1,0 +1,11 @@
+{
+  "name": "interrogator-api",
+  "version": "1.0.0",
+  "description": "interrogate words, phrases",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^7.12.1"
+  }
+}
