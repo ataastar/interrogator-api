@@ -5,7 +5,7 @@
 -- Dumped from database version 12.0
 -- Dumped by pg_dump version 12.0
 
--- Started on 2020-01-17 22:59:35
+-- Started on 2020-01-18 23:08:49
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,35 +29,41 @@ CREATE SCHEMA interrogator;
 ALTER SCHEMA interrogator OWNER TO attila;
 
 --
--- TOC entry 225 (class 1255 OID 16762)
+-- TOC entry 237 (class 1255 OID 16762)
 -- Name: insertunitcontent(json); Type: PROCEDURE; Schema: interrogator; Owner: postgres
 --
 
-CREATE PROCEDURE interrogator.insertunitcontent(json)
+CREATE PROCEDURE interrogator.insertunitcontent(json_input json)
     LANGUAGE plpgsql
     AS $$
 BEGIN
-/*
 with json_data as (
 select * from json_populate_record(
-	null::interrogator."InsertUnitContentTable",
-	'{"code":3,"fromLanguage":"1","toLanguage":"2","from":["Vesz","Venni"],"to":["buy","to buy"],"example":"Valaki","translatedExample":"Someone"}')
+	null::"InsertUnitContentTable",
+	json_input)
 ),
-tl as (insert into interrogator."TranslationLink"("Example", "TranslatedExample")
-	select example, "translatedExample" from json_data d
-	RETURNING "TranslationLinkId"),
-uc as (insert into interrogator."UnitContent"("UnitTreeId", "TranslationLinkId")
-	  select code, "TranslationLinkId" from json_data, tl
-	  returning *)
-select * from uc;
-
-
-*/
+tl as (insert into "TranslationLink"("Example", "TranslatedExample")
+	   select example, "translatedExample" from json_data d
+	   RETURNING "TranslationLinkId"),
+uc as (insert into "UnitContent"("UnitTreeId", "TranslationLinkId")
+	   select code, "TranslationLinkId" from json_data, tl
+	   returning *),
+phraseFrom as (insert into "Phrase"("LanguageId", "Text")
+			   select "toLanguage", json_array_elements_text("from"::json) from json_data
+			   returning *),
+phraseTo as (insert into "Phrase"("LanguageId", "Text")
+		  	 select "fromLanguage", json_array_elements_text("to"::json) from json_data
+		  	 returning *),
+tFrom as (insert into "TranslationFrom"("TranslationLinkId", "PhraseId")
+	   select tl."TranslationLinkId", phraseFrom."PhraseId" from tl, phraseFrom
+	   returning *)
+insert into "TranslationTo"("TranslationLinkId", "PhraseId")
+	   select tl."TranslationLinkId", phraseTo."PhraseId" from tl, phraseTo;
 END;
 $$;
 
 
-ALTER PROCEDURE interrogator.insertunitcontent(json) OWNER TO postgres;
+ALTER PROCEDURE interrogator.insertunitcontent(json_input json) OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -421,6 +427,12 @@ COPY interrogator."Phrase" ("PhraseId", "LanguageId", "Text", "Pronunciation", "
 5	2	Venni	\N	\N
 6	1	buy	\N	\N
 7	1	to buy	\N	\N
+62	1	cut	\N	\N
+63	1	to cut	\N	\N
+64	2	Vág	\N	\N
+65	2	Vágni	\N	\N
+66	1	to throw	\N	\N
+67	2	dobni	\N	\N
 \.
 
 
@@ -434,6 +446,9 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 1	1	1	\N
 3	2	4	\N
 4	2	5	\N
+29	28	64	\N
+30	28	65	\N
+31	29	67	\N
 \.
 
 
@@ -446,6 +461,8 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 COPY interrogator."TranslationLink" ("TranslationLinkId", "Example", "TranslatedExample", "ImageName") FROM stdin;
 1	Valaki ellopta a pénztárcámat	Someone stole my wallet	\N
 2	Vesz egy labdát	Buy a ball	\N
+28	Vágja a kenyeret	Cut the bread	\N
+29	Dobja a labdát	Throw the ball	\N
 \.
 
 
@@ -460,6 +477,9 @@ COPY interrogator."TranslationTo" ("TranslationToId", "TranslationLinkId", "Phra
 2	1	3	\N
 3	2	6	\N
 4	2	7	\N
+24	28	62	\N
+25	28	63	\N
+26	29	66	\N
 \.
 
 
@@ -472,6 +492,8 @@ COPY interrogator."TranslationTo" ("TranslationToId", "TranslationLinkId", "Phra
 COPY interrogator."UnitContent" ("UnitContentId", "UnitTreeId", "TranslationLinkId") FROM stdin;
 1	3	1
 3	3	2
+25	3	28
+26	3	29
 \.
 
 
@@ -505,7 +527,7 @@ SELECT pg_catalog.setval('interrogator."Language_LanguageId_seq"', 2, true);
 -- Name: Phrase_PhraseId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 7, true);
+SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 67, true);
 
 
 --
@@ -514,7 +536,7 @@ SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 7, true);
 -- Name: TranslationFrom_TranslationFromId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 4, true);
+SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 31, true);
 
 
 --
@@ -523,7 +545,7 @@ SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"',
 -- Name: TranslationLink_TranslationLinkId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 7, true);
+SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 29, true);
 
 
 --
@@ -532,7 +554,7 @@ SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"',
 -- Name: TranslationTo_TranslationToId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 5, true);
+SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 26, true);
 
 
 --
@@ -541,7 +563,7 @@ SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 5, 
 -- Name: UnitContent_UnitContent_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 5, true);
+SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 26, true);
 
 
 --
@@ -688,7 +710,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
     ADD CONSTRAINT "FK_UnitTreeId" FOREIGN KEY ("UnitTreeId") REFERENCES interrogator."UnitTree"("UnitTreeId");
 
 
--- Completed on 2020-01-17 22:59:36
+-- Completed on 2020-01-18 23:08:50
 
 --
 -- PostgreSQL database dump complete
