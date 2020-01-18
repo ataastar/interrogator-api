@@ -27,6 +27,7 @@ app.get('/', (request, response) => {
 //app.get('/users', db.getUsers)
 app.get('/words/:unitId', db.getUnitContent)
 app.get('/word_groups', db.getUnitTreeGroup)
+app.put('/word/:content', db.insertUnitContent)
 //app.post('/users', db.createUser)
 //app.put('/users/:id', db.updateUser)
 //app.delete('/users/:id', db.deleteUser)
