@@ -12,10 +12,10 @@ const getUnitContent = (request, response) => {
   pool.query('SELECT content FROM interrogator."UnitContentJson" Where code = $1', [unitId], (error, results) => {
     if (error) {
       console.log(error)
-      //throw error
+      response.status(500).json(error);
+    } else {
+      response.status(200).json(results.rows)
     }
-    //console.log(results)
-    response.status(200).json(results.rows)
   })
 }
 
@@ -23,31 +23,30 @@ const getUnitTreeGroup = (request, response) => {
   pool.query('select * from interrogator."UnitGroupJson"', [], (error, results) => {
     if (error) {
       console.log(error)
-      //throw error
+      response.status(500).json(error);
+    } else {
+      response.status(200).json(results.rows)
     }
-    //console.log(results)
-    response.status(200).json(results.rows)
   })
 }
 
 
 const insertUnitContent = (request, response) => {
+  const content = request.body;
   pool.query('SET search_path = interrogator;', [], (error) => {
     if (error) {
       console.log(error)
-      //throw error
+      response.status(500).json();
     }
-    //console.log(results)
-    //response.status(200).json(results.rows)
   })
-  const content = parseInt(request.params.content)
+
   pool.query('CALL interrogator.insertunitcontent($1);', [content], (error) => {
     if (error) {
       console.log(error)
-      //throw error
+      response.status(500).json();
+    } else {
+      response.status(201).json();
     }
-    //console.log(results)
-    response.status(200)
   })
 }
 
