@@ -1,5 +1,26 @@
 const Pool = require('pg').Pool
+const Client = require('pg').Client
+
+class EnhancedClient extends Client {
+  getStartupConf() {
+    if (process.env.PG_OPTIONS) {
+      try {
+        const options = JSON.parse(process.env.PG_OPTIONS);
+        return {
+          ...super.getStartupConf(),
+          ...options,
+        };
+      } catch (e) {
+        console.error(e);
+        // Coalesce to super.getStartupConf() on parse error
+      }
+    }
+
+    return super.getStartupConf();
+  }
+}
 const pool = new Pool({
+  Client: EnhancedClient,
   user: 'attila',
   host: 'localhost',
   database: 'postgres',
@@ -9,7 +30,7 @@ const pool = new Pool({
 
 const getUnitContent = (request, response) => {
   const unitId = parseInt(request.params.unitId)
-  pool.query('SELECT content FROM interrogator."UnitContentJson" Where code = $1', [unitId], (error, results) => {
+  pool.query('SELECT content FROM "UnitContentJson" Where code = $1', [unitId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -20,7 +41,7 @@ const getUnitContent = (request, response) => {
 }
 
 const getUnitTreeGroup = (request, response) => {
-  pool.query('select * from interrogator."UnitGroupJson"', [], (error, results) => {
+  pool.query('select * from "UnitGroupJson"', [], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -33,17 +54,10 @@ const getUnitTreeGroup = (request, response) => {
 
 const insertUnitContent = (request, response) => {
   const content = request.body;
-  pool.query('SET search_path = interrogator;', [], (error) => {
+  pool.query('CALL insertunitcontent($1);', [content], (error) => {
     if (error) {
       console.log(error)
-      response.status(500).json();
-    }
-  })
-
-  pool.query('CALL interrogator.insertunitcontent($1);', [content], (error) => {
-    if (error) {
-      console.log(error)
-      response.status(500).json();
+      response.status(500).json(error);
     } else {
       response.status(201).json();
     }

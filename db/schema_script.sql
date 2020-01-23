@@ -5,7 +5,7 @@
 -- Dumped from database version 12.0
 -- Dumped by pg_dump version 12.0
 
--- Started on 2020-01-18 23:08:49
+-- Started on 2020-01-23 22:21:37
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,7 +29,7 @@ CREATE SCHEMA interrogator;
 ALTER SCHEMA interrogator OWNER TO attila;
 
 --
--- TOC entry 237 (class 1255 OID 16762)
+-- TOC entry 238 (class 1255 OID 16762)
 -- Name: insertunitcontent(json); Type: PROCEDURE; Schema: interrogator; Owner: postgres
 --
 
@@ -37,6 +37,12 @@ CREATE PROCEDURE interrogator.insertunitcontent(json_input json)
     LANGUAGE plpgsql
     AS $$
 BEGIN
+
+insert into interrogator."tmp_insertjson"(insertjson)
+select json_input;
+
+commit;
+
 with json_data as (
 select * from json_populate_record(
 	null::"InsertUnitContentTable",
@@ -270,7 +276,7 @@ ALTER TABLE interrogator."UnitTree" OWNER TO attila;
 -- Name: UnitContentJson; Type: VIEW; Schema: interrogator; Owner: attila
 --
 
-CREATE VIEW interrogator."UnitContentJson" WITH (security_barrier='false') AS
+CREATE VIEW interrogator."UnitContentJson" AS
  SELECT row_to_json(a.*) AS content,
     a.code
    FROM ( SELECT t."Name" AS name,
@@ -392,7 +398,19 @@ ALTER TABLE interrogator."UnitTree" ALTER COLUMN "UnitTreeId" ADD GENERATED ALWA
 
 
 --
--- TOC entry 2917 (class 0 OID 16763)
+-- TOC entry 223 (class 1259 OID 16769)
+-- Name: tmp_insertjson; Type: TABLE; Schema: interrogator; Owner: attila
+--
+
+CREATE TABLE interrogator.tmp_insertjson (
+    insertjson character varying(2000)
+);
+
+
+ALTER TABLE interrogator.tmp_insertjson OWNER TO attila;
+
+--
+-- TOC entry 2922 (class 0 OID 16763)
 -- Dependencies: 222
 -- Data for Name: InsertUnitContentTable; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -402,7 +420,7 @@ COPY interrogator."InsertUnitContentTable" (code, "fromLanguage", "toLanguage", 
 
 
 --
--- TOC entry 2907 (class 0 OID 16447)
+-- TOC entry 2912 (class 0 OID 16447)
 -- Dependencies: 208
 -- Data for Name: Language; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -414,7 +432,7 @@ COPY interrogator."Language" ("LanguageId", "Name", "Code") FROM stdin;
 
 
 --
--- TOC entry 2903 (class 0 OID 16395)
+-- TOC entry 2908 (class 0 OID 16395)
 -- Dependencies: 204
 -- Data for Name: Phrase; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -433,11 +451,18 @@ COPY interrogator."Phrase" ("PhraseId", "LanguageId", "Text", "Pronunciation", "
 65	2	Vágni	\N	\N
 66	1	to throw	\N	\N
 67	2	dobni	\N	\N
+70	2	Write	\N	\N
+71	1	Ír	\N	\N
+72	2	Sleep	\N	\N
+73	1	Alszik	\N	\N
+74	2	Do	\N	\N
+75	1	Csinál	\N	\N
+76	1	Készít	\N	\N
 \.
 
 
 --
--- TOC entry 2904 (class 0 OID 16403)
+-- TOC entry 2909 (class 0 OID 16403)
 -- Dependencies: 205
 -- Data for Name: TranslationFrom; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -449,11 +474,15 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 29	28	64	\N
 30	28	65	\N
 31	29	67	\N
+32	32	71	\N
+33	33	73	\N
+34	34	75	\N
+35	34	76	\N
 \.
 
 
 --
--- TOC entry 2906 (class 0 OID 16419)
+-- TOC entry 2911 (class 0 OID 16419)
 -- Dependencies: 207
 -- Data for Name: TranslationLink; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -463,11 +492,14 @@ COPY interrogator."TranslationLink" ("TranslationLinkId", "Example", "Translated
 2	Vesz egy labdát	Buy a ball	\N
 28	Vágja a kenyeret	Cut the bread	\N
 29	Dobja a labdát	Throw the ball	\N
+32	Éppen írok	I'm writing now	\N
+33			\N
+34	Készítem a házimat	I do my homework	\N
 \.
 
 
 --
--- TOC entry 2905 (class 0 OID 16411)
+-- TOC entry 2910 (class 0 OID 16411)
 -- Dependencies: 206
 -- Data for Name: TranslationTo; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -480,11 +512,14 @@ COPY interrogator."TranslationTo" ("TranslationToId", "TranslationLinkId", "Phra
 24	28	62	\N
 25	28	63	\N
 26	29	66	\N
+27	32	70	\N
+28	33	72	\N
+29	34	74	\N
 \.
 
 
 --
--- TOC entry 2916 (class 0 OID 16624)
+-- TOC entry 2921 (class 0 OID 16624)
 -- Dependencies: 217
 -- Data for Name: UnitContent; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -494,11 +529,14 @@ COPY interrogator."UnitContent" ("UnitContentId", "UnitTreeId", "TranslationLink
 3	3	2
 25	3	28
 26	3	29
+27	3	32
+28	3	33
+29	3	34
 \.
 
 
 --
--- TOC entry 2914 (class 0 OID 16612)
+-- TOC entry 2919 (class 0 OID 16612)
 -- Dependencies: 215
 -- Data for Name: UnitTree; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -513,7 +551,25 @@ COPY interrogator."UnitTree" ("UnitTreeId", "ParentUnitTreeId", "Name") FROM std
 
 
 --
--- TOC entry 2923 (class 0 OID 0)
+-- TOC entry 2923 (class 0 OID 16769)
+-- Dependencies: 223
+-- Data for Name: tmp_insertjson; Type: TABLE DATA; Schema: interrogator; Owner: attila
+--
+
+COPY interrogator.tmp_insertjson (insertjson) FROM stdin;
+{"code":3,"from":["Ír"],"to":["Write"],"example":"Éppen írok","translatedExample":"I'm writing now"}
+{"code":3,"from":["Ír"],"to":["Write"],"example":"Éppen írok","translatedExample":"I'm writing now"}
+{"code":3,"fomLanguage":2,"toLanguage":1,"from":["Ír"],"to":["Write"],"example":"Éppen írok","translatedExample":"I'm writing now"}
+{"code":3,"fromLanguage":2,"toLanguage":1,"from":["Ír"],"to":["Write"],"example":"Éppen írok","translatedExample":"I'm writing now"}
+{"code":3,"fromLanguage":2,"toLanguage":1,"from":["Alszik"],"to":["Sleep"],"example":"","translatedExample":""}
+{"code":3,"fromLanguage":2,"toLanguage":1,"from":["Csinál","Készít"],"to":["Do"],"example":"Készítem a házimat","translatedExample":"I do my homework"}
+{"code":3,"fromLanguage":2,"toLanguage":1,"from":["Csinál","Készít"],"to":["Do"],"example":"Készítem a házimat","translatedExample":"I do my homework"}
+{"code":3,"toLanguage":1,"from":["Csinál","Készít"],"to":["Do"],"example":"Készítem a házimat","translatedExample":"I do my homework"}
+\.
+
+
+--
+-- TOC entry 2929 (class 0 OID 0)
 -- Dependencies: 209
 -- Name: Language_LanguageId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
@@ -522,52 +578,52 @@ SELECT pg_catalog.setval('interrogator."Language_LanguageId_seq"', 2, true);
 
 
 --
--- TOC entry 2924 (class 0 OID 0)
+-- TOC entry 2930 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: Phrase_PhraseId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 67, true);
+SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 77, true);
 
 
 --
--- TOC entry 2925 (class 0 OID 0)
+-- TOC entry 2931 (class 0 OID 0)
 -- Dependencies: 211
 -- Name: TranslationFrom_TranslationFromId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 31, true);
+SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 35, true);
 
 
 --
--- TOC entry 2926 (class 0 OID 0)
+-- TOC entry 2932 (class 0 OID 0)
 -- Dependencies: 212
 -- Name: TranslationLink_TranslationLinkId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 29, true);
+SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 35, true);
 
 
 --
--- TOC entry 2927 (class 0 OID 0)
+-- TOC entry 2933 (class 0 OID 0)
 -- Dependencies: 213
 -- Name: TranslationTo_TranslationToId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 26, true);
+SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 29, true);
 
 
 --
--- TOC entry 2928 (class 0 OID 0)
+-- TOC entry 2934 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: UnitContent_UnitContent_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 26, true);
+SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 29, true);
 
 
 --
--- TOC entry 2929 (class 0 OID 0)
+-- TOC entry 2935 (class 0 OID 0)
 -- Dependencies: 214
 -- Name: UnitTree_UnitTreeId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
@@ -576,7 +632,7 @@ SELECT pg_catalog.setval('interrogator."UnitTree_UnitTreeId_seq"', 5, true);
 
 
 --
--- TOC entry 2760 (class 2606 OID 16475)
+-- TOC entry 2765 (class 2606 OID 16475)
 -- Name: Language Language_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -585,7 +641,7 @@ ALTER TABLE ONLY interrogator."Language"
 
 
 --
--- TOC entry 2752 (class 2606 OID 16584)
+-- TOC entry 2757 (class 2606 OID 16584)
 -- Name: Phrase Phrase_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -594,7 +650,7 @@ ALTER TABLE ONLY interrogator."Phrase"
 
 
 --
--- TOC entry 2754 (class 2606 OID 16488)
+-- TOC entry 2759 (class 2606 OID 16488)
 -- Name: TranslationFrom TranslationFrom_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -603,7 +659,7 @@ ALTER TABLE ONLY interrogator."TranslationFrom"
 
 
 --
--- TOC entry 2758 (class 2606 OID 16565)
+-- TOC entry 2763 (class 2606 OID 16565)
 -- Name: TranslationLink TranslationLink_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -612,7 +668,7 @@ ALTER TABLE ONLY interrogator."TranslationLink"
 
 
 --
--- TOC entry 2756 (class 2606 OID 16528)
+-- TOC entry 2761 (class 2606 OID 16528)
 -- Name: TranslationTo TranslationTo_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -621,7 +677,7 @@ ALTER TABLE ONLY interrogator."TranslationTo"
 
 
 --
--- TOC entry 2764 (class 2606 OID 16628)
+-- TOC entry 2769 (class 2606 OID 16628)
 -- Name: UnitContent UnitContentId_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -630,7 +686,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
 
 
 --
--- TOC entry 2762 (class 2606 OID 16616)
+-- TOC entry 2767 (class 2606 OID 16616)
 -- Name: UnitTree UnitTree_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -639,7 +695,7 @@ ALTER TABLE ONLY interrogator."UnitTree"
 
 
 --
--- TOC entry 2765 (class 2606 OID 16476)
+-- TOC entry 2770 (class 2606 OID 16476)
 -- Name: Phrase FK_LanguageId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -648,7 +704,7 @@ ALTER TABLE ONLY interrogator."Phrase"
 
 
 --
--- TOC entry 2770 (class 2606 OID 16617)
+-- TOC entry 2775 (class 2606 OID 16617)
 -- Name: UnitTree FK_ParentUnitTreeId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -657,7 +713,7 @@ ALTER TABLE ONLY interrogator."UnitTree"
 
 
 --
--- TOC entry 2767 (class 2606 OID 16585)
+-- TOC entry 2772 (class 2606 OID 16585)
 -- Name: TranslationFrom FK_PhraseId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -666,7 +722,7 @@ ALTER TABLE ONLY interrogator."TranslationFrom"
 
 
 --
--- TOC entry 2769 (class 2606 OID 16590)
+-- TOC entry 2774 (class 2606 OID 16590)
 -- Name: TranslationTo FK_PhraseId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -675,7 +731,7 @@ ALTER TABLE ONLY interrogator."TranslationTo"
 
 
 --
--- TOC entry 2766 (class 2606 OID 16566)
+-- TOC entry 2771 (class 2606 OID 16566)
 -- Name: TranslationFrom FK_TranslationLinkId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -684,7 +740,7 @@ ALTER TABLE ONLY interrogator."TranslationFrom"
 
 
 --
--- TOC entry 2768 (class 2606 OID 16571)
+-- TOC entry 2773 (class 2606 OID 16571)
 -- Name: TranslationTo FK_TranslationLinkId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -693,7 +749,7 @@ ALTER TABLE ONLY interrogator."TranslationTo"
 
 
 --
--- TOC entry 2772 (class 2606 OID 16634)
+-- TOC entry 2777 (class 2606 OID 16634)
 -- Name: UnitContent FK_TranslationLinkId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -702,7 +758,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
 
 
 --
--- TOC entry 2771 (class 2606 OID 16629)
+-- TOC entry 2776 (class 2606 OID 16629)
 -- Name: UnitContent FK_UnitTreeId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -710,7 +766,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
     ADD CONSTRAINT "FK_UnitTreeId" FOREIGN KEY ("UnitTreeId") REFERENCES interrogator."UnitTree"("UnitTreeId");
 
 
--- Completed on 2020-01-18 23:08:50
+-- Completed on 2020-01-23 22:21:38
 
 --
 -- PostgreSQL database dump complete
