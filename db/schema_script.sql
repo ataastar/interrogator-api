@@ -5,7 +5,7 @@
 -- Dumped from database version 12.0
 -- Dumped by pg_dump version 12.0
 
--- Started on 2020-01-24 22:14:16
+-- Started on 2020-01-26 16:25:21
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -372,14 +372,19 @@ CREATE VIEW interrogator."UnitContentJson" AS
    FROM ( SELECT t."Name" AS name,
             t."UnitTreeId" AS code,
             ( SELECT array_to_json(array_agg(b.*)) AS array_to_json
-                   FROM ( SELECT ( SELECT array_to_json(array_agg("Phrase"."Text")) AS fromphrase
-                                   FROM (interrogator."TranslationFrom" translationfrom
-                                     JOIN interrogator."Phrase" ON (("Phrase"."PhraseId" = translationfrom."PhraseId")))
-                                  WHERE (translationfrom."TranslationLinkId" = l."TranslationLinkId")) AS "from",
-                            ( SELECT array_to_json(array_agg("Phrase"."Text")) AS tophrase
-                                   FROM (interrogator."TranslationTo" translationto
-                                     JOIN interrogator."Phrase" ON (("Phrase"."PhraseId" = translationto."PhraseId")))
-                                  WHERE (translationto."TranslationLinkId" = l."TranslationLinkId")) AS "to",
+                   FROM ( SELECT c."UnitContentId" AS id,
+                            ( SELECT array_to_json(array_agg(row_to_json(phrase.*))) AS array_to_json
+                                   FROM ( SELECT translationfrom."TranslationFromId" AS id,
+    "Phrase"."Text" AS phrase
+   FROM (interrogator."TranslationFrom" translationfrom
+     JOIN interrogator."Phrase" ON (("Phrase"."PhraseId" = translationfrom."PhraseId")))
+  WHERE (translationfrom."TranslationLinkId" = l."TranslationLinkId")) phrase) AS "from",
+                            ( SELECT array_to_json(array_agg(row_to_json(phrase.*))) AS array_to_json
+                                   FROM ( SELECT translationto."TranslationToId" AS id,
+    "Phrase"."Text" AS phrase
+   FROM (interrogator."TranslationTo" translationto
+     JOIN interrogator."Phrase" ON (("Phrase"."PhraseId" = translationto."PhraseId")))
+  WHERE (translationto."TranslationLinkId" = l."TranslationLinkId")) phrase) AS "to",
                             l."Example" AS example,
                             l."TranslatedExample" AS "translatedExample"
                            FROM (interrogator."TranslationLink" l
@@ -809,7 +814,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
     ADD CONSTRAINT "FK_UnitTreeId" FOREIGN KEY ("UnitTreeId") REFERENCES interrogator."UnitTree"("UnitTreeId");
 
 
--- Completed on 2020-01-24 22:14:16
+-- Completed on 2020-01-26 16:25:22
 
 --
 -- PostgreSQL database dump complete

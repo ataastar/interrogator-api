@@ -17,8 +17,9 @@ FEATURES
  - retrieves the unit content by unit id
  - inserts unit content to db
 IN PROGRESS
- - remove unit content
-TODO tasks
- - check data on insert
  - update phrase
- - remove phase, tranlationLink, unitContent
+TODO tasks
+ - check data on insert, in db level
+ - improve delete on db level
+ - plan user related db and connections
+ - plan test results
