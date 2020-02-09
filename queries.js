@@ -30,6 +30,9 @@ const pool = new Pool({
 
 const getUnitContent = (request, response) => {
   const unitId = parseInt(request.params.unitId)
+  if (unitId == null) {
+    response.status(200).json('{}');
+  }
   pool.query('SELECT content FROM "UnitContentJson" Where code = $1', [unitId], (error, results) => {
     if (error) {
       console.log(error)
