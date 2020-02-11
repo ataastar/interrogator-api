@@ -5,7 +5,7 @@
 -- Dumped from database version 12.0
 -- Dumped by pg_dump version 12.0
 
--- Started on 2020-01-26 16:25:21
+-- Started on 2020-02-11 22:41:02
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -119,7 +119,7 @@ $$;
 ALTER FUNCTION interrogator."deleteUnitContent"("unitContentId" bigint) OWNER TO attila;
 
 --
--- TOC entry 237 (class 1255 OID 16762)
+-- TOC entry 240 (class 1255 OID 16762)
 -- Name: insertunitcontent(json); Type: PROCEDURE; Schema: interrogator; Owner: postgres
 --
 
@@ -138,17 +138,19 @@ select * from json_populate_record(
 	null::"InsertUnitContentTable",
 	json_input)
 ),
+languages as (select RootFromLanguageId FromLangId, RootToLanguageId ToLangId from json_data
+				join "UnitWithRoot" unit on unit."UnitTreeId" = json_data.code),
 tl as (insert into "TranslationLink"("Example", "TranslatedExample")
-	   select example, "translatedExample" from json_data d
+	   select example, "translatedExample" from json_data
 	   RETURNING "TranslationLinkId"),
 uc as (insert into "UnitContent"("UnitTreeId", "TranslationLinkId")
 	   select code, "TranslationLinkId" from json_data, tl
 	   returning *),
 phraseFrom as (insert into "Phrase"("LanguageId", "Text")
-			   select "toLanguage", json_array_elements_text("from"::json) from json_data
+			   select l.ToLangId, json_array_elements_text("from"::json) from json_data, languages l
 			   returning *),
 phraseTo as (insert into "Phrase"("LanguageId", "Text")
-		  	 select "fromLanguage", json_array_elements_text("to"::json) from json_data
+		  	 select l.FromLangId, json_array_elements_text("to"::json) from json_data, languages l
 		  	 returning *),
 tFrom as (insert into "TranslationFrom"("TranslationLinkId", "PhraseId")
 	   select tl."TranslationLinkId", phraseFrom."PhraseId" from tl, phraseFrom
@@ -171,9 +173,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE interrogator."InsertUnitContentTable" (
-    code bigint,
-    "fromLanguage" bigint,
-    "toLanguage" bigint,
+    id bigint,
     "from" character(2000),
     "to" character(2000),
     example character(2000),
@@ -355,7 +355,9 @@ ALTER TABLE interrogator."UnitContent" OWNER TO attila;
 CREATE TABLE interrogator."UnitTree" (
     "UnitTreeId" bigint NOT NULL,
     "ParentUnitTreeId" bigint,
-    "Name" character varying(255) NOT NULL
+    "Name" character varying(255) NOT NULL,
+    "FromLanguageId" bigint,
+    "ToLanguageId" bigint
 );
 
 
@@ -374,13 +376,13 @@ CREATE VIEW interrogator."UnitContentJson" AS
             ( SELECT array_to_json(array_agg(b.*)) AS array_to_json
                    FROM ( SELECT c."UnitContentId" AS id,
                             ( SELECT array_to_json(array_agg(row_to_json(phrase.*))) AS array_to_json
-                                   FROM ( SELECT translationfrom."TranslationFromId" AS id,
+                                   FROM ( SELECT translationfrom."TranslationFromId" AS "translationId",
     "Phrase"."Text" AS phrase
    FROM (interrogator."TranslationFrom" translationfrom
      JOIN interrogator."Phrase" ON (("Phrase"."PhraseId" = translationfrom."PhraseId")))
   WHERE (translationfrom."TranslationLinkId" = l."TranslationLinkId")) phrase) AS "from",
                             ( SELECT array_to_json(array_agg(row_to_json(phrase.*))) AS array_to_json
-                                   FROM ( SELECT translationto."TranslationToId" AS id,
+                                   FROM ( SELECT translationto."TranslationToId" AS "translationId",
     "Phrase"."Text" AS phrase
    FROM (interrogator."TranslationTo" translationto
      JOIN interrogator."Phrase" ON (("Phrase"."PhraseId" = translationto."PhraseId")))
@@ -446,6 +448,49 @@ ALTER TABLE interrogator."UnitTree" ALTER COLUMN "UnitTreeId" ADD GENERATED ALWA
 
 
 --
+-- TOC entry 222 (class 1259 OID 16821)
+-- Name: UnitWithRoot; Type: VIEW; Schema: interrogator; Owner: attila
+--
+
+CREATE VIEW interrogator."UnitWithRoot" AS
+ WITH RECURSIVE unitswithroot AS (
+         SELECT ut."UnitTreeId",
+            ut."ParentUnitTreeId",
+            ut."Name",
+            ut."UnitTreeId" AS rootid,
+            ut."FromLanguageId" AS rootfromlanguageid,
+            ut."ToLanguageId" AS roottolanguageid
+           FROM interrogator."UnitTree" ut
+          WHERE (ut."ParentUnitTreeId" IS NULL)
+        UNION
+         SELECT child."UnitTreeId",
+            child."ParentUnitTreeId",
+            child."Name",
+            p.rootid,
+            p.rootfromlanguageid,
+            p.roottolanguageid
+           FROM (interrogator."UnitTree" child
+             JOIN unitswithroot p ON ((child."ParentUnitTreeId" = p."UnitTreeId")))
+        )
+ SELECT unitswithroot."UnitTreeId",
+    unitswithroot.rootid,
+    unitswithroot.rootfromlanguageid,
+    unitswithroot.roottolanguageid
+   FROM unitswithroot;
+
+
+ALTER TABLE interrogator."UnitWithRoot" OWNER TO attila;
+
+--
+-- TOC entry 2927 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: VIEW "UnitWithRoot"; Type: COMMENT; Schema: interrogator; Owner: attila
+--
+
+COMMENT ON VIEW interrogator."UnitWithRoot" IS 'Returns the UnitTreeId and its Root UniTreeId and language ids';
+
+
+--
 -- TOC entry 221 (class 1259 OID 16769)
 -- Name: tmp_insertjson; Type: TABLE; Schema: interrogator; Owner: attila
 --
@@ -458,17 +503,17 @@ CREATE TABLE interrogator.tmp_insertjson (
 ALTER TABLE interrogator.tmp_insertjson OWNER TO attila;
 
 --
--- TOC entry 2915 (class 0 OID 16763)
+-- TOC entry 2920 (class 0 OID 16763)
 -- Dependencies: 220
 -- Data for Name: InsertUnitContentTable; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
 
-COPY interrogator."InsertUnitContentTable" (code, "fromLanguage", "toLanguage", "from", "to", example, "translatedExample") FROM stdin;
+COPY interrogator."InsertUnitContentTable" (id, "from", "to", example, "translatedExample") FROM stdin;
 \.
 
 
 --
--- TOC entry 2905 (class 0 OID 16447)
+-- TOC entry 2910 (class 0 OID 16447)
 -- Dependencies: 208
 -- Data for Name: Language; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -480,7 +525,7 @@ COPY interrogator."Language" ("LanguageId", "Name", "Code") FROM stdin;
 
 
 --
--- TOC entry 2901 (class 0 OID 16395)
+-- TOC entry 2906 (class 0 OID 16395)
 -- Dependencies: 204
 -- Data for Name: Phrase; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -510,7 +555,7 @@ COPY interrogator."Phrase" ("PhraseId", "LanguageId", "Text", "Pronunciation", "
 
 
 --
--- TOC entry 2902 (class 0 OID 16403)
+-- TOC entry 2907 (class 0 OID 16403)
 -- Dependencies: 205
 -- Data for Name: TranslationFrom; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -530,7 +575,7 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 
 
 --
--- TOC entry 2904 (class 0 OID 16419)
+-- TOC entry 2909 (class 0 OID 16419)
 -- Dependencies: 207
 -- Data for Name: TranslationLink; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -547,7 +592,7 @@ COPY interrogator."TranslationLink" ("TranslationLinkId", "Example", "Translated
 
 
 --
--- TOC entry 2903 (class 0 OID 16411)
+-- TOC entry 2908 (class 0 OID 16411)
 -- Dependencies: 206
 -- Data for Name: TranslationTo; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -567,7 +612,7 @@ COPY interrogator."TranslationTo" ("TranslationToId", "TranslationLinkId", "Phra
 
 
 --
--- TOC entry 2914 (class 0 OID 16624)
+-- TOC entry 2919 (class 0 OID 16624)
 -- Dependencies: 217
 -- Data for Name: UnitContent; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -584,22 +629,22 @@ COPY interrogator."UnitContent" ("UnitContentId", "UnitTreeId", "TranslationLink
 
 
 --
--- TOC entry 2912 (class 0 OID 16612)
+-- TOC entry 2917 (class 0 OID 16612)
 -- Dependencies: 215
 -- Data for Name: UnitTree; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
 
-COPY interrogator."UnitTree" ("UnitTreeId", "ParentUnitTreeId", "Name") FROM stdin;
-1	\N	Project 2.
-2	1	Unit 3
-3	2	A
-4	2	B
-5	2	C
+COPY interrogator."UnitTree" ("UnitTreeId", "ParentUnitTreeId", "Name", "FromLanguageId", "ToLanguageId") FROM stdin;
+2	1	Unit 3	\N	\N
+3	2	A	\N	\N
+4	2	B	\N	\N
+5	2	C	\N	\N
+1	\N	Project 2.	2	1
 \.
 
 
 --
--- TOC entry 2916 (class 0 OID 16769)
+-- TOC entry 2921 (class 0 OID 16769)
 -- Dependencies: 221
 -- Data for Name: tmp_insertjson; Type: TABLE DATA; Schema: interrogator; Owner: attila
 --
@@ -613,11 +658,23 @@ COPY interrogator.tmp_insertjson (insertjson) FROM stdin;
 {"code":3,"fromLanguage":2,"toLanguage":1,"from":["Csinál","Készít"],"to":["Do"],"example":"Készítem a házimat","translatedExample":"I do my homework"}
 {"code":3,"fromLanguage":2,"toLanguage":1,"from":["Csinál","Készít"],"to":["Do"],"example":"Készítem a házimat","translatedExample":"I do my homework"}
 {"code":3,"toLanguage":1,"from":["Csinál","Készít"],"to":["Do"],"example":"Készítem a házimat","translatedExample":"I do my homework"}
+{"id":"3","from":[{"phrase":"sdkfjkh"}],"to":[{"phrase":"hjhj"}]}
+{"id":"3","from":[{"phrase":"jhjh"}],"to":[{"phrase":"jhjh"}]}
+{"id":"3","from":[{"phrase":"hjh"}],"to":[{"phrase":"jhjh"}],"example":"","translatedExample":""}
+{"id":"3","from":[{"phrase":"jklj"}],"to":[{"phrase":"kjkj"}],"example":"","translatedExample":""}
+{"id":"3","from":[{"phrase":"kjkj"}],"to":[{"phrase":"kjkj"}]}
+{"from":[{"phrase":"teszt"}],"to":[{"phrase":"test"}]}
+{"id":"3","from":[{"phrase":"teszt"}],"to":[{"phrase":"test"}]}
+{"id":"3","from":[{"phrase":"teszt"}],"to":[{"phrase":"test"}],"example":"","translatedExample":""}
+{"id":"3","from":[{"phrase":"teszt"}],"to":[{"phrase":"test"}]}
+{"id":"3","from":[{"phrase":"teszt"}],"to":[{"phrase":"test"}],"example":"","translatedExample":""}
+{"id":"3","from":[{"phrase":"tezst"}],"to":[{"phrase":"test"}],"example":"teszt","translatedExample":"test"}
+{"id":"3","from":[{"phrase":"1"},{"phrase":"2"}],"to":[{"phrase":"10"},{"phrase":"20"},{"phrase":"30"}],"example":"3","translatedExample":"40"}
 \.
 
 
 --
--- TOC entry 2922 (class 0 OID 0)
+-- TOC entry 2928 (class 0 OID 0)
 -- Dependencies: 209
 -- Name: Language_LanguageId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
@@ -626,16 +683,16 @@ SELECT pg_catalog.setval('interrogator."Language_LanguageId_seq"', 2, true);
 
 
 --
--- TOC entry 2923 (class 0 OID 0)
+-- TOC entry 2929 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: Phrase_PhraseId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 77, true);
+SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 82, true);
 
 
 --
--- TOC entry 2924 (class 0 OID 0)
+-- TOC entry 2930 (class 0 OID 0)
 -- Dependencies: 211
 -- Name: TranslationFrom_TranslationFromId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
@@ -644,16 +701,16 @@ SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"',
 
 
 --
--- TOC entry 2925 (class 0 OID 0)
+-- TOC entry 2931 (class 0 OID 0)
 -- Dependencies: 212
 -- Name: TranslationLink_TranslationLinkId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 35, true);
+SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 45, true);
 
 
 --
--- TOC entry 2926 (class 0 OID 0)
+-- TOC entry 2932 (class 0 OID 0)
 -- Dependencies: 213
 -- Name: TranslationTo_TranslationToId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
@@ -662,16 +719,16 @@ SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 29,
 
 
 --
--- TOC entry 2927 (class 0 OID 0)
+-- TOC entry 2933 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: UnitContent_UnitContent_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 29, true);
+SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 34, true);
 
 
 --
--- TOC entry 2928 (class 0 OID 0)
+-- TOC entry 2934 (class 0 OID 0)
 -- Dependencies: 214
 -- Name: UnitTree_UnitTreeId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
@@ -680,7 +737,7 @@ SELECT pg_catalog.setval('interrogator."UnitTree_UnitTreeId_seq"', 5, true);
 
 
 --
--- TOC entry 2760 (class 2606 OID 16475)
+-- TOC entry 2764 (class 2606 OID 16475)
 -- Name: Language Language_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -689,7 +746,7 @@ ALTER TABLE ONLY interrogator."Language"
 
 
 --
--- TOC entry 2752 (class 2606 OID 16584)
+-- TOC entry 2756 (class 2606 OID 16584)
 -- Name: Phrase Phrase_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -698,7 +755,7 @@ ALTER TABLE ONLY interrogator."Phrase"
 
 
 --
--- TOC entry 2754 (class 2606 OID 16488)
+-- TOC entry 2758 (class 2606 OID 16488)
 -- Name: TranslationFrom TranslationFrom_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -707,7 +764,7 @@ ALTER TABLE ONLY interrogator."TranslationFrom"
 
 
 --
--- TOC entry 2758 (class 2606 OID 16565)
+-- TOC entry 2762 (class 2606 OID 16565)
 -- Name: TranslationLink TranslationLink_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -716,7 +773,7 @@ ALTER TABLE ONLY interrogator."TranslationLink"
 
 
 --
--- TOC entry 2756 (class 2606 OID 16528)
+-- TOC entry 2760 (class 2606 OID 16528)
 -- Name: TranslationTo TranslationTo_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -725,7 +782,7 @@ ALTER TABLE ONLY interrogator."TranslationTo"
 
 
 --
--- TOC entry 2764 (class 2606 OID 16628)
+-- TOC entry 2768 (class 2606 OID 16628)
 -- Name: UnitContent UnitContentId_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -734,7 +791,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
 
 
 --
--- TOC entry 2762 (class 2606 OID 16616)
+-- TOC entry 2766 (class 2606 OID 16616)
 -- Name: UnitTree UnitTree_pkey; Type: CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -743,7 +800,7 @@ ALTER TABLE ONLY interrogator."UnitTree"
 
 
 --
--- TOC entry 2765 (class 2606 OID 16476)
+-- TOC entry 2769 (class 2606 OID 16476)
 -- Name: Phrase FK_LanguageId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -752,7 +809,7 @@ ALTER TABLE ONLY interrogator."Phrase"
 
 
 --
--- TOC entry 2770 (class 2606 OID 16617)
+-- TOC entry 2774 (class 2606 OID 16617)
 -- Name: UnitTree FK_ParentUnitTreeId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -761,7 +818,7 @@ ALTER TABLE ONLY interrogator."UnitTree"
 
 
 --
--- TOC entry 2766 (class 2606 OID 16585)
+-- TOC entry 2770 (class 2606 OID 16585)
 -- Name: TranslationFrom FK_PhraseId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -770,7 +827,7 @@ ALTER TABLE ONLY interrogator."TranslationFrom"
 
 
 --
--- TOC entry 2768 (class 2606 OID 16590)
+-- TOC entry 2772 (class 2606 OID 16590)
 -- Name: TranslationTo FK_PhraseId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -779,7 +836,7 @@ ALTER TABLE ONLY interrogator."TranslationTo"
 
 
 --
--- TOC entry 2772 (class 2606 OID 16634)
+-- TOC entry 2776 (class 2606 OID 16634)
 -- Name: UnitContent FK_TranslationLinkId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -788,7 +845,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
 
 
 --
--- TOC entry 2769 (class 2606 OID 16799)
+-- TOC entry 2773 (class 2606 OID 16799)
 -- Name: TranslationTo FK_TranslationLinkId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -797,7 +854,7 @@ ALTER TABLE ONLY interrogator."TranslationTo"
 
 
 --
--- TOC entry 2767 (class 2606 OID 16804)
+-- TOC entry 2771 (class 2606 OID 16804)
 -- Name: TranslationFrom FK_TranslationLinkId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -806,7 +863,7 @@ ALTER TABLE ONLY interrogator."TranslationFrom"
 
 
 --
--- TOC entry 2771 (class 2606 OID 16629)
+-- TOC entry 2775 (class 2606 OID 16629)
 -- Name: UnitContent FK_UnitTreeId; Type: FK CONSTRAINT; Schema: interrogator; Owner: attila
 --
 
@@ -814,7 +871,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
     ADD CONSTRAINT "FK_UnitTreeId" FOREIGN KEY ("UnitTreeId") REFERENCES interrogator."UnitTree"("UnitTreeId");
 
 
--- Completed on 2020-01-26 16:25:22
+-- Completed on 2020-02-11 22:41:03
 
 --
 -- PostgreSQL database dump complete
