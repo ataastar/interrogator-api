@@ -67,8 +67,27 @@ const insertUnitContent = (request, response) => {
   })
 }
 
+
+const deleteUnitContent = (request, response) => {
+  const unitContentId = request.body.unitContentId;
+  pool.query('select interrogator."deleteUnitContent"($1) AS deleteresult', [unitContentId], (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error);
+    } else {
+      let deleteResult = results.rows[0].deleteresult;
+      if (deleteResult) {
+        response.status(204).json();
+      } else {
+        response.status(404).json();
+      }
+    }
+  })
+}
+
 module.exports = {
   getUnitContent,
   getUnitTreeGroup,
-  insertUnitContent
+  insertUnitContent,
+  deleteUnitContent
 }
