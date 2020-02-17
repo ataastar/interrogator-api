@@ -5,7 +5,7 @@
 -- Dumped from database version 12.0
 -- Dumped by pg_dump version 12.0
 
--- Started on 2020-02-11 22:41:02
+-- Started on 2020-02-17 22:07:26
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -139,12 +139,12 @@ select * from json_populate_record(
 	json_input)
 ),
 languages as (select RootFromLanguageId FromLangId, RootToLanguageId ToLangId from json_data
-				join "UnitWithRoot" unit on unit."UnitTreeId" = json_data.code),
+				join "UnitWithRoot" unit on unit."UnitTreeId" = json_data.id),
 tl as (insert into "TranslationLink"("Example", "TranslatedExample")
 	   select example, "translatedExample" from json_data
 	   RETURNING "TranslationLinkId"),
 uc as (insert into "UnitContent"("UnitTreeId", "TranslationLinkId")
-	   select code, "TranslationLinkId" from json_data, tl
+	   select json_data.id, "TranslationLinkId" from json_data, tl
 	   returning *),
 phraseFrom as (insert into "Phrase"("LanguageId", "Text")
 			   select l.ToLangId, json_array_elements_text("from"::json) from json_data, languages l
@@ -534,10 +534,6 @@ COPY interrogator."Phrase" ("PhraseId", "LanguageId", "Text", "Pronunciation", "
 1	2	Lopni	\N	\N
 2	1	Steal	\N	\N
 3	1	to steal	\N	\N
-4	2	Vesz	\N	\N
-5	2	Venni	\N	\N
-6	1	buy	\N	\N
-7	1	to buy	\N	\N
 62	1	cut	\N	\N
 63	1	to cut	\N	\N
 64	2	Vág	\N	\N
@@ -551,6 +547,75 @@ COPY interrogator."Phrase" ("PhraseId", "LanguageId", "Text", "Pronunciation", "
 74	2	Do	\N	\N
 75	1	Csinál	\N	\N
 76	1	Készít	\N	\N
+85	2	eat	\N	\N
+86	1	eszik	\N	\N
+110	2	test	\N	\N
+111	1	reszt	\N	\N
+112	2	beautiful	\N	\N
+113	1	gyönyörű	\N	\N
+114	2	cloudy	\N	\N
+115	1	felhős	\N	\N
+116	2	bridge	\N	\N
+117	1	híd	\N	\N
+118	2	canal	\N	\N
+119	1	csatorna	\N	\N
+120	2	capital	\N	\N
+121	1	főváros	\N	\N
+122	2	city	\N	\N
+123	1	nagyváros	\N	\N
+124	1	város	\N	\N
+125	2	cliff	\N	\N
+126	1	szikla	\N	\N
+127	2	coast	\N	\N
+128	1	tengerpart	\N	\N
+129	2	deep	\N	\N
+130	1	mély	\N	\N
+131	2	forest	\N	\N
+132	1	erdő	\N	\N
+133	2	grand	\N	\N
+134	1	nemes	\N	\N
+135	1	előkelő	\N	\N
+136	2	halfway	\N	\N
+137	1	félúton	\N	\N
+138	2	high	\N	\N
+139	1	magas	\N	\N
+140	2	hill	\N	\N
+141	1	hegy	\N	\N
+142	1	domb	\N	\N
+143	2	island	\N	\N
+144	1	sziget	\N	\N
+145	2	Isle of Wight	\N	\N
+146	1	Wight-sziget	\N	\N
+147	2	kilometre	\N	\N
+148	1	kilométer	\N	\N
+149	2	lake	\N	\N
+150	1	tó	\N	\N
+151	2	long	\N	\N
+152	1	hosszú	\N	\N
+153	2	march	\N	\N
+154	1	menetelni	\N	\N
+157	2	metre	\N	\N
+158	1	méter	\N	\N
+161	2	million	\N	\N
+162	1	millió	\N	\N
+163	2	monster	\N	\N
+164	1	szörny	\N	\N
+167	2	mountain	\N	\N
+168	1	hegy	\N	\N
+169	2	neither ... nor	\N	\N
+170	1	sem ... sem	\N	\N
+171	2	river	\N	\N
+172	1	folyó	\N	\N
+173	2	sea	\N	\N
+174	1	tenger	\N	\N
+175	2	the Thames	\N	\N
+176	1	Temze	\N	\N
+177	2	tunnel	\N	\N
+178	1	alagút	\N	\N
+179	2	valley	\N	\N
+180	1	völgy	\N	\N
+181	2	wide	\N	\N
+182	1	széles	\N	\N
 \.
 
 
@@ -562,8 +627,6 @@ COPY interrogator."Phrase" ("PhraseId", "LanguageId", "Text", "Pronunciation", "
 
 COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "PhraseId", "Order") FROM stdin;
 1	1	1	\N
-3	2	4	\N
-4	2	5	\N
 29	28	64	\N
 30	28	65	\N
 31	29	67	\N
@@ -571,6 +634,42 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 33	33	73	\N
 34	34	75	\N
 35	34	76	\N
+37	47	86	\N
+49	59	111	\N
+50	60	113	\N
+51	61	115	\N
+52	64	117	\N
+53	65	119	\N
+54	66	121	\N
+55	67	123	\N
+56	67	124	\N
+57	68	126	\N
+58	69	128	\N
+59	70	130	\N
+60	71	132	\N
+61	72	134	\N
+62	72	135	\N
+63	73	137	\N
+64	74	139	\N
+65	75	141	\N
+66	75	142	\N
+67	76	144	\N
+68	77	146	\N
+69	78	148	\N
+70	79	150	\N
+71	80	152	\N
+72	81	154	\N
+74	83	158	\N
+76	85	162	\N
+77	86	164	\N
+79	88	168	\N
+80	89	170	\N
+81	90	172	\N
+82	91	174	\N
+83	92	176	\N
+84	93	178	\N
+85	94	180	\N
+86	95	182	\N
 \.
 
 
@@ -582,12 +681,44 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 
 COPY interrogator."TranslationLink" ("TranslationLinkId", "Example", "TranslatedExample", "ImageName") FROM stdin;
 1	Valaki ellopta a pénztárcámat	Someone stole my wallet	\N
-2	Vesz egy labdát	Buy a ball	\N
+59	\N	\N	\N
+60	\N	\N	\N
+61	\N	\N	\N
+64	\N	\N	\N
+65			\N
+66			\N
+67			\N
+68			\N
+69			\N
+70			\N
+71			\N
+72			\N
+73			\N
+74			\N
+75			\N
+76			\N
+77			\N
+78			\N
+79			\N
+80			\N
+81			\N
+83	\N	\N	\N
 28	Vágja a kenyeret	Cut the bread	\N
 29	Dobja a labdát	Throw the ball	\N
+85	\N	\N	\N
+86			\N
 32	Éppen írok	I'm writing now	\N
 33			\N
 34	Készítem a házimat	I do my homework	\N
+88	\N	\N	\N
+89			\N
+90			\N
+91			\N
+92			\N
+93			\N
+94			\N
+95			\N
+47	\N	\N	\N
 \.
 
 
@@ -600,14 +731,45 @@ COPY interrogator."TranslationLink" ("TranslationLinkId", "Example", "Translated
 COPY interrogator."TranslationTo" ("TranslationToId", "TranslationLinkId", "PhraseId", "Order") FROM stdin;
 1	1	2	\N
 2	1	3	\N
-3	2	6	\N
-4	2	7	\N
 24	28	62	\N
 25	28	63	\N
 26	29	66	\N
 27	32	70	\N
 28	33	72	\N
 29	34	74	\N
+31	47	85	\N
+44	59	110	\N
+45	60	112	\N
+46	61	114	\N
+47	64	116	\N
+48	65	118	\N
+49	66	120	\N
+50	67	122	\N
+51	68	125	\N
+52	69	127	\N
+53	70	129	\N
+54	71	131	\N
+55	72	133	\N
+56	73	136	\N
+57	74	138	\N
+58	75	140	\N
+59	76	143	\N
+60	77	145	\N
+61	78	147	\N
+62	79	149	\N
+63	80	151	\N
+64	81	153	\N
+66	83	157	\N
+68	85	161	\N
+69	86	163	\N
+71	88	167	\N
+72	89	169	\N
+73	90	171	\N
+74	91	173	\N
+75	92	175	\N
+76	93	177	\N
+77	94	179	\N
+78	95	181	\N
 \.
 
 
@@ -619,12 +781,44 @@ COPY interrogator."TranslationTo" ("TranslationToId", "TranslationLinkId", "Phra
 
 COPY interrogator."UnitContent" ("UnitContentId", "UnitTreeId", "TranslationLinkId") FROM stdin;
 1	3	1
-3	3	2
 25	3	28
 26	3	29
 27	3	32
 28	3	33
 29	3	34
+36	3	47
+48	3	59
+49	7	60
+50	8	61
+53	7	64
+54	7	65
+55	7	66
+56	7	67
+57	7	68
+58	7	69
+59	7	70
+60	7	71
+61	7	72
+62	7	73
+63	7	74
+64	7	75
+65	7	76
+66	7	77
+67	7	78
+68	7	79
+69	7	80
+70	7	81
+72	7	83
+74	7	85
+75	7	86
+77	7	88
+78	7	89
+79	7	90
+80	7	91
+81	7	92
+82	7	93
+83	7	94
+84	7	95
 \.
 
 
@@ -640,6 +834,15 @@ COPY interrogator."UnitTree" ("UnitTreeId", "ParentUnitTreeId", "Name", "FromLan
 4	2	B	\N	\N
 5	2	C	\N	\N
 1	\N	Project 2.	2	1
+6	1	Unit 5	\N	\N
+7	6	A	\N	\N
+8	6	B\n	\N	\N
+9	6	C	\N	\N
+10	6	D	\N	\N
+11	6	Culture	\N	\N
+12	6	English across the curriculum	\N	\N
+13	6	Revision	\N	\N
+14	6	Your project	\N	\N
 \.
 
 
@@ -670,6 +873,61 @@ COPY interrogator.tmp_insertjson (insertjson) FROM stdin;
 {"id":"3","from":[{"phrase":"teszt"}],"to":[{"phrase":"test"}],"example":"","translatedExample":""}
 {"id":"3","from":[{"phrase":"tezst"}],"to":[{"phrase":"test"}],"example":"teszt","translatedExample":"test"}
 {"id":"3","from":[{"phrase":"1"},{"phrase":"2"}],"to":[{"phrase":"10"},{"phrase":"20"},{"phrase":"30"}],"example":"3","translatedExample":"40"}
+{"id":"3","from":[null,"0"],"to":[null,"0"],"example":"","translatedExample":""}
+{"id":"3","from":["0"],"to":["0"],"example":"","translatedExample":""}
+{"id":"3","from":[""],"to":[""],"example":"","translatedExample":""}
+{"id":"3","from":[""],"to":[""],"example":"","translatedExample":""}
+{"id":"3","from":["teszt"],"to":["test"]}
+{"id":"3","from":["teszt"],"to":["test"],"example":"","translatedExample":""}
+{"id":"3","from":["eszik"],"to":["eat"]}
+{"id":"3","from":["eszik"],"to":["have breakfast","has breakfast"]}
+{"id":"3","from":["sf"],"to":["sf"]}
+{"id":"3","from":["t"],"to":["t"]}
+{"id":"3","from":["f"],"to":["f"]}
+{"id":"3","from":["df"],"to":["df"]}
+{"id":"3","from":["a"],"to":["a"]}
+{"id":"3","from":["b"],"to":["b"]}
+{"id":"3","from":["a"],"to":["a"]}
+{"id":"3","from":["bb"],"to":["ab"],"example":"","translatedExample":""}
+{"id":"3","from":["b"],"to":["b"],"example":"","translatedExample":""}
+{"id":"3","from":["s"],"to":["j"]}
+{"id":"3","from":["reszt"],"to":["test"]}
+{"id":"7","from":["gyönyörű"],"to":["beautiful"]}
+{"id":"8","from":["felhős"],"to":["cloudy"]}
+{"from":["híd"],"to":["bridge"]}
+{"from":["híd"],"to":["bridge"]}
+{"id":"7","from":["híd"],"to":["bridge"]}
+{"id":"7","from":["csatorna"],"to":["canal"],"example":"","translatedExample":""}
+{"id":"7","from":["főváros"],"to":["capital"],"example":"","translatedExample":""}
+{"id":"7","from":["nagyváros","város"],"to":["city"],"example":"","translatedExample":""}
+{"id":"7","from":["szikla"],"to":["cliff"],"example":"","translatedExample":""}
+{"id":"7","from":["tengerpart"],"to":["coast"],"example":"","translatedExample":""}
+{"id":"7","from":["mély"],"to":["deep"],"example":"","translatedExample":""}
+{"id":"7","from":["erdő"],"to":["forest"],"example":"","translatedExample":""}
+{"id":"7","from":["nemes","előkelő"],"to":["grand"],"example":"","translatedExample":""}
+{"id":"7","from":["félúton"],"to":["halfway"],"example":"","translatedExample":""}
+{"id":"7","from":["magas"],"to":["high"],"example":"","translatedExample":""}
+{"id":"7","from":["hegy","domb"],"to":["hill"],"example":"","translatedExample":""}
+{"id":"7","from":["sziget"],"to":["island"],"example":"","translatedExample":""}
+{"id":"7","from":["Wight-sziget"],"to":["Isle of Wight"],"example":"","translatedExample":""}
+{"id":"7","from":["kilométer"],"to":["kilometre"],"example":"","translatedExample":""}
+{"id":"7","from":["tó"],"to":["lake"],"example":"","translatedExample":""}
+{"id":"7","from":["hosszú"],"to":["long"],"example":"","translatedExample":""}
+{"id":"7","from":["menetelni"],"to":["march"],"example":"","translatedExample":""}
+{"id":"7","from":["méter"],"to":["merte"],"example":"","translatedExample":""}
+{"id":"7","from":["méter"],"to":["metre"]}
+{"id":"7","from":["millió"],"to":["millon"],"example":"","translatedExample":""}
+{"id":"7","from":["millió"],"to":["million"]}
+{"id":"7","from":["szörny"],"to":["monster"],"example":"","translatedExample":""}
+{"id":"7","from":["hely"],"to":["mountain"],"example":"","translatedExample":""}
+{"id":"7","from":["hegy"],"to":["mountain"]}
+{"id":"7","from":["sem ... sem"],"to":["neither ... nor"],"example":"","translatedExample":""}
+{"id":"7","from":["folyó"],"to":["river"],"example":"","translatedExample":""}
+{"id":"7","from":["tenger"],"to":["sea"],"example":"","translatedExample":""}
+{"id":"7","from":["Temze"],"to":["the Thames"],"example":"","translatedExample":""}
+{"id":"7","from":["alagút"],"to":["tunnel"],"example":"","translatedExample":""}
+{"id":"7","from":["völgy"],"to":["valley"],"example":"","translatedExample":""}
+{"id":"7","from":["széles"],"to":["wide"],"example":"","translatedExample":""}
 \.
 
 
@@ -688,7 +946,7 @@ SELECT pg_catalog.setval('interrogator."Language_LanguageId_seq"', 2, true);
 -- Name: Phrase_PhraseId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 82, true);
+SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 182, true);
 
 
 --
@@ -697,7 +955,7 @@ SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 82, true);
 -- Name: TranslationFrom_TranslationFromId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 35, true);
+SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 86, true);
 
 
 --
@@ -706,7 +964,7 @@ SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"',
 -- Name: TranslationLink_TranslationLinkId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 45, true);
+SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 95, true);
 
 
 --
@@ -715,7 +973,7 @@ SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"',
 -- Name: TranslationTo_TranslationToId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 29, true);
+SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 78, true);
 
 
 --
@@ -724,7 +982,7 @@ SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 29,
 -- Name: UnitContent_UnitContent_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 34, true);
+SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 84, true);
 
 
 --
@@ -733,7 +991,7 @@ SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 34, true)
 -- Name: UnitTree_UnitTreeId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."UnitTree_UnitTreeId_seq"', 5, true);
+SELECT pg_catalog.setval('interrogator."UnitTree_UnitTreeId_seq"', 14, true);
 
 
 --
@@ -871,7 +1129,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
     ADD CONSTRAINT "FK_UnitTreeId" FOREIGN KEY ("UnitTreeId") REFERENCES interrogator."UnitTree"("UnitTreeId");
 
 
--- Completed on 2020-02-11 22:41:03
+-- Completed on 2020-02-17 22:07:26
 
 --
 -- PostgreSQL database dump complete
