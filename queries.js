@@ -57,12 +57,14 @@ const getUnitTreeGroup = (request, response) => {
 
 const insertUnitContent = (request, response) => {
   const content = request.body;
-  pool.query('CALL insertunitcontent($1);', [content], (error) => {
+  pool.query('select interrogator."insertunitcontent"($1) AS unitContentId', [content], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
     } else {
-      response.status(201).json();
+      let unitContentId = results.rows[0].unitcontentid;
+      console.log(results.rows)
+      response.status(201).json({ unitContentId: unitContentId });
     }
   })
 }

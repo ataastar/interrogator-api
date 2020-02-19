@@ -5,7 +5,7 @@
 -- Dumped from database version 12.0
 -- Dumped by pg_dump version 12.0
 
--- Started on 2020-02-17 22:07:26
+-- Started on 2020-02-19 22:39:44
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -119,19 +119,19 @@ $$;
 ALTER FUNCTION interrogator."deleteUnitContent"("unitContentId" bigint) OWNER TO attila;
 
 --
--- TOC entry 240 (class 1255 OID 16762)
--- Name: insertunitcontent(json); Type: PROCEDURE; Schema: interrogator; Owner: postgres
+-- TOC entry 240 (class 1255 OID 16827)
+-- Name: insertunitcontent(json); Type: FUNCTION; Schema: interrogator; Owner: postgres
 --
 
-CREATE PROCEDURE interrogator.insertunitcontent(json_input json)
+CREATE FUNCTION interrogator.insertunitcontent(json_input json) RETURNS bigint
     LANGUAGE plpgsql
     AS $$
+DECLARE
+	"unitContentId" bigint;
 BEGIN
 
 insert into interrogator."tmp_insertjson"(insertjson)
 select json_input;
-
-commit;
 
 with json_data as (
 select * from json_populate_record(
@@ -154,14 +154,20 @@ phraseTo as (insert into "Phrase"("LanguageId", "Text")
 		  	 returning *),
 tFrom as (insert into "TranslationFrom"("TranslationLinkId", "PhraseId")
 	   select tl."TranslationLinkId", phraseFrom."PhraseId" from tl, phraseFrom
-	   returning *)
-insert into "TranslationTo"("TranslationLinkId", "PhraseId")
-	   select tl."TranslationLinkId", phraseTo."PhraseId" from tl, phraseTo;
+	   returning *),
+tTo as (insert into "TranslationTo"("TranslationLinkId", "PhraseId")
+	    select tl."TranslationLinkId", phraseTo."PhraseId" from tl, phraseTo)
+select uc."UnitContentId" into "unitContentId" from uc;
+
+insert into interrogator."tmp_insertjson"(insertjson) values ("unitContentId");
+
+return "unitContentId";
+
 END;
 $$;
 
 
-ALTER PROCEDURE interrogator.insertunitcontent(json_input json) OWNER TO postgres;
+ALTER FUNCTION interrogator.insertunitcontent(json_input json) OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -549,8 +555,6 @@ COPY interrogator."Phrase" ("PhraseId", "LanguageId", "Text", "Pronunciation", "
 76	1	Készít	\N	\N
 85	2	eat	\N	\N
 86	1	eszik	\N	\N
-110	2	test	\N	\N
-111	1	reszt	\N	\N
 112	2	beautiful	\N	\N
 113	1	gyönyörű	\N	\N
 114	2	cloudy	\N	\N
@@ -635,7 +639,6 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 34	34	75	\N
 35	34	76	\N
 37	47	86	\N
-49	59	111	\N
 50	60	113	\N
 51	61	115	\N
 52	64	117	\N
@@ -681,7 +684,6 @@ COPY interrogator."TranslationFrom" ("TranslationFromId", "TranslationLinkId", "
 
 COPY interrogator."TranslationLink" ("TranslationLinkId", "Example", "TranslatedExample", "ImageName") FROM stdin;
 1	Valaki ellopta a pénztárcámat	Someone stole my wallet	\N
-59	\N	\N	\N
 60	\N	\N	\N
 61	\N	\N	\N
 64	\N	\N	\N
@@ -738,7 +740,6 @@ COPY interrogator."TranslationTo" ("TranslationToId", "TranslationLinkId", "Phra
 28	33	72	\N
 29	34	74	\N
 31	47	85	\N
-44	59	110	\N
 45	60	112	\N
 46	61	114	\N
 47	64	116	\N
@@ -787,7 +788,6 @@ COPY interrogator."UnitContent" ("UnitContentId", "UnitTreeId", "TranslationLink
 28	3	33
 29	3	34
 36	3	47
-48	3	59
 49	7	60
 50	8	61
 53	7	64
@@ -928,6 +928,40 @@ COPY interrogator.tmp_insertjson (insertjson) FROM stdin;
 {"id":"7","from":["alagút"],"to":["tunnel"],"example":"","translatedExample":""}
 {"id":"7","from":["völgy"],"to":["valley"],"example":"","translatedExample":""}
 {"id":"7","from":["széles"],"to":["wide"],"example":"","translatedExample":""}
+{"id":"4","from":["a"],"to":["a"]}
+{"id":"4","from":["a"],"to":["a"]}
+{"id":"4","from":["b"],"to":["b"],"example":"","translatedExample":""}
+{"id":"4","from":["c"],"to":["c"],"example":"","translatedExample":""}
+{"id":"4","from":["d"],"to":["d"],"example":"","translatedExample":""}
+4
+{"id":"4","from":["e"],"to":["e"],"example":"","translatedExample":""}
+90
+{"id":"4","from":["f"],"to":["f"],"example":"","translatedExample":""}
+91
+{"id":"4","from":["g"],"to":["g"],"example":"","translatedExample":""}
+92
+{"id":"4","from":["h"],"to":["h"]}
+93
+{"id":"4","from":["a"],"to":["a"]}
+94
+{"id":"4","from":["a"],"to":["a"]}
+95
+{"id":"4","from":["a"],"to":["a"]}
+96
+{"id":"4","from":["b"],"to":["b"]}
+97
+{"id":"4","from":["c"],"to":["c"]}
+98
+{"id":"4","from":["a"],"to":["a"],"example":"","translatedExample":""}
+99
+{"id":"4","from":["a"],"to":["a"]}
+100
+{"id":"4","from":["a"],"to":["a"]}
+102
+{"id":"4","from":["a"],"to":["a"],"example":"","translatedExample":""}
+103
+{"id":"4","from":["c"],"to":["c"],"example":"","translatedExample":""}
+104
 \.
 
 
@@ -946,7 +980,7 @@ SELECT pg_catalog.setval('interrogator."Language_LanguageId_seq"', 2, true);
 -- Name: Phrase_PhraseId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 182, true);
+SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 220, true);
 
 
 --
@@ -955,7 +989,7 @@ SELECT pg_catalog.setval('interrogator."Phrase_PhraseId_seq"', 182, true);
 -- Name: TranslationFrom_TranslationFromId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 86, true);
+SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"', 105, true);
 
 
 --
@@ -964,7 +998,7 @@ SELECT pg_catalog.setval('interrogator."TranslationFrom_TranslationFromId_seq"',
 -- Name: TranslationLink_TranslationLinkId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 95, true);
+SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"', 121, true);
 
 
 --
@@ -973,7 +1007,7 @@ SELECT pg_catalog.setval('interrogator."TranslationLink_TranslationLinkId_seq"',
 -- Name: TranslationTo_TranslationToId_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 78, true);
+SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 97, true);
 
 
 --
@@ -982,7 +1016,7 @@ SELECT pg_catalog.setval('interrogator."TranslationTo_TranslationToId_seq"', 78,
 -- Name: UnitContent_UnitContent_seq; Type: SEQUENCE SET; Schema: interrogator; Owner: attila
 --
 
-SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 84, true);
+SELECT pg_catalog.setval('interrogator."UnitContent_UnitContent_seq"', 110, true);
 
 
 --
@@ -1129,7 +1163,7 @@ ALTER TABLE ONLY interrogator."UnitContent"
     ADD CONSTRAINT "FK_UnitTreeId" FOREIGN KEY ("UnitTreeId") REFERENCES interrogator."UnitTree"("UnitTreeId");
 
 
--- Completed on 2020-02-17 22:07:26
+-- Completed on 2020-02-19 22:39:45
 
 --
 -- PostgreSQL database dump complete
