@@ -19,6 +19,7 @@ FEATURES
 IN PROGRESS
  - update phrase
 TODO tasks
+ - use environment variables for port, hostname
  - check data on insert, in db level
  - improve delete on db level
  - plan user related db and connections
