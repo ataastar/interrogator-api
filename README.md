@@ -19,6 +19,7 @@ FEATURES
  - removes unit content (translation) from unit
 
 IN PROGRESS
+ - handle answer for interrogation
  - update phrase, example sentence
 
 TODO tasks
