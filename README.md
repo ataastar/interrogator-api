@@ -15,9 +15,10 @@ RUN the sample.
 FEATURES
  - retrieves the unit tree
  - retrieves the unit content by unit id
- - inserts unit content to db
+ - inserts unit content
+ - removes unit content (translation) from unit
 IN PROGRESS
- - update phrase
+ - update phrase, example sentence
 TODO tasks
  - use environment variables for port, hostname
  - check data on insert, in db level
