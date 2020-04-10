@@ -20,12 +20,15 @@ class EnhancedClient extends Client {
   }
 }
 const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: true
+  /*  
   Client: EnhancedClient,
   user: 'attila',
   host: 'localhost',
   database: 'postgres',
   password: 'baracska',
-  port: 5432,
+  port: 5432,*/
 })
 
 const getUnitContent = (request, response) => {
