@@ -28,23 +28,9 @@ if (process.env.DATABASE_CONN_UNSECURE) {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: conn_secure,
-  /*Client: EnhancedClient,
-  user: 'attila',
-  host: 'localhost',
-  database: 'postgres',
-  password: 'baracska',
-  port: 5432*/
+  Client: EnhancedClient,
 });
   
-console.log(process.env.DATABASE_URL);
- /* Client: EnhancedClient,
-  user: 'attila',
-  host: 'localhost',
-  database: 'postgres',
-  password: 'baracska',
-  port: 5432
-})*/
-
 const getUnitContent = (request, response) => {
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
