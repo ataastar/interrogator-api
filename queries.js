@@ -19,18 +19,18 @@ class EnhancedClient extends Client {
     return super.getStartupConf();
   }
 }
+
+let conn_secure = true
+if (process.env.DATABASE_CONN_UNSECURE) {
+  conn_secure = false;
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: true
-  /*  
+  ssl: conn_secure,
   Client: EnhancedClient,
-  user: 'attila',
-  host: 'localhost',
-  database: 'postgres',
-  password: 'baracska',
-  port: 5432,*/
-})
-
+});
+  
 const getUnitContent = (request, response) => {
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
