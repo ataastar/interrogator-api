@@ -2,7 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const db = require('./queries')
-const port = 3000
+const port = process.env.PORT
 const history = require('connect-history-api-fallback')
 
 // TODO just on development
@@ -41,5 +41,5 @@ app.put('/word/remove', db.deleteUnitContent)
 //app.delete('/users/:id', db.deleteUser)
 
 app.listen(port, (MNINB163) => {
-  console.log('App running on port ${port}.')
+  console.log('App running on port ${PORT}.')
 })
