@@ -26,6 +26,7 @@ app.use(history({
   verbose: true
 }))
 app.use(express.static('public'))
+app.use(express.static('fe'))
 
 app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' })
