@@ -60,7 +60,7 @@ const getUnitTreeGroup = (request, response) => {
 
 const insertUnitContent = (request, response) => {
   const content = request.body;
-  pool.query('select interrogator."insertunitcontent"($1) AS unitContentId', [content], (error, results) => {
+  pool.query('select "insertunitcontent"($1) AS unitContentId', [content], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -75,7 +75,7 @@ const insertUnitContent = (request, response) => {
 
 const deleteUnitContent = (request, response) => {
   const unitContentId = request.body.unitContentId;
-  pool.query('select interrogator."deleteUnitContent"($1) AS deleteresult', [unitContentId], (error, results) => {
+  pool.query('select "deleteUnitContent"($1) AS deleteresult', [unitContentId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
