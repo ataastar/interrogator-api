@@ -28,3 +28,17 @@ TODO tasks
  - improve delete on db level
  - plan user related db and connections
  - plan test results
+ 
+* Heroku
+
+** connect to heroku postgres
+heroku pg:psql -a hunenginterrogator
+
+** get postgre connection url
+heroku pg:credentials:url DATABASE -a hunenginterrogator
+
+** application name
+hunenginterrogator
+
+** get log
+heroku logs -a hunenginterrogator -> heroku.log 
