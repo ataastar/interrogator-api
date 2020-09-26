@@ -105,3 +105,4 @@ dist
 
 # static files to serve
 public/
+/interrogator-api.iml

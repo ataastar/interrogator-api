@@ -34,6 +34,9 @@ TODO tasks
 ** connect to heroku postgres
 heroku pg:psql -a hunenginterrogator
 
+*** unit tree insert example
+insert into unit_tree (parent_unit_tree_id, name, from_language_id, to_language_id) values (19, '1 My life', null, null);
+
 ** get postgre connection url
 heroku pg:credentials:url DATABASE -a hunenginterrogator
 
