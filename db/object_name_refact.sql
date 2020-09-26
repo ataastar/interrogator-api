@@ -165,47 +165,97 @@ $$;
 
 alter function insertunitcontent(json) rename to insert_unit_content;
 
-drop function  delete_translation_from(p_translation_from_id bigint);
+drop function delete_translation_from(p_translation_from_id bigint);
 create function delete_translation_from(p_translation_from_id bigint) returns boolean
     language plpgsql
 as
 $$
 DECLARE
-    "fromCountForTranslationLink" bigint;
-    "deletedRowCount"             bigint;
+    v_from_count_for_translation_link bigint;
+    deleted_row_count             bigint;
 BEGIN
 
     SELECT COUNT(1)
-    INTO "deletedRowCount"
-    FROM "TranslationFrom" tf
-    WHERE tf."TranslationFromId" =p_translation_from_id;
+    INTO deleted_row_count
+    FROM translation_from tf
+    WHERE tf.translation_from_id =p_translation_from_id;
 
-    IF "deletedRowCount" = 1 THEN
+    IF deleted_row_count = 1 THEN
         SELECT COUNT(1)
-        INTO "fromCountForTranslationLink"
-        FROM "TranslationFrom" tf
-        WHERE tf."TranslationFromId" = p_translation_from_id
+        INTO v_from_count_for_translation_link
+        FROM translation_from tf
+        WHERE tf.translation_from_id = p_translation_from_id
           AND EXISTS (SELECT 1
-                      FROM "TranslationFrom" tf2
-                      WHERE tf2."TranslationFromId" <> tf."TranslationFromId"
-                        AND tf2."TranslationLinkId" = tf."TranslationLinkId");
+                      FROM translation_from tf2
+                      WHERE tf2.translation_from_id <> tf.translation_from_id
+                        AND tf2.translation_link_id = tf.translation_link_id);
 
-        IF "fromCountForTranslationLink" < 1 THEN
+        IF v_from_count_for_translation_link < 1 THEN
             RAISE 'Last phrase can not be removed. Shall remove the whole translation in this case!';
         END IF;
 
-        DELETE FROM "TranslationFrom" tf
-        WHERE tf."TranslationFromId" =p_translation_from_id;
-        DELETE FROM "Phrase" p
+        DELETE FROM translation_from tf
+        WHERE tf.translation_from_id =p_translation_from_id;
+        DELETE FROM phrase p
         WHERE NOT EXISTS
-            (SELECT 1 FROM "TranslationFrom" tf
-             WHERE tf."PhraseId" = p."PhraseId")
+            (SELECT 1 FROM translation_from tf
+             WHERE tf.phrase_id = p.phrase_id)
           AND NOT EXISTS
-            (SELECT 1 FROM "TranslationTo" tf
-             WHERE tf."PhraseId" = p."PhraseId");
+            (SELECT 1 FROM translation_to tf
+             WHERE tf.phrase_id = p.phrase_id);
     END IF;
 
-    RETURN "deletedRowCount" > 0;
+    RETURN deleted_row_count > 0;
 END;
 $$;
+
+
+drop function insert_unit_content(json_input json);
+    create function insert_unit_content(json_input json) returns bigint
+    language plpgsql
+as
+$$
+DECLARE
+    v_unit_content_id bigint;
+BEGIN
+
+    --insert into interrogator."tmp_insertjson"(insertjson)
+--select json_input;
+
+    with json_data as (
+        select * from json_populate_record(
+                null::insert_unit_content_table,
+                json_input)
+    ),
+         languages as (select RootFromLanguageId FromLangId, RootToLanguageId ToLangId from json_data
+                                                                                                join "UnitWithRoot" unit on unit."UnitTreeId" = json_data.id),
+         tl as (insert into "TranslationLink"("Example", "TranslatedExample")
+             select example, "translatedExample" from json_data
+             RETURNING "TranslationLinkId"),
+         uc as (insert into "UnitContent"("UnitTreeId", "TranslationLinkId")
+             select json_data.id, "TranslationLinkId" from json_data, tl
+             returning *),
+         phraseFrom as (insert into "Phrase"("LanguageId", "Text")
+             select l.ToLangId, json_array_elements_text("from"::json) from json_data, languages l
+             returning *),
+         phraseTo as (insert into "Phrase"("LanguageId", "Text")
+             select l.FromLangId, json_array_elements_text("to"::json) from json_data, languages l
+             returning *),
+         tFrom as (insert into "TranslationFrom"("TranslationLinkId", "PhraseId")
+             select tl."TranslationLinkId", phraseFrom."PhraseId" from tl, phraseFrom
+             returning *),
+         tTo as (insert into "TranslationTo"("TranslationLinkId", "PhraseId")
+             select tl."TranslationLinkId", phraseTo."PhraseId" from tl, phraseTo)
+    select uc."UnitContentId" into v_unit_content_id from uc;
+
+--insert into interrogator."tmp_insertjson"(insertjson) values (v_unit_content_id);
+
+    return v_unit_content_id;
+
+END;
+$$;
+
+alter function insert_unit_content(json) owner to mata;
+
+
 
