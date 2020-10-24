@@ -27,9 +27,6 @@ alter table translation_link rename column "TranslationLinkId" to translation_li
 alter table translation_link rename column "Example" to example;
 alter table translation_link rename column "TranslatedExample" to translated_example;
 alter table translation_link rename column "ImageName" to image_name;
-alter table translation_link rename column "ToBeInterrogated" to to_be_interrogated;
-alter table translation_link rename column "ToBeInterrogatedInWriting" to to_be_interrogated_in_writing;
-alter table translation_link rename column "ToBeInterrogatedFrom" to to_be_interrogated_from;
 
 alter table "UnitContent" rename to unit_content;
 alter table unit_content rename column "UnitContentId" to unit_content_id;
@@ -87,18 +84,18 @@ comment on view unit_with_root is 'Returns the UnitTreeId and its Root UniTreeId
 
 
 drop view unit_group_json;
-create view unit_group_json(groups) as
-SELECT array_to_json(array_agg(a.*)) AS groups
-FROM (SELECT unit_tree.name,
-             (SELECT array_to_json(array_agg(unit.*)) AS array_to_json
-              FROM (SELECT unit_1.name,
-                           unit_1.unit_tree_id AS code
-                    FROM unit_tree unit_1
-                    WHERE unit_1.parent_unit_tree_id = unit_tree.unit_tree_id) unit) AS "group",
-             row_number() OVER ()                                                    AS "order"
-      FROM unit_tree
-      WHERE unit_tree.parent_unit_tree_id = 1
-      ORDER BY unit_tree.name) a;
+  create view unit_group_json(groups) as
+  SELECT array_to_json(array_agg(a.*)) AS groups
+  FROM (SELECT unit_tree.name,
+               (SELECT array_to_json(array_agg(unit.*)) AS array_to_json
+                FROM (SELECT unit_1.name,
+                             unit_1.unit_tree_id AS code
+                      FROM unit_tree unit_1
+                      WHERE unit_1.parent_unit_tree_id = unit_tree.unit_tree_id) unit) AS "group",
+               row_number() OVER ()                                                    AS "order"
+        FROM unit_tree
+        WHERE unit_tree.parent_unit_tree_id = 1
+        ORDER BY unit_tree.name) a;
 
 drop view unit_content_json;
 create view unit_content_json(content, code) as
@@ -211,7 +208,7 @@ $$;
 
 
 drop function insert_unit_content(json_input json);
-    create function insert_unit_content(json_input json) returns bigint
+create function insert_unit_content(json_input json) returns bigint
     language plpgsql
 as
 $$
@@ -227,26 +224,26 @@ BEGIN
                 null::insert_unit_content_table,
                 json_input)
     ),
-         languages as (select RootFromLanguageId FromLangId, RootToLanguageId ToLangId from json_data
-                                                                                                join "UnitWithRoot" unit on unit."UnitTreeId" = json_data.id),
-         tl as (insert into "TranslationLink"("Example", "TranslatedExample")
-             select example, "translatedExample" from json_data
-             RETURNING "TranslationLinkId"),
-         uc as (insert into "UnitContent"("UnitTreeId", "TranslationLinkId")
-             select json_data.id, "TranslationLinkId" from json_data, tl
+         languages as (select root_from_language_id from_lang_id, root_to_language_id to_lang_id from json_data
+                                                                                                join unit_with_root unit on unit.unit_tree_id = json_data.id),
+         tl as (insert into translation_link(example, translated_example)
+             select example, translated_example from json_data
+             RETURNING translation_link_id),
+         uc as (insert into unit_content(unit_tree_id, translation_link_id)
+             select json_data.id, translation_link_id from json_data, tl
              returning *),
-         phraseFrom as (insert into "Phrase"("LanguageId", "Text")
+         phraseFrom as (insert into phrase(language_id, text)
              select l.ToLangId, json_array_elements_text("from"::json) from json_data, languages l
              returning *),
-         phraseTo as (insert into "Phrase"("LanguageId", "Text")
+         phraseTo as (insert into phrase(language_id, text)
              select l.FromLangId, json_array_elements_text("to"::json) from json_data, languages l
              returning *),
-         tFrom as (insert into "TranslationFrom"("TranslationLinkId", "PhraseId")
-             select tl."TranslationLinkId", phraseFrom."PhraseId" from tl, phraseFrom
+         tFrom as (insert into translation_from(translation_link_id, phrase_id)
+             select tl.translation_link_id, phraseFrom.phrase_id from tl, phraseFrom
              returning *),
-         tTo as (insert into "TranslationTo"("TranslationLinkId", "PhraseId")
-             select tl."TranslationLinkId", phraseTo."PhraseId" from tl, phraseTo)
-    select uc."UnitContentId" into v_unit_content_id from uc;
+         tTo as (insert into translation_to(translation_link_id, phrase_id)
+             select tl.translation_link_id, phraseTo.phrase_id from tl, phraseTo)
+    select uc.unit_content_id into v_unit_content_id from uc;
 
 --insert into interrogator."tmp_insertjson"(insertjson) values (v_unit_content_id);
 
@@ -255,7 +252,6 @@ BEGIN
 END;
 $$;
 
-alter function insert_unit_content(json) owner to mata;
 
 
 

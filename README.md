@@ -36,6 +36,7 @@ heroku pg:psql -a hunenginterrogator
 
 *** unit tree insert example
 insert into unit_tree (parent_unit_tree_id, name, from_language_id, to_language_id) values (19, '1 My life', null, null);
+insert into public."UnitTree" ("ParentUnitTreeId", "Name", "FromLanguageId", "ToLanguageId") values (20, 'B  A surprise for Smart Alec!', null, null);
 
 ** get postgre connection url
 heroku pg:credentials:url DATABASE -a hunenginterrogator

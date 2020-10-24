@@ -60,12 +60,12 @@ const getUnitTreeGroup = (request, response) => {
 
 const insertUnitContent = (request, response) => {
   const content = request.body;
-  pool.query('select insert_unit_content($1) AS unitContentId', [content], (error, results) => {
+  pool.query('select insert_unit_content($1) AS unit_content_id', [content], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
     } else {
-      let unitContentId = results.rows[0].unitcontentid;
+      let unitContentId = results.rows[0].unit_content_id;
       console.log(results.rows)
       response.status(201).json({ unitContentId: unitContentId });
     }
