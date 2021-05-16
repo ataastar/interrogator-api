@@ -1,0 +1,15 @@
+---
+application:
+  name: "interrogator"
+  project: "interrogator"
+  organization: "QoveryCommunity"
+databases:
+- type: "POSTGRESQL"
+  name: "interrogator"
+  version: "12"
+routers:
+- name: "main-interrogator"
+  routes:
+  - application_name: "interrogator"
+    paths:
+    - "/*"
