@@ -2,14 +2,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const db = require('./queries')
-const port = process.env.PORT
+const port = process.env.INTERROGATOR_API_PORT
 const history = require('connect-history-api-fallback')
 
 // TODO just on development
 app.all('/*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Credentials', true); 
-  res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELTE, OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type'); 
   next() // pass control to the next handler
 });
@@ -41,6 +41,6 @@ app.put('/word/remove', db.deleteUnitContent)
 //app.put('/users/:id', db.updateUser)
 //app.delete('/users/:id', db.deleteUser)
 
-app.listen(port, (MNINB163) => {
+app.listen(port, () => {
   console.log('App running on port ${PORT}.')
 })

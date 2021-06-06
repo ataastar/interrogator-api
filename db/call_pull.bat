@@ -1,3 +1,5 @@
+SET pw=%1
+
 SET PGUSER=mata
-SET PGPASSWORD=baracska
-heroku pg:pull DATABASE_URL interrogator2 --app hunenginterrogator
+SET PGPASSWORD=%pw%
+heroku pg:pull DATABASE_URL interrogator3 --app hunenginterrogator

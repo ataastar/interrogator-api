@@ -9,8 +9,9 @@ Technology
 RUN the sample.
  -  npm install
  -  set the PG_OPTION in order to the right schema will be the default: SET PG_OPTIONS={"search_path":"interrogator"}
- -  node index.js
+ -  node index.js or run start.bat with the database user password as param
  -  Open a browser window and navigate to http:\\\\localhost:3000 to access the app.
+ 
  
 FEATURES
  - retrieves the unit tree
@@ -33,6 +34,10 @@ TODO tasks
 
 ** connect to heroku postgres
 heroku pg:psql -a hunenginterrogator
+
+*** unit tree insert example
+insert into unit_tree (parent_unit_tree_id, name, from_language_id, to_language_id) values (19, '1 My life', null, null);
+insert into public."UnitTree" ("ParentUnitTreeId", "Name", "FromLanguageId", "ToLanguageId") values (20, 'B  A surprise for Smart Alec!', null, null);
 
 ** get postgre connection url
 heroku pg:credentials:url DATABASE -a hunenginterrogator
