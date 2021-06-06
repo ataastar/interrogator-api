@@ -1,16 +1,9 @@
 const Pool = require('pg').Pool
-const Client = require('pg').Client
-
-let conn_secure = true
-if (process.env.INTERROGATOR_API_DB_CONN_UNSECURE) {
-  conn_secure = false;
-}
 
 let connectionString = process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI ? process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI : process.env.DATABASE_URL
 
 const pool = new Pool({
-  connectionString: connectionString,
-  client: Client,
+  connectionString: connectionString
 });
   
 const getUnitContent = (request, response) => {
