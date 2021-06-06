@@ -2,7 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const db = require('./queries')
-const port = process.env.PORT
+const port = process.env.INTERROGATOR_API_PORT
 const history = require('connect-history-api-fallback')
 
 // TODO just on development
