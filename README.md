@@ -9,8 +9,9 @@ Technology
 RUN the sample.
  -  npm install
  -  set the PG_OPTION in order to the right schema will be the default: SET PG_OPTIONS={"search_path":"interrogator"}
- -  node index.js
+ -  node index.js or run start.bat with the database user password as param
  -  Open a browser window and navigate to http:\\\\localhost:3000 to access the app.
+ 
  
 FEATURES
  - retrieves the unit tree
