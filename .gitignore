@@ -103,8 +103,5 @@ dist
 # TernJS port file
 .tern-port
 
-# static files to serve
-public/
-
 # iml Intellij project file
 /interrogator-api.iml
