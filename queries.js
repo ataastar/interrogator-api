@@ -1,25 +1,6 @@
 const Pool = require('pg').Pool
 const Client = require('pg').Client
 
-class EnhancedClient extends Client {
-  getStartupConf() {
-    if (process.env.PG_OPTIONS) {
-      try {
-        const options = JSON.parse(process.env.PG_OPTIONS);
-        return {
-          ...super.getStartupConf(),
-          ...options,
-        };
-      } catch (e) {
-        console.error(e);
-        // Coalesce to super.getStartupConf() on parse error
-      }
-    }
-
-    return super.getStartupConf();
-  }
-}
-
 let conn_secure = true
 if (process.env.DATABASE_CONN_UNSECURE) {
   conn_secure = false;
@@ -28,7 +9,7 @@ if (process.env.DATABASE_CONN_UNSECURE) {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: conn_secure,
-  Client: EnhancedClient,
+  client: Client,
 });
   
 const getUnitContent = (request, response) => {
