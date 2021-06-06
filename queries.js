@@ -6,9 +6,10 @@ if (process.env.DATABASE_CONN_UNSECURE) {
   conn_secure = false;
 }
 
+let connectionString = process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI_WITHOUT_CREDENTIALS ? process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI_WITHOUT_CREDENTIALS : process.env.DATABASE_URL
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: conn_secure,
+  connectionString: connectionString,
   client: Client,
 });
   
