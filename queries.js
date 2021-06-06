@@ -2,7 +2,7 @@ const Pool = require('pg').Pool
 const Client = require('pg').Client
 
 let conn_secure = true
-if (process.env.DATABASE_CONN_UNSECURE) {
+if (process.env.INTERROGATOR_API_DB_CONN_UNSECURE) {
   conn_secure = false;
 }
 
