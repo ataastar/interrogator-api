@@ -7,7 +7,7 @@ const history = require('connect-history-api-fallback')
 
 // TODO just on development
 app.all('/*', function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', process.env.INTERROGATOR_WEB);
+  res.header('Access-Control-Allow-Origin', process.env.INTERROGATOR_WEB_URL);
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');

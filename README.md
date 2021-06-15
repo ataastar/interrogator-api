@@ -49,4 +49,11 @@ hunenginterrogator
 heroku logs -a hunenginterrogator -> heroku.log 
 
 # Qovery
+- https://console.qovery.com/
+- necessary variable:
+  - QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI with /interrogator prefix (database)
 
+# Environment variables
+- INTERROGATOR_API_PORT: eg. 3000
+- INTERROGATOR_WEB: the web api url. eg. https://localhost:4200
+- INTERROGATOR_DATABASE_URL: the DB url connection. eg: postgres://%user%:%pw%@localhost:5432/interrogator
