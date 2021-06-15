@@ -3,7 +3,6 @@ const bodyParser = require('body-parser')
 const app = express()
 const db = require('./queries')
 const port = process.env.INTERROGATOR_API_PORT
-const history = require('connect-history-api-fallback')
 
 // TODO just on development
 app.all('/*', function (req, res, next) {
@@ -20,13 +19,6 @@ app.use(
     extended: true,
   })
 )
-
-// host static files
-app.use(history({
-  verbose: true
-}))
-app.use(express.static('public'))
-app.use(express.static('fe'))
 
 app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' })
