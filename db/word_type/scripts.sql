@@ -221,9 +221,36 @@ DROP VIEW IF EXISTS word_type_content;
 CREATE OR REPLACE VIEW word_type_content(content, word_type_id, language_id) AS
 
 /*
- name: 'Irregular verbs', form1Name: 'Infinitive', form2Name:'Past Simple', form3Name:'Past Participle',
- rows: {
- }
+ {
+  "name": "Irregular verbs",
+  "forms": ["Infinitive", "Past Simple", "Past Participle"],
+  "rows": [
+    {
+      "id": "1",
+      "fromPhrases": [
+        "lenni"
+      ],
+      "toPhrases": [
+        {
+          "Infinitive": [
+            "be"
+          ]
+        },
+        {
+          "Past Tense": [
+            "was",
+            "were"
+          ]
+        },
+        {
+          "Past Participle": [
+            "been"
+          ]
+        }
+      ]
+    }
+  ]
+}
  */
 
 SELECT * FROM word_type t
@@ -239,19 +266,41 @@ SELECT *,
 FROM word_type t;
 
 SELECT row_to_json(from_phrase.*)
-FROM       (SELECT array_to_json(array_agg(phrase.*))
+FROM       (SELECT array_to_json(array_agg(phrase.*)) as "rows"
           FROM (SELECT wtfr.word_type_link_id id,
                        array_to_json(array_agg(p.text)) AS "fromPhrase",
-                       (SELECT array_agg(wtf.name) FROM word_type_form wtf) AS forms
+                       --(SELECT array_agg(wtf.name) FROM word_type_form wtf) AS to_phrases
+                       (SELECT array_to_json(array_agg(fp)) FROM
+                           (SELECT json_build_object(wtf.name, array_to_json(array_agg(p.text)))::json fp FROM word_type_form_phrase wtfp
+                                                                                                                   JOIN word_type_form wtf ON wtfp.word_type_form_id = wtf.word_type_form_id
+                                                                                                                   JOIN phrase p on wtfp.phrase_id = p.phrase_id
+                            WHERE wtfp.word_type_link_id = wtfr.word_type_link_id
+                            GROUP BY wtf.name) t) to_phrases
                   FROM word_type_from wtfr
                   JOIN phrase p on wtfr.phrase_id = p.phrase_id
                 /* WHERE wtf.word_type_link_id = wtl.word_type_link_id*/
               GROUP BY wtfr.word_type_link_id) phrase) AS from_phrase;
 --FROM word_type_link wtl;
 
-SELECT array_to_json(array_agg(b.*)) AS array_to_json FROM
+(SELECT array_to_json(array_agg(fp)) FROM
+(SELECT json_build_object(wtf.name, array_to_json(array_agg(p.text)))::json fp FROM word_type_form_phrase wtfp
+    JOIN word_type_form wtf ON wtfp.word_type_form_id = wtf.word_type_form_id
+    JOIN phrase p on wtfp.phrase_id = p.phrase_id
+WHERE wtfp.word_type_link_id = 10
+GROUP BY wtf.name) t);
+
+SELECT row_to_json(t.*) FROM
+    (SELECT json_build_object(wtf.name,  array_to_json(array_agg(p.text))) AS t FROM word_type_form_phrase wtfp
+                                                                JOIN word_type_form wtf ON wtfp.word_type_form_id = wtf.word_type_form_id
+                                                                JOIN phrase p on wtfp.phrase_id = p.phrase_id
+     WHERE wtfp.word_type_link_id = 10
+     GROUP BY wtf.name) t;
+
+SELECT json_build_object(b.id, b.p) AS array_to_json FROM
 (SELECT 1 AS id,
-(SELECT array_to_json(array_agg(text)) FROM phrase WHERE phrase_id in (301, 302)) p) b;
+(SELECT json_build_object(2, array_to_json(array_agg(text))) FROM phrase WHERE phrase_id in (301, 302)) p) b;
+
+--SELECT json_build_object('1',ARRAY['2','3']);
 
 SELECT row_to_json(a.*), a.code, 2 AS content
 FROM (SELECT t.name,
