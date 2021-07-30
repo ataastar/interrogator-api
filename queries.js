@@ -1,6 +1,8 @@
 const Pool = require('pg').Pool
 
 let connectionString = process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI ? process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI : process.env.INTERROGATOR_DATABASE_URL
+console.log("connectionString:")
+console.log(connectionString)
 
 const pool = new Pool({
   connectionString: connectionString
