@@ -4,6 +4,12 @@ const app = express()
 const db = require('./queries')
 const port = process.env.INTERROGATOR_API_PORT
 
+console.log("process.env.INTERROGATOR_API_PORT:")
+console.log(process.env.INTERROGATOR_API_PORT)
+
+console.log("process.env.INTERROGATOR_WEB_URL:")
+console.log(process.env.INTERROGATOR_WEB_URL)
+
 // TODO just on development
 app.all('/*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', process.env.INTERROGATOR_WEB_URL);
