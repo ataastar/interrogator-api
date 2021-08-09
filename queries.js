@@ -67,9 +67,25 @@ const deleteUnitContent = (request, response) => {
   })
 }
 
+const getWordTypeContent = (request, response) => {
+  const fromLanguageId = request.body.fromLanguageId;
+  const toLanguageId = request.body.toLanguageId;
+  const wordTypeId = request.body.wordTypeId;
+  pool.query('SELECT content FROM word_type_content WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId], (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error);
+    } else {
+      response.status(200).json(results.rows)
+    }
+  })
+}
+
+
 module.exports = {
   getUnitContent,
   getUnitTreeGroup,
   insertUnitContent,
-  deleteUnitContent
+  deleteUnitContent,
+  getWordTypeContent
 }
