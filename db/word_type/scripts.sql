@@ -33,7 +33,8 @@ ALTER TABLE word_type_form ADD CONSTRAINT wtf_type_name UNIQUE (word_type_id, na
 create table word_type_link
 (
     word_type_link_id bigint generated always as identity (maxvalue 9999999)
-        constraint word_type_link_pkey primary key
+        constraint word_type_link_pkey primary key,
+    active boolean default true
 );
 COMMENT ON TABLE word_type_link IS 'Links the word_type_from and the word_type_form_phrase records';
 
@@ -261,3 +262,12 @@ FROM (SELECT t.name,
       FROM word_type t) a;
 
 
+SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_agg(name)) AS forms FROM word_type_form wtfo) forms;
+SELECT array_to_json(array_agg(forms.*)) AS forms FROM (SELECT word_type_form_id, name FROM word_type_form wtfo) forms;
+SELECT row_to_json(forms.*) FROM (SELECT array_to_json(array_agg(json_build_object(word_type_form_id, name))) AS rows FROM word_type_form wtfo) forms;
+
+select '{"1":"2"}'::jsonb || '{"a":"b"}'::jsonb;
+
+alter table word_type_link add column active boolean default true
+
+update word_type_link set active
