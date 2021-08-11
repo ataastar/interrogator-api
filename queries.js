@@ -13,7 +13,7 @@ const getUnitContent = (request, response) => {
   if (unitId == null) {
     response.status(200).json('{}');
   }
-  pool.query('SELECT content FROM unit_content_json Where code = $1', [unitId], (error, results) => {
+  pool.query('SELECT content FROM unit_content_json WHERE code = $1', [unitId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -24,7 +24,7 @@ const getUnitContent = (request, response) => {
 }
 
 const getUnitTreeGroup = (request, response) => {
-  pool.query('select * from unit_group_json', [], (error, results) => {
+  pool.query('SELECT * FROM unit_group_json', [], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -37,7 +37,7 @@ const getUnitTreeGroup = (request, response) => {
 
 const insertUnitContent = (request, response) => {
   const content = request.body;
-  pool.query('select insert_unit_content($1) AS unit_content_id', [content], (error, results) => {
+  pool.query('SELECT insert_unit_content($1) AS unit_content_id', [content], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -52,7 +52,7 @@ const insertUnitContent = (request, response) => {
 
 const deleteUnitContent = (request, response) => {
   const unitContentId = request.body.unitContentId;
-  pool.query('select delete_unit_content($1) AS delete_result', [unitContentId], (error, results) => {
+  pool.query('SELECT delete_unit_content($1) AS delete_result', [unitContentId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -81,11 +81,44 @@ const getWordTypeContent = (request, response) => {
   })
 }
 
+const activateWordTypeLink = (request, response) => {
+  const linkId = parseInt(request.params.linkId)
+  console.log(linkId)
+  if (linkId == null) {
+    response.status(200).json('{}')
+  }
+  pool.query('UPDATE word_type_link SET active = true WHERE word_type_link_id = $1', [linkId], (error) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error)
+    } else {
+      response.status(200).json('{}')
+    }
+  })
+}
+
+const deactivateWordTypeLink = (request, response) => {
+  const linkId = parseInt(request.params.linkId)
+  console.log(linkId)
+  if (linkId == null) {
+    response.status(200).json('{}')
+  }
+  pool.query('UPDATE word_type_link SET active = false WHERE word_type_link_id = $1', [linkId], (error) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error)
+    } else {
+      response.status(200).json('{}')
+    }
+  })
+}
 
 module.exports = {
   getUnitContent,
   getUnitTreeGroup,
   insertUnitContent,
   deleteUnitContent,
-  getWordTypeContent
+  getWordTypeContent,
+  activateWordTypeLink,
+  deactivateWordTypeLink
 }
