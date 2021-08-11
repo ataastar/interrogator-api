@@ -54,16 +54,16 @@ SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_ag
                                   FROM word_type_form_phrase wtfp
                                            JOIN word_type_form wtf ON wtfp.word_type_form_id = wtf.word_type_form_id
                                            JOIN phrase p on wtfp.phrase_id = p.phrase_id
-                                           JOIN word_type_link wtl on wtl.word_type_link_id = wtfp.word_type_link_id
                                   WHERE wtfp.word_type_link_id = wtfr.word_type_link_id
                                         AND wtf.word_type_id = b_wt.word_type_id
                                         AND p.language_id = b_wt.language_id
-                                        AND wtl.active
                                   GROUP BY wtf.name) t
                             ) to_phrases
                     FROM word_type_from wtfr
                              JOIN phrase p on wtfr.phrase_id = p.phrase_id
+                             JOIN word_type_link wtl on wtl.word_type_link_id = wtfr.word_type_link_id
                     WHERE p.language_id = b_l.language_id
+                      AND wtl.active
                     GROUP BY wtfr.word_type_link_id) phrase
              ) AS from_phrase
        )::jsonb AS content ,
