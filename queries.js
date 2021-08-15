@@ -81,9 +81,12 @@ const getWordTypeContent = (request, response) => {
   })
 }
 
+const getAllWordTypeContent = (request, response) => {
+  getWordTypeContent(request, response)
+}
+
 const activateWordTypeLink = (request, response) => {
   const linkId = parseInt(request.params.linkId)
-  console.log(linkId)
   if (linkId == null) {
     response.status(200).json('{}')
   }
@@ -99,7 +102,6 @@ const activateWordTypeLink = (request, response) => {
 
 const deactivateWordTypeLink = (request, response) => {
   const linkId = parseInt(request.params.linkId)
-  console.log(linkId)
   if (linkId == null) {
     response.status(200).json('{}')
   }
@@ -119,6 +121,7 @@ module.exports = {
   insertUnitContent,
   deleteUnitContent,
   getWordTypeContent,
+  getAllWordTypeContent,
   activateWordTypeLink,
   deactivateWordTypeLink
 }

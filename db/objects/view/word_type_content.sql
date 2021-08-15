@@ -43,12 +43,12 @@ CREATE OR REPLACE VIEW word_type_content(content, from_language_id, to_language_
                   JOIN phrase p_from ON wtf.phrase_id = p_from.phrase_id
                   JOIN phrase p_to ON wtfp.phrase_id = p_to.phrase_id;*/
 
-SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_agg(name)) AS forms FROM word_type_form wtfo WHERE wtfo.word_type_id = b_wt.word_type_id) forms)::jsonb ||
+SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_agg(name order by order_number)) AS forms FROM word_type_form wtfo WHERE wtfo.word_type_id = b_wt.word_type_id) forms)::jsonb ||
        (SELECT row_to_json(wordtype.*) AS forms FROM (SELECT name AS name FROM word_type wt WHERE wt.word_type_id = b_wt.word_type_id) wordtype)::jsonb ||
        (SELECT row_to_json(from_phrase.*)
         FROM (SELECT COALESCE(array_to_json(array_agg(phrase.*)), '[{}]'::json) as "rows"
               FROM (SELECT wtfr.word_type_link_id              id,
-                           array_to_json(array_agg(p.text)) AS "fromPhrase",
+                           array_to_json(array_agg(p.text)) AS "fromPhrases",
                            (SELECT array_to_json(array_agg(fp))
                             FROM (SELECT json_build_object(wtf.name, array_to_json(array_agg(p.text)))::json fp
                                   FROM word_type_form_phrase wtfp
@@ -58,7 +58,7 @@ SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_ag
                                         AND wtf.word_type_id = b_wt.word_type_id
                                         AND p.language_id = b_wt.language_id
                                   GROUP BY wtf.name) t
-                            ) to_phrases
+                            ) "toPhrases"
                     FROM word_type_from wtfr
                              JOIN phrase p on wtfr.phrase_id = p.phrase_id
                              JOIN word_type_link wtl on wtl.word_type_link_id = wtfr.word_type_link_id
