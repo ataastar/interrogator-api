@@ -210,6 +210,16 @@ call insert_word_type_form(ARRAY['visel'], 2, ARRAY[ROW('wear', 1), ROW('wore', 
 call insert_word_type_form(ARRAY['győz', 'nyer'], 2, ARRAY[ROW('win', 1), ROW('won', 2), ROW('won', 3)]::word_type_form_phrase_data[]);
 call insert_word_type_form(ARRAY['ír'], 2, ARRAY[ROW('write', 1), ROW('wrote', 2), ROW('written', 3)]::word_type_form_phrase_data[]);
 
+--
+call insert_word_type_form(ARRAY['harap'], 2, ARRAY[ROW('bite', 1), ROW('bit', 2), ROW('bitten', 3)]::word_type_form_phrase_data[]);
+call insert_word_type_form(ARRAY['ég', 'éget'], 2, ARRAY[ROW('burn', 1), ROW('burnt', 2), ROW('burnt', 3)]::word_type_form_phrase_data[]);
+call insert_word_type_form(ARRAY['ás'], 2, ARRAY[ROW('dig', 1), ROW('dug', 2), ROW('dug', 3)]::word_type_form_phrase_data[]);
+call insert_word_type_form(ARRAY['növekszik'], 2, ARRAY[ROW('grow', 1), ROW('grew', 2), ROW('grown', 3)]::word_type_form_phrase_data[]);
+call insert_word_type_form(ARRAY['szagol'], 2, ARRAY[ROW('smell', 1), ROW('smelt', 2), ROW('smelt', 3)]::word_type_form_phrase_data[]);
+call insert_word_type_form(ARRAY['varázsol'], 2, ARRAY[ROW('spell', 1), ROW('spelt', 2), ROW('spelt', 3)]::word_type_form_phrase_data[]);
+call insert_word_type_form(ARRAY['söpör'], 2, ARRAY[ROW('sweep', 1), ROW('swept', 2), ROW('swept', 3)]::word_type_form_phrase_data[]);
+call insert_word_type_form(ARRAY['könnyezik'], 2, ARRAY[ROW('tear', 1), ROW('tore', 2), ROW('torn', 3)]::word_type_form_phrase_data[]);
+
 /*
 select * from phrase order by phrase_id desc;
 select * from word_type_from;
@@ -270,4 +280,45 @@ select '{"1":"2"}'::jsonb || '{"a":"b"}'::jsonb;
 
 alter table word_type_link add column active boolean default true
 
-update word_type_link set active
+update word_type_link set active;
+
+SELECT * FROM word_type t
+                  JOIN word_type_form f ON t.word_type_id = f.word_type_id
+                  JOIN word_type_form_phrase wtfp on f.word_type_form_id = wtfp.word_type_form_id
+                  JOIN word_type_link wtl on wtfp.word_type_link_id = wtl.word_type_link_id
+                  JOIN word_type_from wtf ON wtl.word_type_link_id = wtf.word_type_link_id
+                  JOIN phrase p_from ON wtf.phrase_id = p_from.phrase_id
+                  JOIN phrase p_to ON wtfp.phrase_id = p_to.phrase_id;
+
+SELECT * FROM word_type_unit wtu
+    JOIN word_type_unit_link wtul ON wtul.word_type_unit_id = wtu.word_type_unit_id
+    JOIN word_type_link wtl ON wtl.word_type_link_id = wtul.word_type_link_id
+    JOIN word_type_from wtf ON wtf.word_type_link_id = wtl.word_type_link_id
+    JOIN phrase p_from ON p_from.phrase_id = wtf.phrase_id
+    JOIN word_type_form_phrase wtfp on wtfp.word_type_link_id = wtl.word_type_link_id
+    JOIN word_type_form wtfo ON wtfo.word_type_form_id = wtfp.word_type_form_id
+    JOIN phrase p_to ON p_to.phrase_id = wtfp.phrase_id;
+
+CREATE TABLE word_type_unit
+(
+    word_type_unit_id bigint generated always as identity (maxvalue 9999999)
+        constraint word_type_unit_pkey primary key,
+    word_type_id bigint not null constraint  fk_wtu_wt_id references word_type,
+    name varchar(50) not null
+);
+CREATE TABLE word_type_unit_link
+(
+    word_type_link_id bigint not null constraint  fk_wtul_wtl_id references word_type_link,
+    word_type_unit_id bigint not null constraint fk_wtul_wtu_id references word_type_unit
+);
+ALTER TABLE word_type_unit_link
+    ADD CONSTRAINT word_type_unit_link_pk
+        UNIQUE (word_type_unit_id, word_type_link_id);
+
+INSERT INTO word_type_unit (name, word_type_id) values ('Part 1', 1);
+INSERT INTO word_type_unit (name, word_type_id) values ('Part 2', 1);
+INSERT INTO word_type_unit (name, word_type_id) values ('Part 3', 1);
+INSERT INTO word_type_unit (name, word_type_id) values ('Part 4', 1);
+
+insert into word_type_unit_link(word_type_link_id, word_type_unit_id) values (1,1);
+insert into word_type_unit_link(word_type_link_id, word_type_unit_id) values (2,1);
