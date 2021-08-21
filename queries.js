@@ -81,47 +81,10 @@ const getWordTypeContent = (request, response) => {
   })
 }
 
-const getAllWordTypeContent = (request, response) => {
-  getWordTypeContent(request, response)
-}
-
-const activateWordTypeLink = (request, response) => {
-  const linkId = parseInt(request.params.linkId)
-  if (linkId == null) {
-    response.status(200).json('{}')
-  }
-  pool.query('UPDATE word_type_link SET active = true WHERE word_type_link_id = $1', [linkId], (error) => {
-    if (error) {
-      console.log(error)
-      response.status(500).json(error)
-    } else {
-      response.status(200).json('{}')
-    }
-  })
-}
-
-const deactivateWordTypeLink = (request, response) => {
-  const linkId = parseInt(request.params.linkId)
-  if (linkId == null) {
-    response.status(200).json('{}')
-  }
-  pool.query('UPDATE word_type_link SET active = false WHERE word_type_link_id = $1', [linkId], (error) => {
-    if (error) {
-      console.log(error)
-      response.status(500).json(error)
-    } else {
-      response.status(200).json('{}')
-    }
-  })
-}
-
 module.exports = {
   getUnitContent,
   getUnitTreeGroup,
   insertUnitContent,
   deleteUnitContent,
-  getWordTypeContent,
-  getAllWordTypeContent,
-  activateWordTypeLink,
-  deactivateWordTypeLink
+  getWordTypeContent
 }
