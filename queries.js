@@ -13,7 +13,7 @@ const getUnitContent = (request, response) => {
   if (unitId == null) {
     response.status(200).json('{}');
   }
-  pool.query('SELECT content FROM unit_content_json WHERE code = $1', [unitId], (error, results) => {
+  return pool.query('SELECT content FROM unit_content_json WHERE code = $1', [unitId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -24,7 +24,7 @@ const getUnitContent = (request, response) => {
 }
 
 const getUnitTreeGroup = (request, response) => {
-  pool.query('SELECT * FROM unit_group_json', [], (error, results) => {
+  return pool.query('SELECT * FROM unit_group_json', [], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -37,7 +37,7 @@ const getUnitTreeGroup = (request, response) => {
 
 const insertUnitContent = (request, response) => {
   const content = request.body;
-  pool.query('SELECT insert_unit_content($1) AS unit_content_id', [content], (error, results) => {
+  return pool.query('SELECT insert_unit_content($1) AS unit_content_id', [content], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -52,7 +52,7 @@ const insertUnitContent = (request, response) => {
 
 const deleteUnitContent = (request, response) => {
   const unitContentId = request.body.unitContentId;
-  pool.query('SELECT delete_unit_content($1) AS delete_result', [unitContentId], (error, results) => {
+  return pool.query('SELECT delete_unit_content($1) AS delete_result', [unitContentId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -71,10 +71,23 @@ const getWordTypeContent = (request, response) => {
   const fromLanguageId = request.body.fromLanguageId;
   const toLanguageId = request.body.toLanguageId;
   const wordTypeId = request.body.wordTypeId;
-  pool.query('SELECT content FROM word_type_content WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId], (error, results) => {
+  return pool.query('SELECT content FROM word_type_content WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
+    } else {
+      response.status(200).json(results.rows)
+    }
+  })
+}
+
+const getWordTypeUnitContent = (request, response) => {
+  const fromLanguageId = request.body.fromLanguageId;
+  const wordTypeId = request.body.wordTypeId;
+  return pool.query('SELECT content FROM word_type_unit_content WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeId], (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error)
     } else {
       response.status(200).json(results.rows)
     }
@@ -86,5 +99,6 @@ module.exports = {
   getUnitTreeGroup,
   insertUnitContent,
   deleteUnitContent,
-  getWordTypeContent
+  getWordTypeContent,
+  getWordTypeUnitContent
 }
