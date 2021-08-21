@@ -71,7 +71,7 @@ const getWordTypeContent = (request, response) => {
   const fromLanguageId = request.body.fromLanguageId;
   const toLanguageId = request.body.toLanguageId;
   const wordTypeId = request.body.wordTypeId;
-  return pool.query('SELECT content FROM word_type_content WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId], (error, results) => {
+  return pool.query('SELECT content FROM word_type_content_json WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error);
@@ -82,9 +82,12 @@ const getWordTypeContent = (request, response) => {
 }
 
 const getWordTypeUnitContent = (request, response) => {
-  const fromLanguageId = request.body.fromLanguageId;
-  const wordTypeId = request.body.wordTypeId;
-  return pool.query('SELECT content FROM word_type_unit_content WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeId], (error, results) => {
+  const fromLanguageId = parseInt(request.params.fromLanguageId)
+  const wordTypeId = parseInt(request.params.wordTypeId)
+  if (wordTypeId == null || fromLanguageId == null) {
+    response.status(200).json('{}');
+  }
+  return pool.query('SELECT content FROM word_type_unit_content_json WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeId], (error, results) => {
     if (error) {
       console.log(error)
       response.status(500).json(error)
@@ -94,11 +97,24 @@ const getWordTypeUnitContent = (request, response) => {
   })
 }
 
+const getWordTypeUnit = (request, response) => {
+  return pool.query('SELECT * FROM word_type_unit_json', [], (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error);
+    } else {
+      response.status(200).json(results.rows)
+    }
+  })
+}
+
+
 module.exports = {
   getUnitContent,
   getUnitTreeGroup,
   insertUnitContent,
   deleteUnitContent,
   getWordTypeContent,
-  getWordTypeUnitContent
+  getWordTypeUnitContent,
+  getWordTypeUnit
 }
