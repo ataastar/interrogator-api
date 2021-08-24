@@ -5,9 +5,11 @@ DROP VIEW IF EXISTS word_type_content;
  {
   "name": "Irregular verbs",
   "forms": ["Infinitive", "Past Tense", "Past Participle"],
+  "wordTypeUnits": [{"id":1, "name": "Part 1"},{"id":2, "name":"Part 2"}]
   "rows": [
     {
       "id": "1",
+      "wordTypeUnits": [1,2,3,4]
       "fromPhrases": [
         "lenni"
       ],
@@ -45,9 +47,10 @@ CREATE OR REPLACE VIEW word_type_content_json(content, from_language_id, to_lang
                   JOIN phrase p_to ON wtfp.phrase_id = p_to.phrase_id;*/
 
 SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_agg(name order by order_number)) AS forms FROM word_type_form wtfo WHERE wtfo.word_type_id = b_wt.word_type_id) forms)::jsonb ||
-       (SELECT row_to_json(wordtype.*) AS forms FROM (SELECT name AS name FROM word_type wt WHERE wt.word_type_id = b_wt.word_type_id) wordtype)::JSONB ||
+       (SELECT row_to_json("wordTypeUnits".*) FROM (SELECT array_to_json(array_agg(json_build_object(wtu.word_type_unit_id, wtu.name))) AS "wordTypeUnits" FROM word_type_unit wtu) "wordTypeUnits")::jsonb ||
+       (SELECT row_to_json(wordtype.*) AS name FROM (SELECT name AS name FROM word_type wt WHERE wt.word_type_id = b_wt.word_type_id) wordtype)::JSONB ||
        (SELECT row_to_json(from_phrase.*)
-        FROM (SELECT COALESCE(array_to_json(array_agg(phrase.*)), '[{}]'::JSON) AS "rows"
+        FROM (SELECT COALESCE(array_to_json(array_agg(phrase.*)), '[]'::JSON) AS "rows"
               FROM (SELECT wtfr.word_type_link_id              id,
                            array_to_json(array_agg(p.text)) AS "fromPhrases",
                            (SELECT array_to_json(array_agg(fp))
@@ -59,7 +62,11 @@ SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_ag
                                         AND wtf.word_type_id = b_wt.word_type_id
                                         AND p.language_id = b_wt.language_id
                                   GROUP BY wtf.name) t
-                            ) "toPhrases"
+                            ) "toPhrases",
+                           (SELECT array_to_json(array_agg(wtu.word_type_unit_id))
+                              FROM word_type_unit_link wtul
+                                   JOIN word_type_unit wtu ON wtul.word_type_unit_id = wtu.word_type_unit_id
+                             WHERE wtfr.word_type_link_id = wtul.word_type_link_id) "wordTypeUnits"
                     FROM word_type_from wtfr
                              JOIN phrase p ON wtfr.phrase_id = p.phrase_id
                              JOIN word_type_link wtl ON wtl.word_type_link_id = wtfr.word_type_link_id
