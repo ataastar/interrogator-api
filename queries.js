@@ -108,6 +108,41 @@ const getWordTypeUnit = (request, response) => {
   })
 }
 
+const deleteWordTypeUnitLink = (request, response) => {
+  const wordTypeUnitLinkId = request.body.wordTypeUnitLinkId;
+  const wordTypeLinkId = request.body.wordTypeLinkId;
+  return pool.query('SELECT remove_word_type_unit_link($1, $2) AS delete_result', [wordTypeLinkId, wordTypeUnitLinkId], (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error);
+    } else {
+      let deleteResult = results.rows[0].delete_result;
+      if (deleteResult) {
+        response.status(204).json();
+      } else {
+        response.status(404).json();
+      }
+    }
+  })
+}
+
+const addWordTypeUnitLink = (request, response) => {
+  const wordTypeUnitLinkId = request.body.wordTypeUnitLinkId;
+  const wordTypeLinkId = request.body.wordTypeLinkId;
+  return pool.query('SELECT add_word_type_unit_link($1, $2) AS delete_result', [wordTypeLinkId, wordTypeUnitLinkId], (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(500).json(error);
+    } else {
+      let addResult = results.rows[0].delete_result;
+      if (addResult) {
+        response.status(204).json();
+      } else {
+        response.status(404).json();
+      }
+    }
+  })
+}
 
 module.exports = {
   getUnitContent,
@@ -116,5 +151,7 @@ module.exports = {
   deleteUnitContent,
   getWordTypeContent,
   getWordTypeUnitContent,
-  getWordTypeUnit
+  getWordTypeUnit,
+  addWordTypeUnitLink,
+  deleteWordTypeUnitLink
 }

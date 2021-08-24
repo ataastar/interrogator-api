@@ -42,5 +42,4 @@ BEGIN
 END;
 $$;
 
-alter function insert_unit_content(json) owner to postgres;
 
