@@ -1,5 +1,5 @@
 DROP FUNCTION IF EXISTS remove_word_type_unit_link;
-CREATE OR REPLACE FUNCTION remove_word_type_unit_link(wtl_id BIGINT, wtul_id BIGINT) RETURNS BIGINT
+CREATE OR REPLACE FUNCTION remove_word_type_unit_link(wtl_id BIGINT, wtul_id BIGINT) RETURNS BOOLEAN
 	LANGUAGE PLPGSQL
 AS $$
 DECLARE
