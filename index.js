@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const app = express()
 const db = require('./queries')
 const port = process.env.INTERROGATOR_API_PORT
+const host = process.env.INTERROGATOR_API_HOST
 
 console.log("process.env.INTERROGATOR_API_PORT:")
 console.log(process.env.INTERROGATOR_API_PORT)
@@ -45,9 +46,15 @@ app.put('/word_type_unit_link/delete', db.deleteWordTypeUnitLink)
 //app.delete('/users/:id', db.deleteUser)
 
 if (port) {
-  app.listen(port, () => {
-    console.log('App running on port ${PORT}.')
-  })
+  if (host) {
+    app.listen(port, () => {
+      console.log('App running on port ${PORT}.')
+    })
+  } else {
+    app.listen(port, host, () => {
+      console.log('App running on port ${PORT}.')
+    })
+  }
 } else {
   app.listen(() => {
     console.log('App running on port ${PORT}.')
