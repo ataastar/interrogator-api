@@ -13,6 +13,9 @@ RUN the sample.
    - database user password
    - host (optionally)
    - web client host (optionally)
+   - eg enabled from domain: start.bat baracska 192.168.0.81 interrogator.mooo.com
+   - eg enabled from remote: start.bat baracska 192.168.0.81 80.99.23.5
+   - eg enabled just from local: start.bat baracska 192.168.0.81
  - Open a browser window and navigate to http:\\\\localhost:3000 to access the app.
  
  
