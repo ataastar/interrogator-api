@@ -12,9 +12,11 @@ RUN the sample.
  - node index.js or run start.bat with the following params
    - database user password
    - host (optionally)
-   - web client host (optionally)
-   - eg enabled from domain: start.bat baracska 192.168.0.81 interrogator.mooo.com
-   - eg enabled from remote: start.bat baracska 192.168.0.81 80.99.23.5
+   - web client url (optionally)
+   - eg enabled from domain: start.bat baracska 192.168.0.81 http://interrogator.mooo.com:4200
+     - in this case need to add the following line to the hosts file in order to access the app in the local intranet
+       - 192.168.0.81 interrogator.mooo.com
+   - eg enabled from remote: start.bat baracska 192.168.0.81 http://80.99.23.5:4200
    - eg enabled just from local: start.bat baracska 192.168.0.81
  - Open a browser window and navigate to http:\\\\localhost:3000 to access the app.
  

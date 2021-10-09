@@ -12,7 +12,7 @@ SET INTERROGATOR_WEB_URL=http://%2:4200
 :skip_host
 
 if [%3]==[] goto skip_web_host
-SET INTERROGATOR_WEB_URL=http://%3:4200
+SET INTERROGATOR_WEB_URL=%3
 :skip_web_host
 
 SET INTERROGATOR_API_PORT=3000
