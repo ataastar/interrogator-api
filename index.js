@@ -2,6 +2,12 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const db = require('./queries')
+
+// **** LOGIN START ****
+const jwt = require('express');
+const fs = require('fs');
+// **** LOGIN END ****
+
 const port = process.env.INTERROGATOR_API_PORT
 const host = process.env.INTERROGATOR_API_HOST
 
@@ -30,6 +36,27 @@ app.use(
 app.get('/', (request, response) => {
   response.json({ info: 'Node.js, Express, and Postgres API' })
 })
+
+// **** LOGIN START ****
+app.route('/api/login').post(loginRoute);
+const RSA_PRIVATE_KEY = fs.readFileSync('./jwt.keystore');
+function loginRoute(req, res) {
+  const email = req.body.email, password = req.body.password;
+  if (true /*validateEmailAndPassword()*/) {
+    const userId = findUserIdForEmail(email);
+    const jwtBearerToken = jwt.sign({}, RSA_PRIVATE_KEY, {
+      algorithm: 'RS256',
+      expiresIn: 120,
+      subject: userId
+    });
+    // send the JWT back to the user
+    // TODO - multiple options available
+  } else {
+    // send status 401 Unauthorized
+    res.sendStatus(401);
+  }
+}
+// **** LOGIN END ****
 
 //app.get('/users', db.getUsers)
 app.get('/words/:unitId', db.getUnitContent)
