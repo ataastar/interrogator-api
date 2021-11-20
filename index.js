@@ -4,7 +4,7 @@ const app = express()
 const db = require('./queries')
 
 // **** LOGIN START ****
-const jwt = require('express');
+const jwt = require('jsonwebtoken');
 const fs = require('fs');
 // **** LOGIN END ****
 
@@ -39,18 +39,29 @@ app.get('/', (request, response) => {
 
 // **** LOGIN START ****
 app.route('/api/login').post(loginRoute);
-const RSA_PRIVATE_KEY = fs.readFileSync('./jwt.keystore');
+const RSA_PRIVATE_KEY = fs.readFileSync('./private.key');
 function loginRoute(req, res) {
   const email = req.body.email, password = req.body.password;
-  if (true /*validateEmailAndPassword()*/) {
+
+  function findUserIdForEmail(email) { // TODO find user
+    return '1';
+  }
+
+  function validateEmailAndPassword() {  // TODO check email
+    return true;
+  }
+
+  if (validateEmailAndPassword()) {
     const userId = findUserIdForEmail(email);
     const jwtBearerToken = jwt.sign({}, RSA_PRIVATE_KEY, {
       algorithm: 'RS256',
-      expiresIn: 120,
+      expiresIn: 72000, // 60 * 60 * 20
       subject: userId
     });
     // send the JWT back to the user
-    // TODO - multiple options available
+    res.status(200).json({
+      idToken: jwtBearerToken
+    });
   } else {
     // send status 401 Unauthorized
     res.sendStatus(401);
@@ -58,9 +69,18 @@ function loginRoute(req, res) {
 }
 // **** LOGIN END ****
 
+// check JWT
+const expressJwt = require('express-jwt');
+const RSA_PUBLIC_KEY = fs.readFileSync('./public.key');
+
+const checkIfAuthenticated = expressJwt({
+  secret: RSA_PUBLIC_KEY, algorithms: ['RS256']
+}); // check JWT
+
+
 //app.get('/users', db.getUsers)
 app.get('/words/:unitId', db.getUnitContent)
-app.get('/word_groups', db.getUnitTreeGroup)
+app.get('/word_groups', checkIfAuthenticated, db.getUnitTreeGroup)
 app.put('/word', db.insertUnitContent)
 app.put( '/word/remove', db.deleteUnitContent)
 app.post('/word_type', db.getWordTypeContent)
