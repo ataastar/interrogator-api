@@ -19,7 +19,9 @@ RUN the sample.
    - eg enabled from remote:
      - start.bat password 192.168.0.81 http://80.98.178.201:4200
      - start.bat password 192.168.0.213 http://80.98.178.201:4200
-   - eg enabled just from local: start.bat password 192.168.0.81
+   - eg enabled just from local:
+     - start.bat password 192.168.0.213 // lan
+     - start.bat password 192.168.0.81 // wifi
  - Open a browser window and navigate to http:\\\\localhost:3000 to access the app.
  
  

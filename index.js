@@ -22,7 +22,7 @@ app.all('/*', function (req, res, next) {
   res.header('Access-Control-Allow-Origin', process.env.INTERROGATOR_WEB_URL);
   res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Headers', ['Content-Type', 'authorization']);
   next() // pass control to the next handler
 });
 
@@ -79,15 +79,15 @@ const checkIfAuthenticated = expressJwt({
 
 
 //app.get('/users', db.getUsers)
-app.get('/words/:unitId', db.getUnitContent)
+app.get('/words/:unitId', checkIfAuthenticated, db.getUnitContent)
 app.get('/word_groups', checkIfAuthenticated, db.getUnitTreeGroup)
-app.put('/word', db.insertUnitContent)
-app.put( '/word/remove', db.deleteUnitContent)
-app.post('/word_type', db.getWordTypeContent)
-app.get('/word_type_unit/:wordTypeId/:fromLanguageId', db.getWordTypeUnitContent)
-app.get('/word_type_unit', db.getWordTypeUnit)
-app.put('/word_type_unit_link/add', db.addWordTypeUnitLink)
-app.put('/word_type_unit_link/delete', db.deleteWordTypeUnitLink)
+app.put('/word', checkIfAuthenticated, db.insertUnitContent)
+app.put( '/word/remove', checkIfAuthenticated, db.deleteUnitContent)
+app.post('/word_type', checkIfAuthenticated, db.getWordTypeContent)
+app.get('/word_type_unit/:wordTypeId/:fromLanguageId', checkIfAuthenticated, db.getWordTypeUnitContent)
+app.get('/word_type_unit', checkIfAuthenticated, db.getWordTypeUnit)
+app.put('/word_type_unit_link/add', checkIfAuthenticated, db.addWordTypeUnitLink)
+app.put('/word_type_unit_link/delete', checkIfAuthenticated, db.deleteWordTypeUnitLink)
 //app.post('/users', db.createUser)
 //app.put('/users/:id', db.updateUser)
 //app.delete('/users/:id', db.deleteUser)
