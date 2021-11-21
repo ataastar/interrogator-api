@@ -88,13 +88,9 @@ const checkIfAuthenticated = expressJwt({
  */
 const getUserId = (req) => {
   const token = req.header('authorization');
-  console.log('decoding JWT token');
-  console.log(req.params.unitId);
-  console.log(token);
   if(token !== null){
     const base64String = token.split('.')[1];
     const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
-    console.log(decodedValue);
     return decodedValue['sub'];
   }
   return null;
