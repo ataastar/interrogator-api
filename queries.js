@@ -8,7 +8,8 @@ const pool = new Pool({
   connectionString: connectionString
 });
   
-const getUnitContent = (request, response) => {
+const getUnitContent = (request, response, user) => {
+  console.log(user)
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
     response.status(200).json('{}');

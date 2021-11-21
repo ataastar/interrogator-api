@@ -72,14 +72,36 @@ function loginRoute(req, res) {
 // check JWT
 const expressJwt = require('express-jwt');
 const RSA_PUBLIC_KEY = fs.readFileSync('./public.key');
-
+/**
+ * Function to check that the token is right
+ * @type {(function(*=, *=, *): (*|undefined))|*}
+ */
 const checkIfAuthenticated = expressJwt({
   secret: RSA_PUBLIC_KEY, algorithms: ['RS256']
-}); // check JWT
+});
+// check JWT
 
+/**
+ * Gets the user id from the jwt token
+ * @param req the request
+ * @returns {null|*} the user id if the token is exists, otherwise null
+ */
+const getUserId = (req) => {
+  const token = req.header('authorization');
+  console.log('decoding JWT token');
+  console.log(req.params.unitId);
+  console.log(token);
+  if(token !== null){
+    const base64String = token.split('.')[1];
+    const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
+    console.log(decodedValue);
+    return decodedValue['sub'];
+  }
+  return null;
+}
 
 //app.get('/users', db.getUsers)
-app.get('/words/:unitId', checkIfAuthenticated, db.getUnitContent)
+app.get('/words/:unitId', checkIfAuthenticated, (req, res) =>{ db.getUnitContent(req, res, getUserId(req))})
 app.get('/word_groups', checkIfAuthenticated, db.getUnitTreeGroup)
 app.put('/word', checkIfAuthenticated, db.insertUnitContent)
 app.put( '/word/remove', checkIfAuthenticated, db.deleteUnitContent)
