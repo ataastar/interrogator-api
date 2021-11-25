@@ -40,30 +40,30 @@ app.get('/', (request, response) => {
 // **** LOGIN START ****
 app.route('/api/login').post(loginRoute);
 const RSA_PRIVATE_KEY = fs.readFileSync('./private.key');
-function loginRoute(req, res) {
-  const email = req.body.email, password = req.body.password;
+async function loginRoute(req, res) {
+  const email = req.body.email;
+  const password = req.body.password;
 
-  function findUserIdForEmail(email) { // TODO find user
-    return '1';
+  // TODO user dto
+  let user = null;
+  try {
+    user = await db.validateEmailAndPassword(email, password);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(401);
   }
-
-  function validateEmailAndPassword() {  // TODO check email
-    return true;
-  }
-
-  if (validateEmailAndPassword()) {
-    const userId = findUserIdForEmail(email);
+  if (user) {
     const jwtBearerToken = jwt.sign({}, RSA_PRIVATE_KEY, {
       algorithm: 'RS256',
       expiresIn: 72000, // 60 * 60 * 20
-      subject: userId
+      subject: user.user_id
     });
     // send the JWT back to the user
     res.status(200).json({
-      idToken: jwtBearerToken
+      idToken: jwtBearerToken,
+      nickname: user.nickname
     });
   } else {
-    // send status 401 Unauthorized
     res.sendStatus(401);
   }
 }
