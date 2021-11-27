@@ -7,8 +7,19 @@ console.log(connectionString)
 const pool = new Pool({
   connectionString: connectionString
 });
-  
-const getUnitContent = (request, response) => {
+
+const validateEmailAndPassword = async (email, password) => {
+  try {
+    const result = await pool.query('SELECT user_id, nickname FROM users WHERE email = $1 AND password=CRYPT($2, password)', [email, password]);
+    return result && result.rows.length > 0 ? result.rows[0] : null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+const getUnitContent = (request, response, user) => {
+  console.log(user)
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
     response.status(200).json('{}');
@@ -153,5 +164,6 @@ module.exports = {
   getWordTypeUnitContent,
   getWordTypeUnit,
   addWordTypeUnitLink,
-  deleteWordTypeUnitLink
+  deleteWordTypeUnitLink,
+  validateEmailAndPassword
 }
