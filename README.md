@@ -13,7 +13,7 @@ RUN the sample.
    - database user password
    - host (optionally)
    - web client url (optionally)
-   - eg enabled from domain: start.bat baracska interrogator.mooo.com http://interrogator.mooo.com:4200
+   - eg enabled from domain: start.bat password interrogator.mooo.com http://interrogator.mooo.com:4200
      - in this case need to add the following line to the hosts file in order to access the app in the local intranet
        - 192.168.0.81 interrogator.mooo.com
    - eg enabled from remote:
