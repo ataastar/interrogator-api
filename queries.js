@@ -54,7 +54,6 @@ const insertUnitContent = (request, response) => {
       response.status(500).json(error);
     } else {
       let unitContentId = results.rows[0].unit_content_id;
-      console.log(results.rows)
       response.status(201).json({ unitContentId: unitContentId });
     }
   })
