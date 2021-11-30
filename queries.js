@@ -18,8 +18,7 @@ const validateEmailAndPassword = async (email, password) => {
   }
 }
 
-const getUnitContent = (request, response, user) => {
-  console.log(user)
+const getUnitContent = (request, response) => {
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
     response.status(200).json('{}');
@@ -139,19 +138,37 @@ const deleteWordTypeUnitLink = (request, response) => {
 const addWordTypeUnitLink = (request, response) => {
   const wordTypeUnitLinkId = request.body.wordTypeUnitLinkId;
   const wordTypeLinkId = request.body.wordTypeLinkId;
-  return pool.query('SELECT add_word_type_unit_link($1, $2) AS delete_result', [wordTypeLinkId, wordTypeUnitLinkId], (error, results) => {
-    if (error) {
-      console.log(error)
-      response.status(500).json(error);
-    } else {
-      let addResult = results.rows[0].delete_result;
-      if (addResult) {
-        response.status(204).json();
-      } else {
-        response.status(404).json();
-      }
-    }
+  return pool.query('SELECT add_word_type_unit_link($1, $2) AS res', [wordTypeLinkId, wordTypeUnitLinkId], (error, results) => {
+    handleSimpleResult(response, error, results)
   })
+}
+
+const addAnswer = (request, response, userId) => {
+  const unitContentId = request.body.id;
+  const right = request.body.right;
+  const interrogationType = request.body.interrogationType;
+  console.log(request.body)
+  console.log(unitContentId)
+  console.log(right)
+  console.log(interrogationType)
+  console.log(userId)
+  return pool.query('SELECT add_answer($1, $2, $3, $4) AS res', [unitContentId, userId, right, interrogationType], (error, result) => {
+    handleSimpleResult(response, error, result)
+  })
+}
+
+function handleSimpleResult(response, error, result) {
+  if (error) {
+    console.log(error)
+    response.status(500).json(error);
+  } else {
+    let addResult = result.rows[0].res;
+    if (addResult) {
+      response.status(204).json();
+    } else {
+      response.status(404).json();
+    }
+  }
 }
 
 module.exports = {
@@ -164,5 +181,6 @@ module.exports = {
   getWordTypeUnit,
   addWordTypeUnitLink,
   deleteWordTypeUnitLink,
-  validateEmailAndPassword
+  validateEmailAndPassword,
+  addAnswer
 }
