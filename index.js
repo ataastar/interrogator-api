@@ -8,12 +8,13 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 // **** LOGIN END ****
 
-const port = process.env.INTERROGATOR_API_PORT
+const port = process.env.INTERROGATOR_API_PORT ? process.env.INTERROGATOR_API_PORT : process.env.PORT
 const host = process.env.INTERROGATOR_API_HOST
 
-console.log("process.env.INTERROGATOR_API_PORT:")
-console.log(process.env.INTERROGATOR_API_PORT)
-
+console.log("PORT:")
+console.log(port)
+console.log("HOST:")
+console.log(host)
 console.log("process.env.INTERROGATOR_WEB_URL:")
 console.log(process.env.INTERROGATOR_WEB_URL)
 
