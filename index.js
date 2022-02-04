@@ -40,6 +40,8 @@ app.get('/', (request, response) => {
 
 // **** LOGIN START ****
 app.route('/api/login').post(loginRoute);
+//
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
 const RSA_PRIVATE_KEY = fs.readFileSync('./private.key');
 
 async function loginRoute(req, res) {
