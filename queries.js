@@ -4,8 +4,14 @@ let connectionString = process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI ?
 console.log("connectionString:")
 console.log(connectionString)
 
+let conn_secure = true
+if (process.env.DATABASE_CONN_UNSECURE) {
+  conn_secure = false;
+}
+
 const pool = new Pool({
-  connectionString: connectionString
+  connectionString: connectionString,
+  ssl: conn_secure
 });
 
 const validateEmailAndPassword = async (email, password) => {
