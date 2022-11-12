@@ -17,11 +17,11 @@ RUN the sample.
      - in this case need to add the following line to the hosts file in order to access the app in the local intranet
        - 192.168.0.81 interrogator.mooo.com
    - eg enabled from remote:
-     - start.bat password 192.168.0.81 http://80.98.178.201:4200
-     - start.bat password 192.168.0.213 http://80.98.178.201:4200
+     - start.bat password 192.168.100.14 http://80.98.178.201:4200
+     - start.bat password 192.168.100.15 http://80.98.178.201:4200
    - eg enabled just from local:
-     - start.bat password 192.168.0.213 // lan
-     - start.bat password 192.168.0.81 // wifi
+     - start.bat password 192.168.100.14 // lan
+     - start.bat password 192.168.100.15 // wifi
  - Open a browser window and navigate to http:\\\\localhost:3000 to access the app.
  
  
@@ -67,5 +67,7 @@ heroku logs -a hunenginterrogator -> heroku.log
 
 # Environment variables
 - INTERROGATOR_API_PORT: eg. 3000
-- INTERROGATOR_WEB: the web api url. eg. https://localhost:4200
+- INTERROGATOR_API_HOST: eg. localhost
+- INTERROGATOR_WEB_URL: the web api url. eg. https://localhost:4200
 - INTERROGATOR_DATABASE_URL: the DB url connection. eg: postgres://%user%:%pw%@localhost:5432/interrogator
+- INTERROGATOR_DATABASE_CONN_UNSECURE: localhost it is true. no need to set if the connection is secure

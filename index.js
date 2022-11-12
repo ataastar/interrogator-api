@@ -123,13 +123,13 @@ app.put('/word_type_unit_link/delete', checkIfAuthenticated, db.deleteWordTypeUn
 //app.delete('/users/:id', db.deleteUser)
 
 if (port) {
-    if (host) {
+    if (!host) {
         app.listen(port, () => {
-            console.log('App running on port ${PORT}.')
+            console.log('App running on ' + port)
         })
     } else {
         app.listen(port, host, () => {
-            console.log('App running on port ${PORT}.')
+            console.log('App running on port ' +  host + ':' + port) 
         })
     }
 } else {

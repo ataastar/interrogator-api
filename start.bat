@@ -16,6 +16,6 @@ SET INTERROGATOR_WEB_URL=%3
 :skip_web_host
 
 SET INTERROGATOR_API_PORT=3000
-SET INTERROGATOR_DATABASE_URL=postgres://mata:%pw%@localhost:5432/interrogator
-rem SET INTERROGATOR_API_DB_CONN_UNSECURE=true
+SET INTERROGATOR_DATABASE_URL=postgres://postgres:%pw%@localhost:5432/interrogator
+SET INTERROGATOR_DATABASE_CONN_UNSECURE=true
 call node index.js

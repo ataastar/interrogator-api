@@ -5,7 +5,7 @@ console.log("connectionString:")
 console.log(connectionString)
 
 let conn_secure = true
-if (process.env.DATABASE_CONN_UNSECURE) {
+if (process.env.INTERROGATOR_DATABASE_CONN_UNSECURE) {
   conn_secure = false;
 }
 
