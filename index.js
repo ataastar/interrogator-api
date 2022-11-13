@@ -116,8 +116,11 @@ app.put('/answer', checkIfAuthenticated, (req, res) => {
 app.post('/word_type', checkIfAuthenticated, db.getWordTypeContent)
 app.get('/word_type_unit/:wordTypeId/:fromLanguageId', checkIfAuthenticated, db.getWordTypeUnitContent)
 app.get('/word_type_unit', checkIfAuthenticated, db.getWordTypeUnit)
+
+// adding removing phrases
 app.put('/word_type_unit_link/add', checkIfAuthenticated, db.addWordTypeUnitLink)
 app.put('/word_type_unit_link/delete', checkIfAuthenticated, db.deleteWordTypeUnitLink)
+
 //app.post('/users', db.createUser)
 //app.put('/users/:id', db.updateUser)
 //app.delete('/users/:id', db.deleteUser)
