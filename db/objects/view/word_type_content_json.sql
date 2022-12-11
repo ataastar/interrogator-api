@@ -1,5 +1,4 @@
 DROP VIEW IF EXISTS word_type_content_json;
-DROP VIEW IF EXISTS word_type_content;
 
 /*
  {
