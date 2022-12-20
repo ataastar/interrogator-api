@@ -6,9 +6,13 @@ $$
 DECLARE
   v_answers     RECORD;
   v_right_count INT = 0;
-  v_30_minutes INT = 60 * 30;
+  v_10_minutes INT = 60 * 10;
+  v_1_hour INT = 60 * 60;
   v_now timestamp = now();
-  v_30_minutes_after TIMESTAMP = TO_TIMESTAMP( EXTRACT(EPOCH FROM v_now) + v_30_minutes);
+  v_10_minutes_after TIMESTAMP = TO_TIMESTAMP( EXTRACT(EPOCH FROM v_now) + v_10_minutes);
+  v_1_hour_after TIMESTAMP = TO_TIMESTAMP( EXTRACT(EPOCH FROM v_now) + v_1_hour);
+  v_right_answer_timestamps bigint[];
+  v_next_interrogation_date timestamp;
 BEGIN
   IF NOT p_answer_is_right THEN
     UPDATE translation_link SET next_interrogation_date = v_now WHERE translation_link_id = p_translation_link_id;
@@ -23,15 +27,24 @@ BEGIN
           (SELECT answer_time FROM answer w WHERE w.translation_link_id = p_translation_link_id AND NOT w.right_answer)
     ORDER BY answer_time DESC
     LOOP
+      v_right_answer_timestamps[v_right_count] = EXTRACT(EPOCH FROM v_answers.answer_time);
       v_right_count = v_right_count + 1;
     END LOOP;
+  /* if the right answer is saved then at least 1 right answer will be found here
   IF v_right_count = 0 THEN
-    UPDATE translation_link SET next_interrogation_date = v_30_minutes_after WHERE translation_link_id = p_translation_link_id;
+    UPDATE translation_link SET next_interrogation_date = v_now WHERE translation_link_id = p_translation_link_id AND next_interrogation_date > v_now;
+  END IF;*/
+  IF v_right_count = 1 THEN
+    UPDATE translation_link SET next_interrogation_date = v_10_minutes_after WHERE translation_link_id = p_translation_link_id;
+    RETURN;
   END IF;
+  IF v_right_count = 2 THEN
+    v_next_interrogation_date = get_interrogation_date2(v_right_answer_timestamps[0], v_right_answer_timestamps[1]);
+  END IF;
+  UPDATE translation_link SET next_interrogation_date = v_next_interrogation_date WHERE translation_link_id = p_translation_link_id;
   RAISE NOTICE 'count %', v_right_count;
   RAISE NOTICE 'NOW %', v_now;
-  RAISE NOTICE 'v_30_minutes_after %', v_30_minutes_after;
+  RAISE NOTICE 'v_10_minutes_after %', v_10_minutes_after;
 
 END
 $$;
-

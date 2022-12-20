@@ -3,18 +3,20 @@ CREATE OR REPLACE FUNCTION add_answer(p_unit_content_id BIGINT, p_user_id BIGINT
   LANGUAGE plpgsql
 AS
 $$
+DECLARE
+  v_translation_link_id bigint;
+  v_from_language_id bigint;
 BEGIN
-  INSERT INTO answer(translation_link_id, user_id, from_language_id, right_answer, interrogation_type)
-  SELECT translation_link_id,
-         p_user_id,
-         (SELECT MAX(p.language_id)
-          FROM translation_from tf
-                 JOIN phrase p ON tf.phrase_id = p.phrase_id
-          WHERE uc.translation_link_id = tf.translation_link_id),
-         p_answer_is_right,
-         p_interrogator_type
+  SELECT translation_link_id, utv.from_language_id INTO v_translation_link_id, v_from_language_id
   FROM unit_content uc
+    JOIN unit_tree_view utv on uc.unit_tree_id = utv.unit_tree_id
   WHERE uc.unit_content_id = p_unit_content_id;
+
+  INSERT INTO answer(translation_link_id, user_id, from_language_id, right_answer, interrogation_type)
+  VALUES (v_translation_link_id, p_user_id, v_from_language_id, p_answer_is_right, p_interrogator_type);
+
+  call calculate_next_interrogation_date(v_translation_link_id, p_user_id, p_answer_is_right, p_interrogator_type);
+
   RETURN TRUE;
 END
 $$;
