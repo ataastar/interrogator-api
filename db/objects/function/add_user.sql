@@ -8,7 +8,7 @@ DECLARE
 BEGIN
   INSERT INTO users (email, password)
   VALUES (email,
-          crypt(password, gen_salt('bf'))) RETURNING user_id, v_id;
+          crypt(password, gen_salt('bf'))) RETURNING user_id INTO v_id;
   RETURN v_id;
 END
 $$;

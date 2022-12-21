@@ -8,6 +8,7 @@ BEGIN
 
     --insert into interrogator."tmp_insertjson"(insertjson)
 --select json_input;
+    --RAISE NOTICE '%', json_input;
 
     with json_data as (
         select * from json_populate_record(

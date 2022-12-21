@@ -23,11 +23,16 @@ BEGIN
     SELECT *
     FROM answer a
     WHERE translation_link_id = p_translation_link_id
-      AND answer_time >
-          (SELECT answer_time FROM answer w WHERE w.translation_link_id = p_translation_link_id AND NOT w.right_answer)
-    ORDER BY answer_time DESC
+      AND EXISTS
+          (SELECT 1 FROM answer w
+          WHERE w.translation_link_id = p_translation_link_id AND NOT w.right_answer
+                  AND a.answer_time > w.answer_time OR a.answer_time = w.answer_time AND a.answer_id > w.answer_id)
+    ORDER BY answer_time DESC -- OR is necessary for the unit test
     LOOP
       v_right_answer_timestamps[v_right_count] = EXTRACT(EPOCH FROM v_answers.answer_time);
+      --RAISE NOTICE 'v_right_count %', v_right_count;
+      --RAISE NOTICE 'v_right_answer_timestamps %', v_right_answer_timestamps[v_right_count];
+      --RAISE NOTICE 'v_right_answer_timestamps %', EXTRACT(EPOCH FROM v_answers.answer_time);
       v_right_count = v_right_count + 1;
     END LOOP;
   /* if the right answer is saved then at least 1 right answer will be found here
