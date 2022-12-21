@@ -1,5 +1,5 @@
 DROP FUNCTION IF EXISTS add_answer;
-CREATE OR REPLACE FUNCTION add_answer(p_unit_content_id BIGINT, p_user_id BIGINT, p_answer_is_right BOOLEAN, p_interrogator_type TEXT) RETURNS BOOLEAN
+CREATE OR REPLACE FUNCTION add_answer(p_unit_content_id BIGINT, p_user_id BIGINT, p_answer_is_right BOOLEAN, p_interrogator_type TEXT, p_answer_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP) RETURNS BOOLEAN
   LANGUAGE plpgsql
 AS
 $$
@@ -13,7 +13,7 @@ BEGIN
   WHERE uc.unit_content_id = p_unit_content_id;
 
   INSERT INTO answer(translation_link_id, user_id, from_language_id, right_answer, interrogation_type, answer_time)
-  VALUES (v_translation_link_id, p_user_id, v_from_language_id, p_answer_is_right, p_interrogator_type, CURRENT_TIMESTAMP);
+  VALUES (v_translation_link_id, p_user_id, v_from_language_id, p_answer_is_right, p_interrogator_type, p_answer_time);
   --RAISE NOTICE 'now: %', current_timestamp;
   call calculate_next_interrogation_date(v_translation_link_id, p_user_id, p_answer_is_right, p_interrogator_type);
 

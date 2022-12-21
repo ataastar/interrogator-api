@@ -5,5 +5,7 @@ $$
 DECLARE
   v_answers     RECORD;
 BEGIN
+  RAISE NOTICE 'times: % %', p_1_answer_time, p_2_answer_time;
+  RETURN 0;
 END
 $$;
