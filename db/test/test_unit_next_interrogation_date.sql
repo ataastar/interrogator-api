@@ -55,6 +55,18 @@ BEGIN
   --RAISE NOTICE 'v_answer_time: %', v_answer_time;
   call test_assert(v_answer_time > CURRENT_TIMESTAMP, 'Answer time should be in the future for 1 right answer!');
 
+  -- WRONG answer
+  v_boolean_result = add_answer(v_unit_content_id, v_user_id, false, 'X');
+  SELECT next_interrogation_date INTO v_answer_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  --RAISE NOTICE 'v_answer_time: %', v_answer_time;
+  call test_assert(v_answer_time <= CURRENT_TIMESTAMP, 'Answer time can not be in the future for wrong answer!');
+
+  -- 1 RIGHT answer
+  v_boolean_result = add_answer(v_unit_content_id, v_user_id, true, 'X');
+  SELECT next_interrogation_date INTO v_answer_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  --RAISE NOTICE 'v_answer_time: %', v_answer_time;
+  call test_assert(v_answer_time > CURRENT_TIMESTAMP, 'Answer time should be in the future for 1 right answer!');
+
   -- 2 RIGHT answer
   v_boolean_result = add_answer(v_unit_content_id, v_user_id, true, 'X');
   SELECT next_interrogation_date INTO v_answer_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
