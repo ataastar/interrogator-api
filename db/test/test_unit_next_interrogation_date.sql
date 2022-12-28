@@ -92,23 +92,38 @@ BEGIN
   v_answer_time = CURRENT_TIMESTAMP;
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
   SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
-/*  RAISE NOTICE 'v_next_interrogation_time: %', v_next_interrogation_time;
-  RAISE NOTICE 'v_answer_time: %', v_answer_time;
-  RAISE NOTICE 'min time: %', add_time(v_answer_time, CAST((60*60)-2 AS BIGINT));
-  RAISE NOTICE 'max time: %', add_time(v_answer_time, CAST((60*60)+2 AS BIGINT));*/
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
-  call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST((60*60)-2 AS BIGINT)) AND add_time(v_answer_time, CAST((60*60)+2 AS BIGINT)), 'Next interrogation time should be 1 hour if the first RIGHT answer was 1 minute before and !');
+  call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST((60*60)-2 AS BIGINT)) AND add_time(v_answer_time, CAST((60*60)+2 AS BIGINT)), 'Next interrogation time should be 2 hour later, if the first RIGHT answer was 1 minute before and we have now right answer!');
 
   -- add RIGHT now (first is a minutes ago)
   v_answer_time = CURRENT_TIMESTAMP;
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
   SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
-  /*RAISE NOTICE 'v_next_interrogation_time: %', v_next_interrogation_time;
-  RAISE NOTICE 'v_answer_time: %', v_answer_time;
-  RAISE NOTICE 'min time: %', add_time(v_answer_time, CAST((60*60*2)-2 AS BIGINT));
-  RAISE NOTICE 'max time: %', add_time(v_answer_time, CAST((60*60*2)+2 AS BIGINT));*/
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST((60*60*2)-2 AS BIGINT)) AND add_time(v_answer_time, CAST((60*60*2)+2 AS BIGINT)), 'Next interrogation time should be 2 hours after now! (first is 1 minute ago and we have 2 right now)!');
+
+  --**** right -5 day ago, right now -> next should be 378 782 seconds later + than actual () =
+  -- remove all answers
+  DELETE FROM answer WHERE translation_link_id = v_translation_link_id;
+  -- set the next interrogation date to null (not to the future)
+  UPDATE translation_link SET next_interrogation_date = NULL WHERE translation_link.translation_link_id = v_translation_link_id;
+  -- add right answer before 5 days
+  v_answer_time = CURRENT_TIMESTAMP - make_interval(days => 5);
+  v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
+  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
+  call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST(60-2 AS BIGINT)) AND add_time(v_answer_time, CAST(60+2 AS BIGINT)), 'Next interrogation time should be 1 hour if the first RIGHT answer was 1 minute before!');
+
+  -- add RIGHT now
+  v_answer_time = CURRENT_TIMESTAMP;
+  v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
+  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  RAISE NOTICE 'v_next_interrogation_time: %', v_next_interrogation_time;
+  RAISE NOTICE 'v_answer_time: %', v_answer_time;
+  RAISE NOTICE 'min time: %', add_time(v_answer_time, CAST((5 * day_in_seconds() * 5) + 60 - 2 AS BIGINT));
+  RAISE NOTICE 'max time: %', add_time(v_answer_time, CAST((5 * day_in_seconds() * 5) + 60 + 2 AS BIGINT));
+  call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
+  call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST((5 * day_in_seconds() * 5) + 60 -2 AS BIGINT)) AND add_time(v_answer_time, CAST((5 * day_in_seconds() * 5) + 60 + 2 AS BIGINT)), 'Next interrogation time should be 5 days later then the first answer, if the first RIGHT answer was 1 minute before and we have now right answer!');
 
   RAISE NOTICE 'test_unit_next_interrogation_date was SUCCESS!';
 
