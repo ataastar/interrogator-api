@@ -6,7 +6,7 @@ $$
 DECLARE
   v_translation_link_id bigint;
   v_from_language_id bigint;
-  v_answer_id bigint;
+  v_next_interrogation_time TIMESTAMP;
 BEGIN
   --RAISE NOTICE 'p_answer_time: % ', p_answer_time;
   SELECT translation_link_id, utv.from_language_id INTO v_translation_link_id, v_from_language_id
@@ -15,10 +15,14 @@ BEGIN
   WHERE uc.unit_content_id = p_unit_content_id;
 
   INSERT INTO answer(translation_link_id, user_id, from_language_id, right_answer, interrogation_type, answer_time)
-  VALUES (v_translation_link_id, p_user_id, v_from_language_id, p_answer_is_right, p_interrogator_type, p_answer_time) RETURNING answer_id INTO v_answer_id;
+  VALUES (v_translation_link_id, p_user_id, v_from_language_id, p_answer_is_right, p_interrogator_type, p_answer_time);
   --RAISE NOTICE 'now: %', current_timestamp;
   call calculate_next_interrogation_date(v_translation_link_id, p_user_id, p_answer_is_right, p_interrogator_type, p_answer_time);
 
-  RETURN v_answer_id;
+  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+
+  RETURN extract(epoch from v_next_interrogation_time);
 END
 $$;
+
+COMMENT ON FUNCTION add_answer IS 'Returns next interrogation time in millis';
