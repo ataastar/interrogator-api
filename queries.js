@@ -152,16 +152,32 @@ const addWordTypeUnitLink = (request, response) => {
 const addAnswer = (request, response, userId) => {
   const unitContentId = request.body.id;
   const right = request.body.right;
-  const interrogationType = request.body.interrogationType;
+  const interrogationType = request.body.interrogation_type;
   console.log(request.body)
   console.log(unitContentId)
   console.log(right)
   console.log(interrogationType)
   console.log(userId)
   return pool.query('SELECT add_answer($1, $2, $3, $4) AS res', [unitContentId, userId, right, interrogationType], (error, result) => {
-    handleSimpleResult(response, error, result)
+    handleSimplePostResult(response, error, result)
   })
 }
+
+function handleSimplePostResult(response, error, result) {
+  if (error) {
+    console.log(error)
+    response.status(500).json(error);
+  } else {
+    let addResult = result.rows[0].res;
+    if (addResult) {
+      console.log('result: ' + addResult);
+      response.status(200).json({result: addResult});
+    } else {
+      response.status(404).json();
+    }
+  }
+}
+
 
 function handleSimpleResult(response, error, result) {
   if (error) {

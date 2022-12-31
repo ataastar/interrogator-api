@@ -109,7 +109,7 @@ app.get('/word_groups', checkIfAuthenticated, db.getUnitTreeGroup)
 app.put('/word', checkIfAuthenticated, db.insertUnitContent)
 app.put('/word/remove', checkIfAuthenticated, db.deleteUnitContent)
 
-app.put('/answer', checkIfAuthenticated, (req, res) => {
+app.post('/answer', checkIfAuthenticated, (req, res) => {
     db.addAnswer(req, res, getUserId(req))
 })
 
