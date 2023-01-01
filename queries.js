@@ -34,7 +34,7 @@ const getUnitContent = (request, response) => {
       console.log(error)
       response.status(500).json(error);
     } else {
-      response.status(200).json(results.rows)
+      response.status(200).json(results.rows);
     }
   })
 }
