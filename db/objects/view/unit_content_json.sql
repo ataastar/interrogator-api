@@ -19,8 +19,8 @@ FROM (SELECT t.name,
                                   WHERE translationto.translation_link_id = l.translation_link_id) phrase)   AS "to",
                            l.example,
                            l.translated_example                                                              AS "translatedExample",
-                           extract(epoch from l.next_interrogation_date) * 1000 AS "nextInterrogationDate",
-                           (SELECT extract(epoch from MAX(answer_time)) * 1000 FROM answer a WHERE a.translation_link_id = l.translation_link_id) AS "lastAnswerTime"
+                           l.next_interrogation_date AS "nextInterrogationTime",
+                           (SELECT MAX(answer_time) FROM answer a WHERE a.translation_link_id = l.translation_link_id) AS "lastAnswerTime"
                     FROM translation_link l
                              JOIN unit_content c ON c.unit_tree_id = t.unit_tree_id
                     WHERE l.translation_link_id = c.translation_link_id) b) AS words
