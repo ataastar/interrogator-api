@@ -1,6 +1,6 @@
 DROP FUNCTION IF EXISTS logging_date;
 CREATE
-  OR REPLACE PROCEDURE logging_date(p_log timestamp with time zone)
+  OR REPLACE PROCEDURE logging_date(p_log timestamp without time zone)
   LANGUAGE plpgsql
 AS
 $$

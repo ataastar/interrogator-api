@@ -1,5 +1,7 @@
 DROP FUNCTION IF EXISTS add_answer;
-CREATE OR REPLACE FUNCTION add_answer(p_unit_content_id BIGINT, p_user_id BIGINT, p_answer_is_right BOOLEAN, p_interrogator_type TEXT, p_answer_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP) RETURNS BIGINT
+CREATE OR REPLACE FUNCTION add_answer(p_unit_content_id BIGINT, p_user_id BIGINT, p_answer_is_right BOOLEAN,
+                                      p_interrogator_type TEXT,
+                                      p_answer_time TIMESTAMP without time zone DEFAULT CURRENT_TIMESTAMP) RETURNS BIGINT
   LANGUAGE plpgsql
 AS
 $$

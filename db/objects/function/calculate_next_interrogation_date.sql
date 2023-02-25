@@ -1,5 +1,6 @@
 CREATE OR REPLACE PROCEDURE calculate_next_interrogation_date(p_translation_link_id bigint, p_user_id bigint,
-                                                              p_answer_is_right boolean, p_interrogator_type text, p_answer_time TIMESTAMP WITH TIME ZONE)
+                                                              p_answer_is_right boolean, p_interrogator_type text,
+                                                              p_answer_time TIMESTAMP WITHOUT TIME ZONE)
   LANGUAGE plpgsql
 AS
 $$

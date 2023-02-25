@@ -1,5 +1,5 @@
 --DROP FUNCTION get_next_interrogation_interval;
-CREATE OR REPLACE FUNCTION get_next_interrogation_interval(p_first_right_answer_time TIMESTAMP, p_answer_time TIMESTAMP WITH TIME ZONE) RETURNS BIGINT
+CREATE OR REPLACE FUNCTION get_next_interrogation_interval(p_first_right_answer_time TIMESTAMP, p_answer_time TIMESTAMP) RETURNS BIGINT
   LANGUAGE plpgsql
 AS
 $$
@@ -15,8 +15,11 @@ BEGIN
   --call logging_date(p_answer_time);
   --RAISE NOTICE 'p_answer_time: %', p_answer_time;
   --RAISE NOTICE 'p_first_right_answer_time: %', p_first_right_answer_time;
+  --call logging('p_first_right_answer_time: ' || p_first_right_answer_time);
+  --call logging('p_answer_time: ' || p_answer_time);
   v_elapsed_time = extract(epoch from p_answer_time) - extract(epoch from p_first_right_answer_time);
   --RAISE NOTICE 'v_elapsed_time: %', v_elapsed_time;
+  --call logging('v_elapsed_time: ' || v_elapsed_time);
   SELECT elapsed_time, multiplier
   INTO v_i2, v_m2
   FROM interrogation_interval
