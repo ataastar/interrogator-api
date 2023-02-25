@@ -44,6 +44,7 @@ app.route('/api/login').post(loginRoute);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
 const RSA_PRIVATE_KEY = fs.readFileSync('./private.key');
 
+// TODO send back refresh token
 async function loginRoute(req, res) {
     const email = req.body.email;
     const password = req.body.password;
