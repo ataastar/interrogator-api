@@ -1,17 +1,10 @@
 const Pool = require('pg').Pool
 
-let connectionString = process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI ? process.env.QOVERY_DATABASE_INTERROGATOR_CONNECTION_URI : process.env.INTERROGATOR_DATABASE_URL ? process.env.INTERROGATOR_DATABASE_URL : process.env.DATABASE_URL
-//console.log("connectionString:")
-//console.log(connectionString)
-
-let conn_secure = true
-if (process.env.INTERROGATOR_DATABASE_CONN_UNSECURE) {
-  conn_secure = false;
-}
+const connectionString = process.env.INTERROGATOR_DATABASE_URL ? process.env.INTERROGATOR_DATABASE_URL : process.env.DATABASE_URL
 
 const pool = new Pool({
   connectionString: connectionString,
-  ssl: conn_secure
+  ssl: !process.env.INTERROGATOR_DATABASE_CONN_UNSECURE
 });
 
 const validateEmailAndPassword = async (email, password) => {

@@ -1,8 +1,6 @@
 SET pw=%1
 
 
-REM public schema is used by default
-REM SET PG_OPTIONS={"search_path":"public"}
 SET INTERROGATOR_API_HOST=localhost
 SET INTERROGATOR_WEB_URL=http://localhost:4200
 
