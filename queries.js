@@ -24,6 +24,16 @@ const validateEmailAndPassword = async (email, password) => {
   }
 }
 
+const getUser = async (userId) => {
+  try {
+    const result = await pool.query('SELECT user_id, nickname FROM users WHERE user_id = $1', [userId]);
+    return result && result.rows.length > 0 ? result.rows[0] : null;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
 const getUnitContent = (request, response) => {
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
@@ -204,5 +214,6 @@ module.exports = {
   addWordTypeUnitLink,
   deleteWordTypeUnitLink,
   validateEmailAndPassword,
-  addAnswer
+  addAnswer,
+  getUser
 }

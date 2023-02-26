@@ -41,34 +41,19 @@ app.get('/', (request, response) => {
 // **** LOGIN START ****
 app.route('/api/login').post(loginRoute);
 //
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const RSA_PRIVATE_KEY = fs.readFileSync('./private.key');
 
-// TODO send back refresh token
 async function loginRoute(req, res) {
     const email = req.body.email;
     const password = req.body.password;
-
     // TODO user dto
     let user = null;
     try {
         user = await db.validateEmailAndPassword(email, password);
+        setTokenToResponse(user, res);
     } catch (err) {
         console.log(err);
-        res.sendStatus(401);
-    }
-    if (user) {
-        const jwtBearerToken = jwt.sign({}, RSA_PRIVATE_KEY, {
-            algorithm: 'RS256',
-            expiresIn: 72000, // 60 * 60 * 20
-            subject: user.user_id
-        });
-        // send the JWT back to the user
-        res.status(200).json({
-            idToken: jwtBearerToken,
-            nickname: user.nickname
-        });
-    } else {
         res.sendStatus(401);
     }
 }
@@ -78,14 +63,92 @@ async function loginRoute(req, res) {
 // check JWT
 const expressJwt = require('express-jwt');
 const RSA_PUBLIC_KEY = fs.readFileSync('./public.key');
+
 /**
  * Function to check that the token is right
  * @type {(function(*=, *=, *): (*|undefined))|*}
  */
+/*function checkIfAuthenticated(tokenProperty = null) {
+    if (!tokenProperty) {
+    return expressJwt({
+        secret: RSA_PUBLIC_KEY, algorithms: ['RS256']
+    });
+     } else {
+         return expressJwt({
+             secret: RSA_PUBLIC_KEY, requestProperty: tokenProperty, algorithms: ['RS256']
+         });
+     }
+}*/
+
 const checkIfAuthenticated = expressJwt({
     secret: RSA_PUBLIC_KEY, algorithms: ['RS256']
 });
 // check JWT
+
+
+/**
+ * Refresh token end point
+ */
+// TODO check refresh token as authenticated
+app.route('/api/refreshToken').post(refreshTokenResponse/*, checkIfAuthenticated('refreshToken')*/);
+// TODO remove tokens from
+const tokenList = {};
+
+async function refreshTokenResponse(req, res) {
+    const refreshToken = req.body.refreshToken;
+    if (refreshToken && refreshToken in tokenList) {
+        let user = null;
+        try {
+            user = await db.getUser(getUserIdFromToken(refreshToken));
+            setTokenToResponse(user, res);
+        } catch (err) {
+            console.log(err);
+            res.sendStatus(401);
+        }
+    }
+}
+
+function setTokenToResponse(user, res) {
+    if (user) {
+        // access/id token
+        const jwtBearerToken = jwt.sign({}, RSA_PRIVATE_KEY, {
+            algorithm: 'RS256',
+            //expiresIn: 10, // 20 hour
+            expiresIn: 60 * 60 * 20, // 20 hour
+            subject: user.user_id
+        });
+        // refresh token
+        const jwtRefreshToken = jwt.sign({}, RSA_PRIVATE_KEY, {
+            algorithm: 'RS256',
+            expiresIn: 60 * 60 * 24 * 7, // 1 week
+            subject: user.user_id
+        });
+        // send the JWT back to the user
+        const responseBody = {
+            idToken: jwtBearerToken,
+            refreshToken: jwtRefreshToken,
+            nickname: user.nickname
+        };
+        res.status(200).json(responseBody);
+        tokenList[jwtRefreshToken] = responseBody;
+    } else {
+        res.sendStatus(401);
+    }
+}
+
+/**
+ * Gets the user id from the pure jwt token
+ * @param token the pure token string
+ * @returns {null|*} the user id if the token is exists, otherwise null
+ */
+const getUserIdFromToken = (token) => {
+    if (token !== null) {
+        const base64String = token.split('.')[1];
+        const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
+        return decodedValue['sub'];
+    }
+    return null;
+}
 
 /**
  * Gets the user id from the jwt token
@@ -102,7 +165,6 @@ const getUserId = (req) => {
     return null;
 }
 
-//app.get('/users', db.getUsers)
 app.get('/words/:unitId', checkIfAuthenticated, (req, res) => {
     db.getUnitContent(req, res)
 })
@@ -133,7 +195,7 @@ if (port) {
         })
     } else {
         app.listen(port, host, () => {
-            console.log('App running on port ' +  host + ':' + port) 
+            console.log('App running on port ' + host + ':' + port)
         })
     }
 } else {
