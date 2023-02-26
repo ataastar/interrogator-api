@@ -68,20 +68,11 @@ const RSA_PUBLIC_KEY = fs.readFileSync('./public.key');
  * Function to check that the token is right
  * @type {(function(*=, *=, *): (*|undefined))|*}
  */
-/*function checkIfAuthenticated(tokenProperty = null) {
-    if (!tokenProperty) {
-    return expressJwt({
-        secret: RSA_PUBLIC_KEY, algorithms: ['RS256']
-    });
-     } else {
-         return expressJwt({
-             secret: RSA_PUBLIC_KEY, requestProperty: tokenProperty, algorithms: ['RS256']
-         });
-     }
-}*/
-
 const checkIfAuthenticated = expressJwt({
     secret: RSA_PUBLIC_KEY, algorithms: ['RS256']
+});
+const checkIfRefreshAuthenticated = expressJwt({
+    secret: RSA_PUBLIC_KEY, algorithms: ['RS256'], requestProperty: 'refreshToken'
 });
 // check JWT
 
@@ -89,22 +80,16 @@ const checkIfAuthenticated = expressJwt({
 /**
  * Refresh token end point
  */
-// TODO check refresh token as authenticated
-app.route('/api/refreshToken').post(refreshTokenResponse/*, checkIfAuthenticated('refreshToken')*/);
-// TODO remove tokens from
-const tokenList = {};
+app.route('/api/refreshToken').post(refreshTokenResponse, checkIfRefreshAuthenticated);
 
 async function refreshTokenResponse(req, res) {
     const refreshToken = req.body.refreshToken;
-    if (refreshToken && refreshToken in tokenList) {
-        let user = null;
-        try {
-            user = await db.getUser(getUserIdFromToken(refreshToken));
-            setTokenToResponse(user, res);
-        } catch (err) {
-            console.log(err);
-            res.sendStatus(401);
-        }
+    try {
+        const user = await db.getUser(getUserIdFromToken(refreshToken));
+        setTokenToResponse(user, res);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(401);
     }
 }
 
@@ -113,7 +98,7 @@ function setTokenToResponse(user, res) {
         // access/id token
         const jwtBearerToken = jwt.sign({}, RSA_PRIVATE_KEY, {
             algorithm: 'RS256',
-            //expiresIn: 10, // 20 hour
+            //expiresIn: 5, // 5 seconds
             expiresIn: 60 * 60 * 20, // 20 hour
             subject: user.user_id
         });
@@ -130,7 +115,6 @@ function setTokenToResponse(user, res) {
             nickname: user.nickname
         };
         res.status(200).json(responseBody);
-        tokenList[jwtRefreshToken] = responseBody;
     } else {
         res.sendStatus(401);
     }
