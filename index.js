@@ -76,6 +76,25 @@ const checkIfRefreshAuthenticated = expressJwt({
 });
 // check JWT
 
+const hasRole = (req, res, next, role) => {
+    try {
+        const roles = getDataFromToken('roles', req.header('authorization'));
+        let found = false;
+        for (const userRole of roles.split(',')) {
+            if (userRole === role) {
+                found = true;
+                next()
+                break;
+            }
+        }
+        if (!found) {
+            res.sendStatus(403);
+        }
+    } catch (error) {
+        return next(error);
+    }
+}
+
 
 /**
  * Refresh token end point
@@ -96,10 +115,10 @@ async function refreshTokenResponse(req, res) {
 function setTokenToResponse(user, res) {
     if (user) {
         // access/id token
-        const jwtBearerToken = jwt.sign({}, RSA_PRIVATE_KEY, {
+        const jwtBearerToken = jwt.sign({roles: user.roles}, RSA_PRIVATE_KEY, {
             algorithm: 'RS256',
             //expiresIn: 5, // 5 seconds
-            expiresIn: 60 * 60 * 20, // 20 hour
+            expiresIn: 60 * 60, // 1 hour
             subject: user.user_id
         });
         // refresh token
@@ -112,7 +131,8 @@ function setTokenToResponse(user, res) {
         const responseBody = {
             idToken: jwtBearerToken,
             refreshToken: jwtRefreshToken,
-            nickname: user.nickname
+            nickname: user.nickname,
+            roles: user.roles
         };
         res.status(200).json(responseBody);
     } else {
@@ -120,18 +140,17 @@ function setTokenToResponse(user, res) {
     }
 }
 
-/**
- * Gets the user id from the pure jwt token
- * @param token the pure token string
- * @returns {null|*} the user id if the token is exists, otherwise null
- */
-const getUserIdFromToken = (token) => {
+const getDataFromToken = (property, token) => {
     if (token !== null) {
         const base64String = token.split('.')[1];
         const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
-        return decodedValue['sub'];
+        return decodedValue[property];
     }
     return null;
+}
+
+const getUserIdFromToken = (token) => {
+    return getDataFromToken('sub', token);
 }
 
 /**
@@ -140,30 +159,32 @@ const getUserIdFromToken = (token) => {
  * @returns {null|*} the user id if the token is exists, otherwise null
  */
 const getUserId = (req) => {
-    const token = req.header('authorization');
-    if (token !== null) {
-        const base64String = token.split('.')[1];
-        const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
-        return decodedValue['sub'];
-    }
-    return null;
+    return getUserIdFromToken(req.header('authorization'));
 }
 
-app.get('/words/:unitId', checkIfAuthenticated, (req, res) => {
+// common phrases
+app.get('/words/:unitId', checkIfAuthenticated, checkIfRefreshAuthenticated, (req, res) => {
     db.getUnitContent(req, res)
 })
 app.get('/word_groups', checkIfAuthenticated, db.getUnitTreeGroup)
-app.put('/word', checkIfAuthenticated, db.insertUnitContent)
-app.put('/word/remove', checkIfAuthenticated, db.deleteUnitContent)
+app.put('/word', checkIfAuthenticated,
+    (req, res, next) => {
+        hasRole(req, res, next, 'admin')
+    }, db.insertUnitContent)
+app.put('/word/remove', checkIfAuthenticated,
+    (req, res, next) => {
+        hasRole(req, res, next, 'admin')
+    }, db.deleteUnitContent)
 
+// answer
 app.post('/answer', checkIfAuthenticated, (req, res) => {
     db.addAnswer(req, res, getUserId(req))
 })
 
+// word types e.g. Irregular verbs
 app.post('/word_type', checkIfAuthenticated, db.getWordTypeContent)
 app.get('/word_type_unit/:wordTypeId/:fromLanguageId', checkIfAuthenticated, db.getWordTypeUnitContent)
 app.get('/word_type_unit', checkIfAuthenticated, db.getWordTypeUnit)
-
 // adding removing phrases
 app.put('/word_type_unit_link/add', checkIfAuthenticated, db.addWordTypeUnitLink)
 app.put('/word_type_unit_link/delete', checkIfAuthenticated, db.deleteWordTypeUnitLink)

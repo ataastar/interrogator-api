@@ -9,7 +9,7 @@ const pool = new Pool({
 
 const validateEmailAndPassword = async (email, password) => {
   try {
-    const result = await pool.query('SELECT user_id, nickname FROM users WHERE email = $1 AND password=CRYPT($2, password)', [email, password]);
+    const result = await pool.query('SELECT user_id, nickname, (SELECT string_agg(role, \',\') as roles FROM user_role r WHERE r.user_id = u.user_id) FROM users u WHERE email = $1 AND password=CRYPT($2, password)', [email, password]);
     return result && result.rows.length > 0 ? result.rows[0] : null;
   } catch (err) {
     console.log(err);
@@ -19,7 +19,8 @@ const validateEmailAndPassword = async (email, password) => {
 
 const getUser = async (userId) => {
   try {
-    const result = await pool.query('SELECT user_id, nickname FROM users WHERE user_id = $1', [userId]);
+    const result = await pool.query('SELECT user_id, nickname, (SELECT string_agg(role, \',\') as roles FROM user_role r WHERE r.user_id = u.user_id) FROM users u WHERE user_id = $1',
+        [userId]);
     return result && result.rows.length > 0 ? result.rows[0] : null;
   } catch (err) {
     console.log(err);
@@ -156,11 +157,6 @@ const addAnswer = (request, response, userId) => {
   const unitContentId = request.body.id;
   const right = request.body.right;
   const interrogationType = request.body.interrogation_type;
-  console.log(request.body)
-  console.log(unitContentId)
-  console.log(right)
-  console.log(interrogationType)
-  console.log(userId)
   return pool.query('SELECT add_answer($1, $2, $3, $4) AS res', [unitContentId, userId, right, interrogationType], (error, result) => {
     handleSimplePostResult(response, error, result)
   })
