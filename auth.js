@@ -11,9 +11,8 @@ async function login(req, res) {
     const email = req.body.email;
     const password = req.body.password;
     // TODO user dto
-    let user = null;
     try {
-        user = await db.validateEmailAndPassword(email, password);
+        const user = await db.validateEmailAndPassword(email, password);
         setTokenToResponse(user, res);
     } catch (err) {
         console.log(err);
@@ -36,7 +35,7 @@ const checkIfRefreshAuthenticated = expressJwt({
 });
 // check JWT
 
-const hasRole = (req, res, next, role) => {
+async function hasRole(req, res, next, role) {
     try {
         const roles = getDataFromToken('roles', req.header('authorization'));
         let found = false;
@@ -97,7 +96,7 @@ function setTokenToResponse(user, res) {
     }
 }
 
-const getDataFromToken = (property, token) => {
+function getDataFromToken(property, token) {
     if (token !== null) {
         const base64String = token.split('.')[1];
         const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
@@ -106,7 +105,7 @@ const getDataFromToken = (property, token) => {
     return null;
 }
 
-const getUserIdFromToken = (token) => {
+function getUserIdFromToken(token) {
     return getDataFromToken('sub', token);
 }
 
@@ -115,7 +114,7 @@ const getUserIdFromToken = (token) => {
  * @param req the request
  * @returns {null|*} the user id if the token is exists, otherwise null
  */
-const getUserId = (req) => {
+function getUserId(req) {
     return getUserIdFromToken(req.header('authorization'));
 }
 

@@ -7,7 +7,7 @@ const pool = new Pool({
   ssl: !process.env.INTERROGATOR_DATABASE_CONN_UNSECURE
 });
 
-const validateEmailAndPassword = async (email, password) => {
+async function validateEmailAndPassword(email, password) {
   try {
     const result = await pool.query('SELECT user_id, nickname, (SELECT string_agg(role, \',\') as roles FROM user_role r WHERE r.user_id = u.user_id) FROM users u WHERE email = $1 AND password=CRYPT($2, password)', [email, password]);
     return result && result.rows.length > 0 ? result.rows[0] : null;
@@ -17,7 +17,7 @@ const validateEmailAndPassword = async (email, password) => {
   }
 }
 
-const getUser = async (userId) => {
+async function getUser(userId) {
   try {
     const result = await pool.query('SELECT user_id, nickname, (SELECT string_agg(role, \',\') as roles FROM user_role r WHERE r.user_id = u.user_id) FROM users u WHERE user_id = $1',
         [userId]);
@@ -28,7 +28,7 @@ const getUser = async (userId) => {
   }
 }
 
-const getUnitContent = (request, response) => {
+async function getUnitContent(request, response) {
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
     response.status(200).json('{}');
@@ -43,7 +43,7 @@ const getUnitContent = (request, response) => {
   })
 }
 
-const getUnitTreeGroup = (request, response) => {
+async function getUnitTreeGroup(request, response) {
   return pool.query('SELECT * FROM unit_group_json', [], (error, results) => {
     if (error) {
       console.log(error)
@@ -55,7 +55,7 @@ const getUnitTreeGroup = (request, response) => {
 }
 
 
-const insertUnitContent = (request, response) => {
+async function insertUnitContent(request, response) {
   const content = request.body;
   return pool.query('SELECT insert_unit_content($1) AS unit_content_id', [content], (error, results) => {
     if (error) {
@@ -63,13 +63,13 @@ const insertUnitContent = (request, response) => {
       response.status(500).json(error);
     } else {
       let unitContentId = results.rows[0].unit_content_id;
-      response.status(201).json({ unitContentId: unitContentId });
+      response.status(201).json({unitContentId: unitContentId});
     }
   })
 }
 
 
-const deleteUnitContent = (request, response) => {
+async function deleteUnitContent(request, response) {
   const unitContentId = request.body.unitContentId;
   return pool.query('SELECT delete_unit_content($1) AS delete_result', [unitContentId], (error, results) => {
     if (error) {
@@ -86,7 +86,7 @@ const deleteUnitContent = (request, response) => {
   })
 }
 
-const getWordTypeContent = (request, response) => {
+async function getWordTypeContent(request, response) {
   const fromLanguageId = request.body.fromLanguageId;
   const toLanguageId = request.body.toLanguageId;
   const wordTypeId = request.body.wordTypeId;
@@ -100,7 +100,7 @@ const getWordTypeContent = (request, response) => {
   })
 }
 
-const getWordTypeUnitContent = (request, response) => {
+async function getWordTypeUnitContent(request, response) {
   const fromLanguageId = parseInt(request.params.fromLanguageId)
   const wordTypeId = parseInt(request.params.wordTypeId)
   if (wordTypeId == null || fromLanguageId == null) {
@@ -116,7 +116,7 @@ const getWordTypeUnitContent = (request, response) => {
   })
 }
 
-const getWordTypeUnit = (request, response) => {
+async function getWordTypeUnit(request, response) {
   return pool.query('SELECT * FROM word_type_unit_json', [], (error, results) => {
     if (error) {
       console.log(error)
@@ -127,7 +127,7 @@ const getWordTypeUnit = (request, response) => {
   })
 }
 
-const deleteWordTypeUnitLink = (request, response) => {
+async function deleteWordTypeUnitLink(request, response) {
   const wordTypeUnitLinkId = request.body.wordTypeUnitLinkId;
   const wordTypeLinkId = request.body.wordTypeLinkId;
   return pool.query('SELECT remove_word_type_unit_link($1, $2) AS delete_result', [wordTypeLinkId, wordTypeUnitLinkId], (error, results) => {
@@ -145,7 +145,7 @@ const deleteWordTypeUnitLink = (request, response) => {
   })
 }
 
-const addWordTypeUnitLink = (request, response) => {
+async function addWordTypeUnitLink(request, response) {
   const wordTypeUnitLinkId = request.body.wordTypeUnitLinkId;
   const wordTypeLinkId = request.body.wordTypeLinkId;
   return pool.query('SELECT add_word_type_unit_link($1, $2) AS res', [wordTypeLinkId, wordTypeUnitLinkId], (error, results) => {
@@ -153,7 +153,7 @@ const addWordTypeUnitLink = (request, response) => {
   })
 }
 
-const addAnswer = (request, response, userId) => {
+async function addAnswer(request, response, userId) {
   const unitContentId = request.body.id;
   const right = request.body.right;
   const interrogationType = request.body.interrogation_type;
