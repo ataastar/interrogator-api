@@ -28,7 +28,7 @@ async function getUser(userId) {
   }
 }
 
-async function getUnitContent(request, response) {
+function getUnitContent(request, response) {
   const unitId = parseInt(request.params.unitId)
   if (unitId == null) {
     response.status(200).json('{}');
@@ -153,7 +153,7 @@ async function addWordTypeUnitLink(request, response) {
   })
 }
 
-async function addAnswer(request, response, userId) {
+function addAnswer(request, response, userId) {
   const unitContentId = request.body.id;
   const right = request.body.right;
   const interrogationType = request.body.interrogation_type;

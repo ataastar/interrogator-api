@@ -1,4 +1,3 @@
-const expressJwt = require('express-jwt');
 const db = require("./queries");
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -27,15 +26,19 @@ const RSA_PUBLIC_KEY = fs.readFileSync('./public.key');
  * Function to check that the token is right
  * @type {(function(*=, *=, *): (*|undefined))|*}
  */
-const checkIfAuthenticated = expressJwt({
-    secret: RSA_PUBLIC_KEY, algorithms: ['RS256']
-});
-const checkIfRefreshAuthenticated = expressJwt({
-    secret: RSA_PUBLIC_KEY, algorithms: ['RS256'], requestProperty: 'refreshToken'
-});
+function checkIfAuthenticated(req, res, next) {
+    jwt.verify(req.header('authorization').substring(7), RSA_PUBLIC_KEY, {algorithms: ['RS256']});
+    next();
+}
+
+function checkIfRefreshAuthenticated(req, res, next) {
+    jwt.verify(req.body('refreshToken').substring(7), RSA_PUBLIC_KEY, {algorithms: ['RS256']});
+    next();
+}
+
 // check JWT
 
-async function hasRole(req, res, next, role) {
+function hasRole(req, res, next, role) {
     try {
         const roles = getDataFromToken('roles', req.header('authorization'));
         let found = false;

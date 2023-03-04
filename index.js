@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const app = express();
 const db = require('./queries');
 const auth = require('./auth');
-const {checkIfAuthenticated} = require("./auth");
 
 const port = process.env.INTERROGATOR_API_PORT ? process.env.INTERROGATOR_API_PORT : process.env.PORT
 const host = process.env.INTERROGATOR_API_HOST
@@ -40,31 +39,27 @@ app.route('/api/login').post(auth.login);
 app.route('/api/refreshToken').post(auth.refreshTokenResponse, auth.checkIfRefreshAuthenticated);
 
 // common phrases
-app.get('/words/:unitId', checkIfAuthenticated, auth.checkIfRefreshAuthenticated, (req, res) => {
-    db.getUnitContent(req, res)
-})
-app.get('/word_groups', checkIfAuthenticated, db.getUnitTreeGroup)
-app.put('/word', checkIfAuthenticated,
-    (req, res, next) => {
-        auth.hasRole(req, res, next, 'admin')
-    }, db.insertUnitContent)
-app.put('/word/remove', checkIfAuthenticated,
-    (req, res, next) => {
-        auth.hasRole(req, res, next, 'admin')
-    }, db.deleteUnitContent)
+app.get('/words/:unitId', auth.checkIfAuthenticated, db.getUnitContent)
+app.get('/word_groups', auth.checkIfAuthenticated, db.getUnitTreeGroup)
+app.put('/word', auth.checkIfAuthenticated, (req, res, next) => {
+    auth.hasRole(req, res, next, 'admin')
+}, db.insertUnitContent)
+app.put('/word/remove', auth.checkIfAuthenticated, (req, res, next) => {
+    auth.hasRole(req, res, next, 'admin')
+}, db.deleteUnitContent)
 
 // answer
-app.post('/answer', checkIfAuthenticated, (req, res) => {
+app.post('/answer', auth.checkIfAuthenticated, (req, res) => {
     db.addAnswer(req, res, auth.getUserId(req))
 })
 
 // word types e.g. Irregular verbs
-app.post('/word_type', checkIfAuthenticated, db.getWordTypeContent)
-app.get('/word_type_unit/:wordTypeId/:fromLanguageId', checkIfAuthenticated, db.getWordTypeUnitContent)
-app.get('/word_type_unit', checkIfAuthenticated, db.getWordTypeUnit)
+app.post('/word_type', auth.checkIfAuthenticated, db.getWordTypeContent)
+app.get('/word_type_unit/:wordTypeId/:fromLanguageId', auth.checkIfAuthenticated, db.getWordTypeUnitContent)
+app.get('/word_type_unit', auth.checkIfAuthenticated, db.getWordTypeUnit)
 // adding removing phrases
-app.put('/word_type_unit_link/add', checkIfAuthenticated, db.addWordTypeUnitLink)
-app.put('/word_type_unit_link/delete', checkIfAuthenticated, db.deleteWordTypeUnitLink)
+app.put('/word_type_unit_link/add', auth.checkIfAuthenticated, db.addWordTypeUnitLink)
+app.put('/word_type_unit_link/delete', auth.checkIfAuthenticated, db.deleteWordTypeUnitLink)
 
 //app.post('/users', db.createUser)
 //app.put('/users/:id', db.updateUser)
