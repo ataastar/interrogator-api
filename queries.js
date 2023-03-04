@@ -169,7 +169,7 @@ function handleSimplePostResult(response, error, result) {
   } else {
     let addResult = result.rows[0].res;
     if (addResult) {
-      console.log('result: ' + addResult);
+      //console.log('result: ' + addResult);
       response.status(200).json({result: addResult});
     } else {
       response.status(404).json();
