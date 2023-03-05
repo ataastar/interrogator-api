@@ -27,13 +27,21 @@ const RSA_PUBLIC_KEY = fs.readFileSync('./public.key');
  * @type {(function(*=, *=, *): (*|undefined))|*}
  */
 function checkIfAuthenticated(req, res, next) {
-    jwt.verify(req.header('authorization').substring(7), RSA_PUBLIC_KEY, {algorithms: ['RS256']});
-    next();
+    try {
+        jwt.verify(req.header('authorization').substring(7), RSA_PUBLIC_KEY, {algorithms: ['RS256']});
+        next();
+    } catch (TokenExpiredError) {
+        res.sendStatus(401);
+    }
 }
 
 function checkIfRefreshAuthenticated(req, res, next) {
-    jwt.verify(req.body('refreshToken').substring(7), RSA_PUBLIC_KEY, {algorithms: ['RS256']});
-    next();
+    try {
+        jwt.verify(req.body('refreshToken').substring(7), RSA_PUBLIC_KEY, {algorithms: ['RS256']});
+        next();
+    } catch (TokenExpiredError) {
+        res.sendStatus(401);
+    }
 }
 
 // check JWT
