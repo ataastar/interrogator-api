@@ -16,4 +16,5 @@ SET INTERROGATOR_WEB_URL=%3
 SET INTERROGATOR_API_PORT=3000
 SET INTERROGATOR_DATABASE_URL=postgres://postgres:%pw%@localhost:5432/interrogator
 SET INTERROGATOR_DATABASE_CONN_UNSECURE=true
-call node index.js
+REM call node index.js
+call c:\Users\amolnar\.deno\bin\deno run --allow-net --allow-env index.ts
