@@ -65,26 +65,29 @@ async function addAnswer(request, response, userId) {
 
 
 function handleNoResult(promise, response, status = 204) {
-    promise.then(result => {
-        if (result) {
-            response.status(status).json();
-        } else {
-            response.status(404).json();
-        }
-    }).catch(error => simpleError(error, response));
+    promise.then(
+        result => {
+            if (result) {
+                response.status(status).json();
+            } else {
+                response.status(404).json();
+            }
+        },
+        error => simpleError(error, response));
 }
 
 function handleSimpleResult(promise, response, singleAttributeName) {
-    promise.then(result => {
-        if (singleAttributeName) {
-            const obj = {};
-            obj[singleAttributeName] = result;
-            simpleResult(obj, response);
-        } else {
-            simpleResult(result, response)
-        }
-    })
-        .catch(error => simpleError(error, response));
+    promise.then(
+        result => {
+            if (singleAttributeName) {
+                const obj = {};
+                obj[singleAttributeName] = result;
+                simpleResult(obj, response);
+            } else {
+                simpleResult(result, response)
+            }
+        },
+        error => simpleError(error, response));
 }
 
 function simpleResult(result, response) {
