@@ -1,6 +1,6 @@
-const db = require("./queries");
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const authService = require('./auth-service');
 
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -11,7 +11,7 @@ async function login(req, res) {
     const password = req.body.password;
     // TODO user dto
     try {
-        const user = await db.validateEmailAndPassword(email, password);
+        const user = await authService.validateEmailAndPassword(email, password);
         setTokenToResponse(user, res);
     } catch (err) {
         console.log(err);
@@ -71,7 +71,7 @@ function hasRole(req, res, next, role) {
 async function refreshTokenResponse(req, res) {
     const refreshToken = req.body.refreshToken;
     try {
-        const user = await db.getUser(getUserIdFromToken(refreshToken));
+        const user = await authService.getUser(getUserIdFromToken(refreshToken));
         setTokenToResponse(user, res);
     } catch (err) {
         console.log(err);

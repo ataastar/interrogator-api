@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const db = require('./queries');
-const auth = require('./auth');
+const phrase = require('./phrase/phrase-service');
+const auth = require('./auth/auth');
 
 const port = process.env.INTERROGATOR_API_PORT ? process.env.INTERROGATOR_API_PORT : process.env.PORT
 const host = process.env.INTERROGATOR_API_HOST
@@ -39,31 +39,31 @@ app.route('/api/login').post(auth.login);
 app.route('/api/refreshToken').post(auth.refreshTokenResponse, auth.checkIfRefreshAuthenticated);
 
 // common phrases
-app.get('/words/:unitId', auth.checkIfAuthenticated, db.getUnitContent)
-app.get('/word_groups', auth.checkIfAuthenticated, db.getUnitTreeGroup)
+app.get('/words/:unitId', auth.checkIfAuthenticated, phrase.getUnitContent)
+app.get('/word_groups', auth.checkIfAuthenticated, phrase.getUnitTreeGroup)
 app.put('/word', auth.checkIfAuthenticated, (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
-}, db.insertUnitContent)
+}, phrase.insertUnitContent)
 app.put('/word/remove', auth.checkIfAuthenticated, (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
-}, db.deleteUnitContent)
+}, phrase.deleteUnitContent)
 
 // answer
 app.post('/answer', auth.checkIfAuthenticated, (req, res) => {
-    db.addAnswer(req, res, auth.getUserId(req))
+    phrase.addAnswer(req, res, auth.getUserId(req))
 })
 
 // word types e.g. Irregular verbs
-app.post('/word_type', auth.checkIfAuthenticated, db.getWordTypeContent)
-app.get('/word_type_unit/:wordTypeId/:fromLanguageId', auth.checkIfAuthenticated, db.getWordTypeUnitContent)
-app.get('/word_type_unit', auth.checkIfAuthenticated, db.getWordTypeUnit)
+app.post('/word_type', auth.checkIfAuthenticated, phrase.getWordTypeContent)
+app.get('/word_type_unit/:wordTypeId/:fromLanguageId', auth.checkIfAuthenticated, phrase.getWordTypeUnitContent)
+app.get('/word_type_unit', auth.checkIfAuthenticated, phrase.getWordTypeUnit)
 // adding removing phrases
-app.put('/word_type_unit_link/add', auth.checkIfAuthenticated, db.addWordTypeUnitLink)
-app.put('/word_type_unit_link/delete', auth.checkIfAuthenticated, db.deleteWordTypeUnitLink)
+app.put('/word_type_unit_link/add', auth.checkIfAuthenticated, phrase.addWordTypeUnitLink)
+app.put('/word_type_unit_link/delete', auth.checkIfAuthenticated, phrase.deleteWordTypeUnitLink)
 
-//app.post('/users', db.createUser)
-//app.put('/users/:id', db.updateUser)
-//app.delete('/users/:id', db.deleteUser)
+//app.post('/users', phrase.createUser)
+//app.put('/users/:id', phrase.updateUser)
+//app.delete('/users/:id', phrase.deleteUser)
 
 if (port) {
     if (!host) {
