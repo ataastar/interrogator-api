@@ -20,6 +20,10 @@ async function getWordTypeContent(fromLanguageId, toLanguageId, wordTypeId) {
     return (await db.pool.query('SELECT content FROM word_type_content_json WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId])).rows;
 }
 
+async function getTranslationDetail(translationLinkId) {
+    return null; // (await db.pool.query('SELECT content FROM translation_detail_json WHERE translation_link_id = $1', [translationLinkId])).rows;
+}
+
 async function getWordTypeUnitContent(fromLanguageId, wordTypeId) {
     return (await db.pool.query('SELECT content FROM word_type_unit_content_json WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeId])).rows
 }
@@ -47,6 +51,7 @@ module.exports = {
     deleteUnitContent,
     getWordTypeContent,
     getWordTypeUnitContent,
+    getTranslationDetail,
     getWordTypeUnit,
     addWordTypeUnitLink,
     deleteWordTypeUnitLink,

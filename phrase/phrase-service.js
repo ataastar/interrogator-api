@@ -30,6 +30,11 @@ async function getWordTypeContent(request, response) {
     handleSimpleResult(repo.getWordTypeContent(fromLanguageId, toLanguageId, wordTypeId), response);
 }
 
+async function getTranslationDetail(request, response) {
+    const translationLinkId = request.body.translationLinkId;
+    handleSimpleResult(repo.getTranslationDetail(translationLinkId), response);
+}
+
 async function getWordTypeUnitContent(request, response) {
     const fromLanguageId = parseInt(request.params.fromLanguageId)
     const wordTypeId = parseInt(request.params.wordTypeId)
@@ -106,6 +111,7 @@ module.exports = {
     getWordTypeContent,
     getWordTypeUnitContent,
     getWordTypeUnit,
+    getTranslationDetail,
     addWordTypeUnitLink,
     deleteWordTypeUnitLink,
     addAnswer
