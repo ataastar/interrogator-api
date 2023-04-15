@@ -19,7 +19,7 @@ async function insertUnitContent(request, response) {
 }
 
 async function deleteUnitContent(request, response) {
-    const unitContentId = request.body.unitContentId;
+    const unitContentId = parseInt(request.params.unitContentId)
     handleNoResult(repo.deleteUnitContent(unitContentId), response);
 }
 
@@ -31,7 +31,7 @@ async function getWordTypeContent(request, response) {
 }
 
 async function getTranslationDetail(request, response) {
-    const translationLinkId = request.body.translationLinkId;
+    const translationLinkId = request.params.translationLinkId;
     handleSimpleResult(repo.getTranslationDetail(translationLinkId), response);
 }
 

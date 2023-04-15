@@ -20,6 +20,8 @@ externalDocs:
 servers:
   - url: http://localhost:3000
 tags:
+  - name: unit
+    description: Unit related APIs
   - name: phrase
     description: Common phrase related end points
   - name: auth
@@ -102,6 +104,25 @@ paths:
       security:
         - jwt_auth:
             - use:API
+    delete:
+      tags:
+        - phrase
+      summary: Delete a unit content
+      description: Delete a unit content (and the translation if no any reference to it) by unit content id.
+      operationId: deleteUnitContent
+      parameters:
+        - name: unitContentId
+          in: path
+          description: Unit content id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Success deletetion
+        '404':
+          description: Un success deletetion
   /word/{unitId}:
     get:
       tags:
@@ -126,6 +147,23 @@ paths:
                 $ref: '#/components/schemas/UnitContentWithTranslations'
         '405':
           description: Invalid input
+      security:
+        - jwt_auth:
+            - use:API
+  /units:
+    get:
+      tags:
+        - unit
+      summary: Get the unit tree
+      description: Get the unit tree
+      operationId: unitTree
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnitTree'
       security:
         - jwt_auth:
             - use:API
@@ -287,6 +325,44 @@ components:
             type: string
             examples:
               - The translated phrase
+    UnitTree:
+      type: array
+      items:
+        $ref: '#/components/schemas/UnitTreeGroup'
+    UnitTreeGroup:
+      required:
+        - name
+        - order
+      type: object
+      properties:
+        name:
+          type: string
+          example: Unit 1
+          description: The name of the unit group
+        order:
+          type: integer
+          format: int64
+          example: 10
+          description: The order of the unit group
+        group:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnitTreeLeaf'
+    UnitTreeLeaf:
+      required:
+        - name
+        - order
+      type: object
+      properties:
+        name:
+          type: string
+          example: Unit 1
+          description: The name of the unit group
+        code:
+          type: integer
+          format: int64
+          example: 11
+          description: The id of the unit leaf
   securitySchemes:
     jwt_auth:
       type: http

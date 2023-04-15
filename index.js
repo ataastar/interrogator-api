@@ -38,17 +38,19 @@ app.get('/', (request, response) => {
 app.route('/api/login').post(auth.login);
 app.route('/api/refreshToken').post(auth.refreshTokenResponse, auth.checkIfRefreshAuthenticated);
 
+// unit
+app.get('/units', auth.checkIfAuthenticated, phrase.getUnitTreeGroup)
+
 // common phrases
 app.get('/word/:unitId', auth.checkIfAuthenticated, phrase.getUnitContent)
-app.get('/word_groups', auth.checkIfAuthenticated, phrase.getUnitTreeGroup)
 app.post('/word', auth.checkIfAuthenticated, (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
 }, phrase.insertUnitContent)
-app.put('/word/remove', auth.checkIfAuthenticated, (req, res, next) => {
+app.delete('/word/:unitContentId', auth.checkIfAuthenticated, (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
 }, phrase.deleteUnitContent)
 // get one translation detailed data
-app.get('/word', auth.checkIfAuthenticated, (req, res, next) => {
+app.get('/translations/:translationLinkId', auth.checkIfAuthenticated, (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
 }, phrase.getTranslationDetail)
 
