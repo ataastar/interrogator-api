@@ -24,8 +24,8 @@ async function getTranslationDetail(translationLinkId) {
     return null; // (await db.pool.query('SELECT content FROM translation_detail_json WHERE translation_link_id = $1', [translationLinkId])).rows;
 }
 
-async function getWordTypeUnitContent(fromLanguageId, wordTypeId) {
-    return (await db.pool.query('SELECT content FROM word_type_unit_content_json WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeId])).rows
+async function getWordTypeUnitContent(fromLanguageId, wordTypeUnitId) {
+    return (await db.pool.query('SELECT content FROM word_type_unit_content_json WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeUnitId])).rows
 }
 
 async function getWordTypeUnit() {

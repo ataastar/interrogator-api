@@ -21,13 +21,13 @@ servers:
   - url: http://localhost:3000
 tags:
   - name: unit
-    description: Unit related APIs
-  - name: phrase
+    description: Unit related APIs. Unit is a group of translations
+  - name: translation
     description: Common phrase related end points
   - name: auth
-    description: Access to API
+    description: Access to the API
   - name: word-type
-    description: Can handle different word types. E.g. Irregular verbs
+    description: Can collect words into 'group' by its type. E.g. Irregular verbs
 paths:
   /api/login:
     post:
@@ -81,7 +81,7 @@ paths:
   /word:
     post:
       tags:
-        - phrase
+        - translation
       summary: Add a new translations to the unit
       description: Add new phrases and links to the unit
       operationId: addTranslation
@@ -106,7 +106,7 @@ paths:
             - use:API
     delete:
       tags:
-        - phrase
+        - translation
       summary: Delete a unit content
       description: Delete a unit content (and the translation if no any reference to it) by unit content id.
       operationId: deleteUnitContent
@@ -126,7 +126,7 @@ paths:
   /word/{unitId}:
     get:
       tags:
-        - phrase
+        - translation
       summary: Get the translations for a unit
       description: Get the translations for a unit by unit id
       operationId: getUnitPrhases
@@ -164,6 +164,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnitTree'
+      security:
+        - jwt_auth:
+            - use:API
+  /word_types/words/{wordTypeId}/{fromLanguageId}/{toLanguageId}:
+    get:
+      tags:
+        - word-type
+      summary: Get the words for a word type
+      description: Get the words for a word type by language ids from-to
+      operationId: getWordTypeWords
+      parameters:
+        - name: wordTypeId
+          in: path
+          required: true
+          description: The word type id
+          schema:
+            type: integer
+            format: int64
+        - name: fromLanguageId
+          in: path
+          required: true
+          description: The from language id
+          schema:
+            type: integer
+            format: int64
+        - name: toLanguageId
+          in: path
+          required: true
+          description: The to language id
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordTypeWordsResponse'
+        '405':
+          description: Invalid input
       security:
         - jwt_auth:
             - use:API
@@ -363,6 +404,82 @@ components:
           format: int64
           example: 11
           description: The id of the unit leaf
+    WordTypeWordsResponse:
+      required:
+        - name
+        - forms
+        - wordTypeUnits
+      type: object
+      properties:
+        name:
+          type: string
+          example: Irregular verbs
+          description: The name of the word type
+        rows:
+          type: array
+          items:
+            type: object
+            description: The translation data for the word from-to words and the connection to the unit
+            required:
+              - id
+              - toPhrases
+              - fromPhrases
+            properties:
+              id:
+                type: integer
+                format: int64
+                example: 123
+                description: The id of the word type from
+              toPhrases:
+                type: array
+                items:
+                  type: object
+                  description: The key is the word type form name
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: string
+                      description: The translated word
+              fromPhrases:
+                type: array
+                items:
+                  type: string
+                  description: The word which is translated
+              wordTypeUnits:
+                type: array
+                items:
+                  type: integer
+                  format: int64
+                  example: 123
+                  description: The id of the word type unit, for where the word is added/connected
+        forms:
+          type: array
+          description: The defined forms of the word type
+          items:
+            type: string
+            description: The word type form
+            examples:
+              - Verb
+              - Past tense
+              - Past participle
+        wordTypeUnits:
+          type: array
+          items:
+            type: object
+            description: It is a list of the available unit for the word types, for which the words are connected/linked
+            required:
+              - name
+              - id
+            properties:
+              name:
+                type: string
+                description: The name of the word type unit
+                example: Part 1
+              id:
+                type: integer
+                format: int64
+                example: 123
+                description: The id of the word type unit
   securitySchemes:
     jwt_auth:
       type: http

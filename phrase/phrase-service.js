@@ -24,9 +24,9 @@ async function deleteUnitContent(request, response) {
 }
 
 async function getWordTypeContent(request, response) {
-    const fromLanguageId = request.body.fromLanguageId;
-    const toLanguageId = request.body.toLanguageId;
-    const wordTypeId = request.body.wordTypeId;
+    const fromLanguageId = request.params.fromLanguageId;
+    const toLanguageId = request.params.toLanguageId;
+    const wordTypeId = request.params.wordTypeId;
     handleSimpleResult(repo.getWordTypeContent(fromLanguageId, toLanguageId, wordTypeId), response);
 }
 
@@ -37,12 +37,12 @@ async function getTranslationDetail(request, response) {
 
 async function getWordTypeUnitContent(request, response) {
     const fromLanguageId = parseInt(request.params.fromLanguageId)
-    const wordTypeId = parseInt(request.params.wordTypeId)
+    const wordTypeUnitId = parseInt(request.params.wordTypeUnitId)
     if (wordTypeId == null || fromLanguageId == null) {
         simpleResult('{}', response);
         return
     }
-    handleSimpleResult(repo.getWordTypeUnitContent(fromLanguageId, wordTypeId), response);
+    handleSimpleResult(repo.getWordTypeUnitContent(fromLanguageId, wordTypeUnitId), response);
 }
 
 async function getWordTypeUnit(request, response) {
