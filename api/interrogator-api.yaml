@@ -82,8 +82,8 @@ paths:
     post:
       tags:
         - translation
-      summary: Add a new translations to the unit
-      description: Add new phrases and links to the unit
+      summary: Add new translation to the unit
+      description: Add new translation (phrases and links) to the unit
       operationId: addTranslation
       requestBody:
         required: true
@@ -171,9 +171,9 @@ paths:
     get:
       tags:
         - word-type
-      summary: Get the words for a word type
-      description: Get the words for a word type by language ids from-to
-      operationId: getWordTypeWords
+      summary: Get the translations for a word type
+      description: Get the translations for a word type by language ids from-to
+      operationId: getWordTypeTranslations
       parameters:
         - name: wordTypeId
           in: path
@@ -202,9 +202,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WordTypeWordsResponse'
-        '405':
-          description: Invalid input
+                $ref: '#/components/schemas/WordTypeTranslationResponse'
       security:
         - jwt_auth:
             - use:API
@@ -369,42 +367,38 @@ components:
     UnitTree:
       type: array
       items:
-        $ref: '#/components/schemas/UnitTreeGroup'
-    UnitTreeGroup:
-      required:
-        - name
-        - order
-      type: object
-      properties:
-        name:
-          type: string
-          example: Unit 1
-          description: The name of the unit group
-        order:
-          type: integer
-          format: int64
-          example: 10
-          description: The order of the unit group
-        group:
-          type: array
-          items:
-            $ref: '#/components/schemas/UnitTreeLeaf'
-    UnitTreeLeaf:
-      required:
-        - name
-        - order
-      type: object
-      properties:
-        name:
-          type: string
-          example: Unit 1
-          description: The name of the unit group
-        code:
-          type: integer
-          format: int64
-          example: 11
-          description: The id of the unit leaf
-    WordTypeWordsResponse:
+        type: object
+        required:
+          - name
+          - order
+        properties:
+          name:
+            type: string
+            example: Unit 1
+            description: The name of the unit group
+          order:
+            type: integer
+            format: int64
+            example: 10
+            description: The order of the unit group
+          group:
+            type: array
+            items:
+              type: object
+              required:
+                - name
+                - order
+              properties:
+                name:
+                  type: string
+                  example: Unit 1
+                  description: The name of the unit leaf
+                code:
+                  type: integer
+                  format: int64
+                  example: 11
+                  description: The id of the unit leaf
+    WordTypeTranslationResponse:
       required:
         - name
         - forms
