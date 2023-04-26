@@ -32,12 +32,12 @@ async function getWordTypeUnit() {
     return (await db.pool.query('SELECT * FROM word_type_unit_json', [])).rows
 }
 
-async function deleteWordTypeUnitLink(wordTypeUnitLinkId, wordTypeLinkId) {
-    return (await db.pool.query('SELECT remove_word_type_unit_link($1, $2) AS delete_result', [wordTypeLinkId, wordTypeUnitLinkId])).rows[0].delete_result;
+async function deleteWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId) {
+    return (await db.pool.query('SELECT remove_word_type_unit_link($1, $2) AS delete_result', [wordTypeLinkId, wordTypeUnitId])).rows[0].delete_result;
 }
 
-async function addWordTypeUnitLink(wordTypeUnitLinkId, wordTypeLinkId) {
-    return (await db.pool.query('SELECT add_word_type_unit_link($1, $2) AS res', [wordTypeLinkId, wordTypeUnitLinkId])).rows[0].res;
+async function addWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId) {
+    return (await db.pool.query('SELECT add_word_type_unit_link($1, $2) AS res', [wordTypeLinkId, wordTypeUnitId])).rows[0].res;
 }
 
 async function addAnswer(userId, unitContentId, right, interrogationType) {

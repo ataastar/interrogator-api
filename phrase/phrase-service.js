@@ -50,21 +50,21 @@ async function getWordTypeUnit(request, response) {
 }
 
 async function deleteWordTypeUnitLink(request, response) {
-    const wordTypeUnitLinkId = request.body.wordTypeUnitLinkId;
+    const wordTypeUnitId = request.body.wordTypeUnitId;
     const wordTypeLinkId = request.body.wordTypeLinkId;
-    handleNoResult(repo.deleteWordTypeUnitLink(wordTypeUnitLinkId, wordTypeLinkId), response);
+    handleNoResult(repo.deleteWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId), response);
 }
 
 async function addWordTypeUnitLink(request, response) {
-    const wordTypeUnitLinkId = request.body.wordTypeUnitLinkId;
+    const wordTypeUnitId = request.body.wordTypeUnitId;
     const wordTypeLinkId = request.body.wordTypeLinkId;
-    handleNoResult(repo.addWordTypeUnitLink(wordTypeUnitLinkId, wordTypeLinkId), response);
+    handleNoResult(repo.addWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId), response);
 }
 
 async function addAnswer(request, response, userId) {
     const unitContentId = request.body.id;
     const right = request.body.right;
-    const interrogationType = request.body.interrogation_type;
+    const interrogationType = request.body.interrogationType;
     handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType), response, 200);
 }
 

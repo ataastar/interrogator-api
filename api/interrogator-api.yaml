@@ -23,7 +23,7 @@ tags:
   - name: unit
     description: Unit related APIs. Unit is a group of translations
   - name: translation
-    description: Common phrase related end points
+    description: Common (phrase) translation related end points
   - name: auth
     description: Access to the API
   - name: word-type
@@ -104,6 +104,7 @@ paths:
       security:
         - jwt_auth:
             - use:API
+  /word/{unitContentId}:
     delete:
       tags:
         - translation
@@ -120,9 +121,9 @@ paths:
             format: int64
       responses:
         '204':
-          description: Success deletetion
+          description: Success deletion
         '404':
-          description: Un success deletetion
+          description: Un success deletion
   /word/{unitId}:
     get:
       tags:
@@ -206,66 +207,144 @@ paths:
       security:
         - jwt_auth:
             - use:API
+  /answer:
+    post:
+      tags:
+        - translation
+      summary: Store the result of the success of the translation
+      description: Store the answer (Store the result of the success of the translation)
+      operationId: storeAnswer
+      requestBody:
+        required: true
+        description: Create a new answer for the translation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAnswerRequest'
+      responses:
+        '200':
+          description: Success answer store
+        '404':
+          description: Un success answer store
+      security:
+        - jwt_auth:
+            - use:API
+  /word_types/units/link:
+    post:
+      tags:
+        - word-type
+      summary: Add a word type translation to a word type unit
+      description: Add a word type translation to a word type unit
+      operationId: AddWordTypeUnitLink
+      requestBody:
+        required: true
+        description: Create a new answer for the translation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWordTypeUnitLinkRequest'
+      responses:
+        '200':
+          description: Success answer store
+        '404':
+          description: Un success answer store
+      security:
+        - jwt_auth:
+            - use:API
 components:
   schemas:
+    AddAnswerRequest:
+      required:
+        - unitContentId
+        - right
+        - interrogationType
+      type: [object]
+      properties:
+        unitContentId:
+          type: [integer]
+          description: The id of the unit content
+          format: int64
+        right:
+          type: [boolean]
+          description: The success of the result of the translation
+        interrogationType:
+          type: [string]
+          description: The interrogation type. Currently just the WRITING enabled
+          enum:
+            - WRITING
+            - TO_BE_DECIDED
+    AddWordTypeUnitLinkRequest:
+      required:
+        - wordTypeUnitId
+        - wordTypeLinkId
+      type: [object]
+      properties:
+        wordTypeUnitId:
+          type: [integer]
+          description: The id of the word type unit
+          format: int64
+        wordTypeLinkId:
+          type: [integer]
+          description: The id of the word type link (word type translation)
+          format: int64
     LoginRequest:
       required:
         - email
         - password
-      type: object
+      type: [object]
       properties:
         email:
-          type: string
+          type: [string]
         password:
-          type: string
+          type: [string]
     RefreshTokenRequest:
       required:
         - refreshToken
-      type: object
+      type: [object]
       properties:
         refreshToken:
-          type: string
+          type: [string]
     LoginResponse:
       required:
         - idToken
         - refreshToken
         - roles
-      type: object
+      type: [object]
       properties:
         idToken:
-          type: string
+          type: [string]
           description: The JWT access token
         refreshToken:
-          type: string
+          type: [string]
           description: The JWT refresh token
         roles:
-          type: array
+          type: [array]
           items:
             type: string
             examples:
               - user
               - admin
         nickname:
-          type: string
+          type: [string]
           example: Bob
     UnitContentWithTranslations:
       required:
         - name
         - code
-      type: object
+      type: [object]
       description: The unit with the translations
       properties:
         name:
-          type: string
+          type: [string]
           description: The name of the unit
           example: Unit name
         code:
-          type: integer
+          type: [integer]
           format: int64
           description: The code of the unit
           example: 123
         words:
-          type: array
+          type: [array]
           items:
             $ref: '#/components/schemas/UnitContent'
     UnitContent:
@@ -273,108 +352,108 @@ components:
         - id
         - from
         - to
-      type: object
+      type: [object]
       description: The translations of the unit with example and calculated interrogation time
       properties:
         id:
-          type: integer
+          type: [integer]
           description: The id of the unit content
           format: int64
           example: 10
         from:
-          type: array
+          type: [array]
           items:
             $ref: '#/components/schemas/FromTranslation'
         to:
-          type: array
+          type: [array]
           items:
             $ref: '#/components/schemas/ToTranslation'
         example:
-          type: string
+          type: [string]
           description: An example sentence for the phrase
           example: A kutya ugat
         translatedExample:
-          type: string
+          type: [string]
           description: The translation of the example sentence
           example: The dog barks
         nextInterrogationTime:
-          type: string
+          type: [string]
           format: date-time
           description: The time when the translation will be interrogated
         lastAnswerTime:
-          type: string
+          type: [string]
           format: date-time
           description: The last time when the translation was anwered
     FromTranslation:
       required:
         - translationId
         - phrase
-      type: object
+      type: [object]
       description: The translation from part with id and the connected phrase
       properties:
         translationId:
-          type: integer
+          type: [integer]
           description: The id of translation from
           format: int64
           example: 11
         phrase:
-          type: string
+          type: [string]
           example: kutya
     ToTranslation:
       required:
         - translationId
         - phrase
-      type: object
+      type: [object]
       description: The translation to part with id and the connected phrase
       properties:
         translationId:
-          type: integer
+          type: [integer]
           description: The id of translation to
           format: int64
           example: 12
         phrase:
-          type: string
+          type: [string]
           example: dog
     TranslationToSave:
       required:
         - id
         - from
         - to
-      type: object
+      type: [object]
       properties:
         id:
-          type: integer
+          type: [integer]
           format: int64
           example: 10
         example:
-          type: string
+          type: [string]
           example: Example sentence
         translatedExample:
-          type: string
+          type: [string]
           example: The translated example sentence
         from:
-          type: array
+          type: [array]
           items:
             type: string
             examples:
               - phrase to be translated
         to:
-          type: array
+          type: [array]
           items:
             type: string
             examples:
               - The translated phrase
     UnitTree:
-      type: array
+      type: [array]
       items:
-        type: object
+        type: [object]
         required:
           - name
           - order
         properties:
           name:
             type: string
-            example: Unit 1
+            example: Unit group 1
             description: The name of the unit group
           order:
             type: integer
@@ -403,14 +482,14 @@ components:
         - name
         - forms
         - wordTypeUnits
-      type: object
+      type: [object]
       properties:
         name:
-          type: string
+          type: [string]
           example: Irregular verbs
           description: The name of the word type
         rows:
-          type: array
+          type: [array]
           items:
             type: object
             description: The translation data for the word from-to words and the connection to the unit
@@ -447,7 +526,7 @@ components:
                   example: 123
                   description: The id of the word type unit, for where the word is added/connected
         forms:
-          type: array
+          type: [array]
           description: The defined forms of the word type
           items:
             type: string
@@ -457,7 +536,7 @@ components:
               - Past tense
               - Past participle
         wordTypeUnits:
-          type: array
+          type: [array]
           items:
             type: object
             description: It is a list of the available unit for the word types, for which the words are connected/linked
