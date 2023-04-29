@@ -207,6 +207,38 @@ paths:
       security:
         - jwt_auth:
             - use:API
+  /word_types/units/words/{wordTypeUnitId}/{fromLanguageId}:
+    get:
+      tags:
+        - word-type
+      summary: Get the translations for a word type unit
+      description: Get the translations for a word type unit by from language
+      operationId: getWordTypeUnitTranslations
+      parameters:
+        - name: wordTypeUnitId
+          in: path
+          required: true
+          description: The word type unit id
+          schema:
+            type: integer
+            format: int64
+        - name: fromLanguageId
+          in: path
+          required: true
+          description: The from language id
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordTypeUnitTranslationResponse'
+      security:
+        - jwt_auth:
+            - use:API
   /answer:
     post:
       tags:
@@ -230,7 +262,7 @@ paths:
         - jwt_auth:
             - use:API
   /word_types/units/link:
-    post:
+    put:
       tags:
         - word-type
       summary: Add a word type translation to a word type unit
@@ -242,7 +274,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddWordTypeUnitLinkRequest'
+              $ref: '#/components/requestBodies/WordTypeUnitLink'
       responses:
         '200':
           description: Success answer store
@@ -251,7 +283,40 @@ paths:
       security:
         - jwt_auth:
             - use:API
+    delete:
+      tags:
+        - word-type
+      summary: Delete a word type translation from a word type unit
+      description: Delete a word type translation from a word type unit
+      operationId: DeleteWordTypeUnitLink
+      requestBody:
+        required: true
+        description: Create a new answer for the translation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/WordTypeUnitLink'
+      responses:
+        '204':
+          description: Success deletion
+        '404':
+          description: Un success deletion
 components:
+  requestBodies:
+    WordTypeUnitLink:
+      required:
+        - wordTypeUnitId
+        - wordTypeLinkId
+      type: [object]
+      properties:
+        wordTypeUnitId:
+          type: [integer]
+          description: The id of the word type unit
+          format: int64
+        wordTypeLinkId:
+          type: [integer]
+          description: The id of the word type link (word type translation)
+          format: int64
   schemas:
     AddAnswerRequest:
       required:
@@ -273,20 +338,6 @@ components:
           enum:
             - WRITING
             - TO_BE_DECIDED
-    AddWordTypeUnitLinkRequest:
-      required:
-        - wordTypeUnitId
-        - wordTypeLinkId
-      type: [object]
-      properties:
-        wordTypeUnitId:
-          type: [integer]
-          description: The id of the word type unit
-          format: int64
-        wordTypeLinkId:
-          type: [integer]
-          description: The id of the word type link (word type translation)
-          format: int64
     LoginRequest:
       required:
         - email
@@ -477,6 +528,59 @@ components:
                   format: int64
                   example: 11
                   description: The id of the unit leaf
+    WordTypeTranslation:
+      required:
+        - id
+        - toPhrases
+        - fromPhrases
+      type: [object]
+      properties:
+        id:
+          type: [integer]
+          format: int64
+          example: 123
+          description: The id of the word type from
+        toPhrases:
+          type: [array]
+          items:
+            type: object
+            description: The key is the word type form name
+            additionalProperties:
+              type: array
+              items:
+                type: string
+                description: The translated word
+        fromPhrases:
+          type: [array]
+          items:
+            type: string
+            description: The word which is translated
+    WordTypeUnitTranslationResponse:
+      required:
+        - name
+        - forms
+      type: [object]
+      properties:
+        name:
+          type: [string]
+          example: Irregular verbs
+          description: The name of the word type
+        forms:
+          type: [array]
+          description: The defined forms of the word type
+          items:
+            type: string
+            description: The word type form
+            examples:
+              - Verb
+              - Past tense
+              - Past participle
+        rows:
+          type: [array]
+          items:
+            type: object
+            description: The translation data for the word from-to words and the connection to the unit
+            $ref: '#/components/schemas/WordTypeTranslation'
     WordTypeTranslationResponse:
       required:
         - name
@@ -491,40 +595,18 @@ components:
         rows:
           type: [array]
           items:
-            type: object
-            description: The translation data for the word from-to words and the connection to the unit
-            required:
-              - id
-              - toPhrases
-              - fromPhrases
-            properties:
-              id:
-                type: integer
-                format: int64
-                example: 123
-                description: The id of the word type from
-              toPhrases:
-                type: array
-                items:
-                  type: object
-                  description: The key is the word type form name
-                  additionalProperties:
+            allOf:
+              - $ref: '#/components/schemas/WordTypeTranslation'
+              - type: object
+                description: The translation data for the word from-to words and the connection to the unit
+                properties:
+                  wordTypeUnits:
                     type: array
                     items:
-                      type: string
-                      description: The translated word
-              fromPhrases:
-                type: array
-                items:
-                  type: string
-                  description: The word which is translated
-              wordTypeUnits:
-                type: array
-                items:
-                  type: integer
-                  format: int64
-                  example: 123
-                  description: The id of the word type unit, for where the word is added/connected
+                      type: integer
+                      format: int64
+                      example: 123
+                      description: The id of the word type unit, for where the word is added/connected
         forms:
           type: [array]
           description: The defined forms of the word type
