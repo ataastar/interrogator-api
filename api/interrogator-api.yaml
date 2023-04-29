@@ -239,6 +239,23 @@ paths:
       security:
         - jwt_auth:
             - use:API
+  /word_types/units:
+    get:
+      tags:
+        - word-type
+      summary: Get all the word type units
+      description: Get all the word type units
+      operationId: getWordTypeUnits
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WordTypeUnitTranslationResponse'
+      security:
+        - jwt_auth:
+            - use:API
   /answer:
     post:
       tags:
@@ -307,14 +324,14 @@ components:
       required:
         - wordTypeUnitId
         - wordTypeLinkId
-      type: [object]
+      type: object
       properties:
         wordTypeUnitId:
-          type: [integer]
+          type: integer
           description: The id of the word type unit
           format: int64
         wordTypeLinkId:
-          type: [integer]
+          type: integer
           description: The id of the word type link (word type translation)
           format: int64
   schemas:
@@ -323,17 +340,17 @@ components:
         - unitContentId
         - right
         - interrogationType
-      type: [object]
+      type: object
       properties:
         unitContentId:
-          type: [integer]
+          type: integer
           description: The id of the unit content
           format: int64
         right:
           type: [boolean]
           description: The success of the result of the translation
         interrogationType:
-          type: [string]
+          type: string
           description: The interrogation type. Currently just the WRITING enabled
           enum:
             - WRITING
@@ -342,162 +359,168 @@ components:
       required:
         - email
         - password
-      type: [object]
+      type: object
       properties:
         email:
-          type: [string]
+          type: string
         password:
-          type: [string]
+          type: string
     RefreshTokenRequest:
       required:
         - refreshToken
-      type: [object]
+      type: object
       properties:
         refreshToken:
-          type: [string]
+          type: string
     LoginResponse:
       required:
         - idToken
         - refreshToken
         - roles
-      type: [object]
+      type: object
       properties:
         idToken:
-          type: [string]
+          type: string
           description: The JWT access token
         refreshToken:
-          type: [string]
+          type: string
           description: The JWT refresh token
         roles:
-          type: [array]
+          type: array
           items:
             type: string
             examples:
               - user
               - admin
         nickname:
-          type: [string]
+          type: string
           example: Bob
     UnitContentWithTranslations:
-      required:
-        - name
-        - code
-      type: [object]
       description: The unit with the translations
-      properties:
-        name:
-          type: [string]
-          description: The name of the unit
-          example: Unit name
-        code:
-          type: [integer]
-          format: int64
-          description: The code of the unit
-          example: 123
-        words:
-          type: [array]
-          items:
-            $ref: '#/components/schemas/UnitContent'
+      allOf:
+        - $ref: '#/components/schemas/UnitLeaf'
+        - type: object
+          properties:
+            words:
+              type: array
+              items:
+                $ref: '#/components/schemas/UnitContent'
     UnitContent:
       required:
         - id
         - from
         - to
-      type: [object]
+      type: object
       description: The translations of the unit with example and calculated interrogation time
       properties:
         id:
-          type: [integer]
+          type: integer
           description: The id of the unit content
           format: int64
           example: 10
         from:
-          type: [array]
+          type: array
           items:
             $ref: '#/components/schemas/FromTranslation'
         to:
-          type: [array]
+          type: array
           items:
             $ref: '#/components/schemas/ToTranslation'
         example:
-          type: [string]
+          type: string
           description: An example sentence for the phrase
           example: A kutya ugat
         translatedExample:
-          type: [string]
+          type: string
           description: The translation of the example sentence
           example: The dog barks
         nextInterrogationTime:
-          type: [string]
+          type: string
           format: date-time
           description: The time when the translation will be interrogated
         lastAnswerTime:
-          type: [string]
+          type: string
           format: date-time
           description: The last time when the translation was anwered
     FromTranslation:
       required:
         - translationId
         - phrase
-      type: [object]
+      type: object
       description: The translation from part with id and the connected phrase
       properties:
         translationId:
-          type: [integer]
+          type: integer
           description: The id of translation from
           format: int64
           example: 11
         phrase:
-          type: [string]
+          type: string
           example: kutya
     ToTranslation:
       required:
         - translationId
         - phrase
-      type: [object]
+      type: object
       description: The translation to part with id and the connected phrase
       properties:
         translationId:
-          type: [integer]
+          type: integer
           description: The id of translation to
           format: int64
           example: 12
         phrase:
-          type: [string]
+          type: string
           example: dog
     TranslationToSave:
       required:
         - id
         - from
         - to
-      type: [object]
+      type: object
       properties:
         id:
-          type: [integer]
+          type: integer
           format: int64
           example: 10
         example:
-          type: [string]
+          type: string
           example: Example sentence
         translatedExample:
-          type: [string]
+          type: string
           example: The translated example sentence
         from:
-          type: [array]
+          type: array
           items:
             type: string
             examples:
               - phrase to be translated
         to:
-          type: [array]
+          type: array
           items:
             type: string
             examples:
               - The translated phrase
+    UnitLeaf:
+      type: object
+      description: The unit leaf data
+      required:
+        - name
+        - code
+      properties:
+        name:
+          type: string
+          example: Unit 1
+          description: The name of the unit leaf
+        code:
+          type: integer
+          format: int64
+          example: 11
+          description: The id of the unit leaf
     UnitTree:
-      type: [array]
+      type: array
       items:
-        type: [object]
+        type: object
         required:
           - name
           - order
@@ -515,33 +538,21 @@ components:
             type: array
             items:
               type: object
-              required:
-                - name
-                - order
-              properties:
-                name:
-                  type: string
-                  example: Unit 1
-                  description: The name of the unit leaf
-                code:
-                  type: integer
-                  format: int64
-                  example: 11
-                  description: The id of the unit leaf
+              $ref: '#/components/schemas/UnitLeaf'
     WordTypeTranslation:
       required:
         - id
         - toPhrases
         - fromPhrases
-      type: [object]
+      type: object
       properties:
         id:
-          type: [integer]
+          type: integer
           format: int64
           example: 123
-          description: The id of the word type from
+          description: The id of the word type link (translation)
         toPhrases:
-          type: [array]
+          type: array
           items:
             type: object
             description: The key is the word type form name
@@ -551,7 +562,7 @@ components:
                 type: string
                 description: The translated word
         fromPhrases:
-          type: [array]
+          type: array
           items:
             type: string
             description: The word which is translated
@@ -559,14 +570,14 @@ components:
       required:
         - name
         - forms
-      type: [object]
+      type: object
       properties:
         name:
-          type: [string]
+          type: string
           example: Irregular verbs
           description: The name of the word type
         forms:
-          type: [array]
+          type: array
           description: The defined forms of the word type
           items:
             type: string
@@ -576,24 +587,24 @@ components:
               - Past tense
               - Past participle
         rows:
-          type: [array]
+          type: array
           items:
             type: object
-            description: The translation data for the word from-to words and the connection to the unit
+            description: The word type link translation data
             $ref: '#/components/schemas/WordTypeTranslation'
     WordTypeTranslationResponse:
       required:
         - name
         - forms
         - wordTypeUnits
-      type: [object]
+      type: object
       properties:
         name:
-          type: [string]
+          type: string
           example: Irregular verbs
           description: The name of the word type
         rows:
-          type: [array]
+          type: array
           items:
             allOf:
               - $ref: '#/components/schemas/WordTypeTranslation'
@@ -608,7 +619,7 @@ components:
                       example: 123
                       description: The id of the word type unit, for where the word is added/connected
         forms:
-          type: [array]
+          type: array
           description: The defined forms of the word type
           items:
             type: string
@@ -618,7 +629,7 @@ components:
               - Past tense
               - Past participle
         wordTypeUnits:
-          type: [array]
+          type: array
           items:
             type: object
             description: It is a list of the available unit for the word types, for which the words are connected/linked
