@@ -62,7 +62,7 @@ app.post('/answer', auth.checkIfAuthenticated, (req, res) => {
 // word types e.g. Irregular verbs
 app.get('/word_types/words/:wordTypeId/:fromLanguageId/:toLanguageId', auth.checkIfAuthenticated, phrase.getWordTypeContent)
 app.get('/word_types/units/words/:wordTypeUnitId/:fromLanguageId', auth.checkIfAuthenticated, phrase.getWordTypeUnitContent)
-app.get('/word_type_unit', auth.checkIfAuthenticated, phrase.getWordTypeUnit)
+app.get('/word_types/units', auth.checkIfAuthenticated, phrase.getWordTypeUnit)
 // adding removing phrases
 app.put('/word_types/units/link', auth.checkIfAuthenticated, phrase.addWordTypeUnitLink)
 app.delete('/word_types/units/link', auth.checkIfAuthenticated, phrase.deleteWordTypeUnitLink)
