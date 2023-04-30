@@ -255,14 +255,28 @@ paths:
       security:
         - jwt_auth:
             - use:API
+  /word_types/units/link/{wordTypeUnitId}/{wordTypeLinkId}:
     delete:
       tags:
         - word-type
       summary: Delete a word type translation from a word type unit
       description: Delete a word type translation from a word type unit
       operationId: DeleteWordTypeUnitLink
-      requestBody:
-        $ref: '#/components/requestBodies/WordTypeUnitLinkRequest'
+      parameters:
+        - name: wordTypeUnitId
+          in: path
+          description: The id of the word type unit
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: wordTypeLinkId
+          in: path
+          description: The id of the word type link
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         '204':
           description: Success deletion

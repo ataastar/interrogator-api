@@ -38,7 +38,7 @@ async function getTranslationDetail(request, response) {
 async function getWordTypeUnitContent(request, response) {
     const fromLanguageId = parseInt(request.params.fromLanguageId)
     const wordTypeUnitId = parseInt(request.params.wordTypeUnitId)
-    if (wordTypeId == null || fromLanguageId == null) {
+    if (wordTypeUnitId == null || fromLanguageId == null) {
         simpleResult('{}', response);
         return
     }
@@ -50,8 +50,8 @@ async function getWordTypeUnit(request, response) {
 }
 
 async function deleteWordTypeUnitLink(request, response) {
-    const wordTypeUnitId = request.body.wordTypeUnitId;
-    const wordTypeLinkId = request.body.wordTypeLinkId;
+    const wordTypeUnitId = request.params.wordTypeUnitId;
+    const wordTypeLinkId = request.params.wordTypeLinkId;
     handleNoResult(repo.deleteWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId), response);
 }
 

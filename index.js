@@ -65,7 +65,7 @@ app.get('/word_types/units/words/:wordTypeUnitId/:fromLanguageId', auth.checkIfA
 app.get('/word_types/units', auth.checkIfAuthenticated, phrase.getWordTypeUnit)
 // adding removing phrases
 app.put('/word_types/units/link', auth.checkIfAuthenticated, phrase.addWordTypeUnitLink)
-app.delete('/word_types/units/link', auth.checkIfAuthenticated, phrase.deleteWordTypeUnitLink)
+app.delete('/word_types/units/link/:wordTypeUnitId/:wordTypeLinkId', auth.checkIfAuthenticated, phrase.deleteWordTypeUnitLink)
 
 //app.post('/users', phrase.createUser)
 //app.put('/users/:id', phrase.updateUser)
