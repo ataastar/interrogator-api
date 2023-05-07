@@ -1,0 +1,79 @@
+---
+title: Translation
+---
+erDiagram
+    ANSWER {
+        long answerId PK
+        long translationLinkId FK
+        long userId FK
+        long fromLanguageId FK
+        boolean rightAnswer
+        date answerTime
+        enum interrogationType
+    }
+    LANGUAGE {
+        long languageId PK
+        string languageCode
+    }
+    PHRASE {
+        long phraseId PK
+        long languageId FK
+        string text
+        string audioUrl
+    }
+    TRANSLATION_FROM {
+        long translationFromId PK
+        long translationLinkId FK
+        long phraseId FK
+        integer order
+    }
+    TRANSLATION_LINK {
+        long translationLinkId PK
+        string examlple
+        string translatedExamlple
+        string imageUrl
+    }
+    TRANSLATION_TO {
+        long translationToId PK
+        long translationLinkId FK
+        long phraseId FK
+        integer order
+    }
+    UNIT_CONTENT {
+        long unitContentId PK
+        long unitTreeId FK
+        long translationLinkId FK
+    }
+    UNIT_TREE {
+        long unitTreeId PK
+        long unitTreeParentId FK
+        string name
+    }
+    USER {
+        long userId PK
+        string email
+        string alias
+    }
+
+    WORD_TYPE {
+        long wordTypeId PK
+        long languageId FK
+        string name
+    }
+    WORD_TYPE_FROM {
+        long wordTypeId PK
+        long languageId FK
+        string name
+    }
+
+
+    ANSWER only one to zero or more USER: responder
+    ANSWER only one to zero or more TRANSLATION_LINK: answered-translation
+    PHRASE ||--o{ LANGUAGE : language
+    TRANSLATION_TO only one to zero or more TRANSLATION_LINK : translation-from-link
+    TRANSLATION_FROM only one to zero or more TRANSLATION_LINK : translation-to-link
+    PHRASE only one to zero or more TRANSLATION_FROM : translation-from
+    PHRASE only one to zero or more TRANSLATION_TO : translation-to
+    UNIT_TREE only one to zero or more UNIT_TREE : parent-unit
+    UNIT_CONTENT only one to zero or more UNIT_TREE : unit
+    UNIT_CONTENT only one to zero or more TRANSLATION_LINK : unit-content-translation
