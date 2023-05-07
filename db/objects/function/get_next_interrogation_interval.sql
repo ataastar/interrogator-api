@@ -27,8 +27,8 @@ BEGIN
   ORDER BY elapsed_time
   LIMIT 1;
 
-  IF v_i2 IS NULL THEN
-    RETURN NULL;
+  IF v_i2 IS NULL THEN -- when it was interrogated very long time ago, then next interrogation can be now + the very long time
+    RETURN v_elapsed_time;
   END IF;
 
   SELECT elapsed_time, multiplier

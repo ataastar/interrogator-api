@@ -19,6 +19,8 @@ BEGIN
          JOIN unit_tree_view utv on uc.unit_tree_id = utv.unit_tree_id
   WHERE uc.unit_content_id = p_unit_content_id;
 
+  --call logging(v_translation_link_id || ' ' || v_from_language_id);
+
   INSERT INTO answer(translation_link_id, user_id, from_language_id, right_answer, interrogation_type, answer_time)
   VALUES (v_translation_link_id, p_user_id, v_from_language_id, p_answer_is_right, p_interrogator_type, p_answer_time);
   --RAISE NOTICE 'now: %', current_timestamp;
@@ -29,6 +31,12 @@ BEGIN
   INTO v_next_interrogation_time
   FROM translation_link
   WHERE translation_link_id = v_translation_link_id;
+
+  /*if v_next_interrogation_time is null then
+    call logging('v_next_interrogation_time is null');
+  else
+    call logging('v_next_interrogation_time is not null: ' || v_next_interrogation_time);
+  end if;*/
 
   RETURN extract(epoch from v_next_interrogation_time);
 END

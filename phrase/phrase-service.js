@@ -65,14 +65,14 @@ async function addAnswer(request, response, userId) {
     const unitContentId = request.body.id;
     const right = request.body.right;
     const interrogationType = request.body.interrogationType;
-    handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType), response, 200);
+    handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType), response, 200, true);
 }
 
 
-function handleNoResult(promise, response, status = 204) {
+function handleNoResult(promise, response, status = 204, ignoreEmptyResult = false) {
     promise.then(
         result => {
-            if (result) {
+            if (result || ignoreEmptyResult) {
                 response.status(status).json();
             } else {
                 response.status(404).json();

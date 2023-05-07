@@ -37,6 +37,12 @@ BEGIN
 
   v_next_interrogation_interval = get_next_interrogation_interval(v_first_right_answer_time, p_answer_time);
 
+  /*if (v_next_interrogation_interval is not null) then
+    call logging('v_next_interrogation_interval: ' || v_next_interrogation_interval);
+  else
+    call logging('v_next_interrogation_interval is null');
+  end if;*/
+
   UPDATE translation_link
   SET next_interrogation_date =
         CASE
