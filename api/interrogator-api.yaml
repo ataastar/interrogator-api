@@ -7,7 +7,7 @@ info:
     Source:
     - [GitHub](https://github.com/ataastar/interrogator-api)
 
-  termsOfService: no any
+  termsOfService: https://localhost/terms/
   contact:
     email: ata.astar@gmail.com
   license:
@@ -608,7 +608,7 @@ components:
                 description: The id of the unit content
                 format: int64
               right:
-                type: [boolean]
+                type: boolean
                 description: The success of the result of the translation
               interrogationType:
                 type: string
