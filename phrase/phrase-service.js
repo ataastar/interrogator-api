@@ -9,6 +9,15 @@ async function getUnitContent(request, response) {
     handleSimpleResult(repo.getUnitContent(unitId), response)
 }
 
+async function getUnitTranslation(request, response) {
+    const unitId = parseInt(request.params.unitId)
+    if (unitId == null) {
+        simpleResult('{}', response);
+        return
+    }
+    handleSimpleResult(repo.getUnitTranslation(unitId), response)
+}
+
 async function getUnitTreeGroup(request, response) {
     handleSimpleResult(repo.getUnitTreeGroup(), response);
 }
@@ -105,6 +114,7 @@ function simpleError(error, response) {
 
 module.exports = {
     getUnitContent,
+    getUnitTranslation,
     getUnitTreeGroup,
     insertUnitContent,
     deleteUnitContent,

@@ -4,6 +4,10 @@ async function getUnitContent(unitId) {
     return (await db.pool.query('SELECT content FROM unit_content_json WHERE code = $1', [unitId])).rows;
 }
 
+async function getUnitTranslation(unitId) {
+    return (await db.pool.query('SELECT content FROM unit_translation_json WHERE unit_id = $1', [unitId])).rows;
+}
+
 async function getUnitTreeGroup() {
     return (await db.pool.query('SELECT * FROM unit_group_json', [])).rows;
 }
@@ -46,6 +50,7 @@ async function addAnswer(userId, unitContentId, right, interrogationType) {
 
 module.exports = {
     getUnitContent,
+    getUnitTranslation,
     getUnitTreeGroup,
     insertUnitContent,
     deleteUnitContent,

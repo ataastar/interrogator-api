@@ -109,6 +109,30 @@ paths:
       summary: Get the translations for a unit
       description: Get the translations for a unit by unit id
       operationId: getUnitPhrases
+      deprecated: true
+      parameters:
+        - name: unitId
+          in: path
+          required: true
+          description: The unit id
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/PhrasesForUnitResponse'
+        '405':
+          description: Invalid input
+      security:
+        - jwt_auth:
+            - use:API
+  /translation/{unitId}:
+    get:
+      tags:
+        - translation
+      summary: Get the translations for a unit
+      description: Get the translations for a unit by unit id
+      operationId: getUnitTranslations
       parameters:
         - name: unitId
           in: path
@@ -305,13 +329,13 @@ components:
                 type: array
                 items:
                   type: string
-                  examples:
+                  example:
                     - user
                     - admin
               nickname:
                 type: string
                 example: Bob
-    TranslationsForUnitResponse:
+    PhrasesForUnitResponse:
       description: The unit with the translations
       content:
         application/json:
@@ -369,6 +393,73 @@ components:
                               phrase:
                                 type: string
                                 example: dog
+                        example:
+                          type: string
+                          description: An example sentence for the phrase
+                          example: A kutya ugat
+                        translatedExample:
+                          type: string
+                          description: The translation of the example sentence
+                          example: The dog barks
+                        nextInterrogationTime:
+                          type: string
+                          format: date-time
+                          description: The time when the translation will be interrogated
+                        lastAnswerTime:
+                          type: string
+                          format: date-time
+                          description: The last time when the translation was answered
+    TranslationsForUnitResponse:
+      description: The unit with the translations
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UnitLeaf'
+              - type: object
+                properties:
+                  translations:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - from
+                        - to
+                      type: object
+                      description: The translations of the unit with example and calculated interrogation time
+                      properties:
+                        unitContentId:
+                          type: integer
+                          description: The id of the unit content
+                          format: int64
+                          example: 10
+                        translationLinkId:
+                          type: integer
+                          description: The id of the translation link
+                          format: int64
+                          example: 11
+                        phrasesByLanguageId:
+                          type: object
+                          maxProperties: 2
+                          minProperties: 2
+                          additionalProperties:
+                            type: array
+                            items:
+                              type: object
+                              description: The translation for the language id
+                              properties:
+                                phrase:
+                                  type: string
+                                  description: The phrase translation for the language
+                                  example: kutya
+                                translationId:
+                                  type: integer
+                                  description: The id of the translation
+                                  format: int64
+                                  example: 12
+                          example:
+                            1: [{phrase: kutya, translationId: 12}, {phrase: eb, translationId: 13}]
+                            2: [{phrase: dog, translationId: 14}]
                         example:
                           type: string
                           description: An example sentence for the phrase
@@ -447,7 +538,7 @@ components:
                 items:
                   type: string
                   description: The word type form
-                  examples:
+                  example:
                     - Verb
                     - Past tense
                     - Past participle
@@ -489,7 +580,7 @@ components:
                 items:
                   type: string
                   description: The word type form
-                  examples:
+                  example:
                     - Verb
                     - Past tense
                     - Past participle
@@ -578,14 +669,16 @@ components:
                 type: array
                 items:
                   type: string
-                  examples:
+                  example:
                     - phrase to be translated
+                    - kutya
               to:
                 type: array
                 items:
                   type: string
-                  examples:
+                  example:
                     - The translated phrase
+                    - dog
     WordTypeUnitLinkRequest:
       required: true
       description: Word type unit link
@@ -639,6 +732,9 @@ components:
           items:
             type: object
             description: The key is the word type form name
+            example:
+              - Past Participle: [got, got]
+              - Past Tense: [got]
             additionalProperties:
               type: array
               items:
@@ -649,6 +745,9 @@ components:
           items:
             type: string
             description: The word which is translated
+            example:
+              - kap
+              - megszerez
   securitySchemes:
     jwt_auth:
       type: http
