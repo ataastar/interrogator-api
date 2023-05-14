@@ -3,10 +3,8 @@ info:
   title: Interrogator API 1.0
   description: |-
     This is the Interrogator API for the web client
-
     Source:
     - [GitHub](https://github.com/ataastar/interrogator-api)
-
   termsOfService: https://localhost/terms/
   contact:
     email: ata.astar@gmail.com
@@ -458,8 +456,8 @@ components:
                                   format: int64
                                   example: 12
                           example:
-                            1: [{phrase: kutya, translationId: 12}, {phrase: eb, translationId: 13}]
-                            2: [{phrase: dog, translationId: 14}]
+                            1: [ { phrase: kutya, translationId: 12 }, { phrase: eb, translationId: 13 } ]
+                            2: [ { phrase: dog, translationId: 14 } ]
                         example:
                           type: string
                           description: An example sentence for the phrase
@@ -733,8 +731,8 @@ components:
             type: object
             description: The key is the word type form name
             example:
-              - Past Participle: [got, got]
-              - Past Tense: [got]
+              - Past Participle: [ got, got ]
+              - Past Tense: [ got ]
             additionalProperties:
               type: array
               items:
