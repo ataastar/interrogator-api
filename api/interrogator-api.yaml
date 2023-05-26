@@ -280,7 +280,6 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
                   $ref: '#/components/schemas/UnitLeaf'
       security:
         - jwt_auth:
@@ -626,9 +625,9 @@ components:
           group:
             type: array
             items:
-              type: object
               $ref: '#/components/schemas/UnitLeaf'
     WordTypeTranslation:
+      description: The word type link translation data
       required:
         - id
         - toPhrases
@@ -755,8 +754,6 @@ components:
         rows:
           type: array
           items:
-            type: object
-            description: The word type link translation data
             $ref: '#/components/schemas/WordTypeTranslation'
   securitySchemes:
     jwt_auth:
