@@ -190,7 +190,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResUnitTree'
+                description: Response of the unit tree request
+                type: array
+                items:
+                  $ref: '#/components/schemas/UnitGroup'
       security:
         - jwt_auth:
             - use:API
@@ -490,7 +493,7 @@ components:
           format: int64
           example: 10
           description: The order of the unit group
-        group:
+        units:
           type: array
           description: The unit leafs of the group
           items:
@@ -689,11 +692,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Translation'
-    ResUnitTree:
-      description: Response of the unit tree request
-      type: array
-      items:
-        $ref: '#/components/schemas/UnitGroup'
     ResWordTypeTranslation:
       description: Word type translation response
       required:
