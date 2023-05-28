@@ -10,7 +10,7 @@ info:
     email: ata.astar@gmail.com
   license:
     name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 externalDocs:
   description: No any external docs
@@ -421,69 +421,9 @@ components:
           properties:
             words:
               type: array
+              description: The translations of the unit with example and calculated interrogation time
               items:
-                required:
-                  - id
-                  - from
-                  - to
-                type: object
-                description: The translations of the unit with example and calculated interrogation time
-                properties:
-                  id:
-                    type: integer
-                    description: The id of the unit content
-                    format: int64
-                    example: 10
-                  from:
-                    type: array
-                    items:
-                      required:
-                        - translationId
-                        - phrase
-                      type: object
-                      description: The translation from part with id and the connected phrase
-                      properties:
-                        translationId:
-                          type: integer
-                          description: The id of translation from
-                          format: int64
-                          example: 11
-                        phrase:
-                          type: string
-                          example: kutya
-                  to:
-                    type: array
-                    items:
-                      required:
-                        - translationId
-                        - phrase
-                      type: object
-                      description: The translation to part with id and the connected phrase
-                      properties:
-                        translationId:
-                          type: integer
-                          description: The id of translation to
-                          format: int64
-                          example: 12
-                        phrase:
-                          type: string
-                          example: dog
-                  example:
-                    type: string
-                    description: An example sentence for the phrase
-                    example: A kutya ugat
-                  translatedExample:
-                    type: string
-                    description: The translation of the example sentence
-                    example: The dog barks
-                  nextInterrogationTime:
-                    type: string
-                    format: date-time
-                    description: The time when the translation will be interrogated
-                  lastAnswerTime:
-                    type: string
-                    format: date-time
-                    description: The last time when the translation was answered
+                $ref: '#/components/schemas/TranslationForPhrase'
     RefreshTokenRequest:
       type: object
       description: Refresh token request
@@ -492,6 +432,107 @@ components:
       properties:
         refreshToken:
           type: string
+    Translation:
+      description: The translation of a phrase with example and calculated interrogation time
+      required:
+        - id
+        - from
+        - to
+      type: object
+      properties:
+        unitContentId:
+          type: integer
+          description: The id of the unit content
+          format: int64
+          example: 10
+        translationLinkId:
+          type: integer
+          description: The id of the translation link
+          format: int64
+          example: 11
+        phrasesByLanguageId:
+          type: object
+          maxProperties: 2
+          minProperties: 2
+          description: The translation parts (phrases) for the language id
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/TranslationPart'
+          example:
+            1: [ { phrase: kutya, translationId: 12 }, { phrase: eb, translationId: 13 } ]
+            2: [ { phrase: dog, translationId: 14 } ]
+        example:
+          type: string
+          description: An example sentence for the phrase
+          example: A kutya ugat
+        translatedExample:
+          type: string
+          description: The translation of the example sentence
+          example: The dog barks
+        nextInterrogationTime:
+          type: string
+          format: date-time
+          description: The time when the translation will be interrogated
+        lastAnswerTime:
+          type: string
+          format: date-time
+          description: The last time when the translation was answered
+    TranslationPart:
+      description: A translation part for phrase ('to' or 'from' part)
+      required:
+        - translationId
+        - phrase
+      type: object
+      properties:
+        translationId:
+          type: integer
+          description: The id of translation
+          format: int64
+          example: 11
+        phrase:
+          type: string
+          description: The phrase (translation part)
+          example: dog / kutya
+    TranslationForPhrase:
+      description: Translations for a phrase ('to' and 'from')
+      required:
+        - id
+        - from
+        - to
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The id of the unit content
+          format: int64
+          example: 10
+        from:
+          type: array
+          description: The 'from' part translations
+          items:
+            $ref: '#/components/schemas/TranslationPart'
+        to:
+          type: array
+          description: The 'to' part translations
+          items:
+            $ref: '#/components/schemas/TranslationPart'
+        example:
+          type: string
+          description: An example sentence for the phrase
+          example: A kutya ugat
+        translatedExample:
+          type: string
+          description: The translation of the example sentence
+          example: The dog barks
+        nextInterrogationTime:
+          type: string
+          format: date-time
+          description: The time when the translation will be interrogated
+        lastAnswerTime:
+          type: string
+          format: date-time
+          description: The last time when the translation was answered
     TranslationSaveRequest:
       description: Translation save request
       required:
@@ -531,63 +572,10 @@ components:
         - type: object
           properties:
             translations:
+              description: The translations of the unit with example and calculated interrogation time
               type: array
               items:
-                required:
-                  - id
-                  - from
-                  - to
-                type: object
-                description: The translations of the unit with example and calculated interrogation time
-                properties:
-                  unitContentId:
-                    type: integer
-                    description: The id of the unit content
-                    format: int64
-                    example: 10
-                  translationLinkId:
-                    type: integer
-                    description: The id of the translation link
-                    format: int64
-                    example: 11
-                  phrasesByLanguageId:
-                    type: object
-                    maxProperties: 2
-                    minProperties: 2
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: object
-                        description: The translation for the language id
-                        properties:
-                          phrase:
-                            type: string
-                            description: The phrase translation for the language
-                            example: kutya
-                          translationId:
-                            type: integer
-                            description: The id of the translation
-                            format: int64
-                            example: 12
-                    example:
-                      1: [ { phrase: kutya, translationId: 12 }, { phrase: eb, translationId: 13 } ]
-                      2: [ { phrase: dog, translationId: 14 } ]
-                  example:
-                    type: string
-                    description: An example sentence for the phrase
-                    example: A kutya ugat
-                  translatedExample:
-                    type: string
-                    description: The translation of the example sentence
-                    example: The dog barks
-                  nextInterrogationTime:
-                    type: string
-                    format: date-time
-                    description: The time when the translation will be interrogated
-                  lastAnswerTime:
-                    type: string
-                    format: date-time
-                    description: The last time when the translation was answered
+                $ref: '#/components/schemas/Translation'
     UnitLeaf:
       type: object
       description: The unit leaf data
@@ -604,28 +592,32 @@ components:
           format: int64
           example: 11
           description: The id of the unit leaf
+    UnitGroup:
+      description: The unit group, which contains units
+      type: object
+      required:
+        - name
+        - order
+      properties:
+        name:
+          type: string
+          example: Unit group 1
+          description: The name of the unit group
+        order:
+          type: integer
+          format: int64
+          example: 10
+          description: The order of the unit group
+        group:
+          type: array
+          description: The unit leafs of the group
+          items:
+            $ref: '#/components/schemas/UnitLeaf'
     UnitTreeResponse:
       description: Response of the unit tree request
       type: array
       items:
-        type: object
-        required:
-          - name
-          - order
-        properties:
-          name:
-            type: string
-            example: Unit group 1
-            description: The name of the unit group
-          order:
-            type: integer
-            format: int64
-            example: 10
-            description: The order of the unit group
-          group:
-            type: array
-            items:
-              $ref: '#/components/schemas/UnitLeaf'
+        $ref: '#/components/schemas/UnitGroup'
     WordTypeTranslation:
       description: The word type link translation data
       required:
@@ -674,19 +666,11 @@ components:
           description: The name of the word type
         rows:
           type: array
+          description: The translation data for the word from-to words and the connection to the unit
           items:
             allOf:
               - $ref: '#/components/schemas/WordTypeTranslation'
-              - type: object
-                description: The translation data for the word from-to words and the connection to the unit
-                properties:
-                  wordTypeUnits:
-                    type: array
-                    items:
-                      type: integer
-                      format: int64
-                      example: 123
-                      description: The id of the word type unit, for where the word is added/connected
+              - $ref: '#/components/schemas/WordTypeUnitConnections'
         forms:
           type: array
           description: The defined forms of the word type
@@ -699,22 +683,36 @@ components:
               - Past participle
         wordTypeUnits:
           type: array
+          description: It is a list of the available unit for the word types, for which the words are connected/linked
           items:
-            type: object
-            description: It is a list of the available unit for the word types, for which the words are connected/linked
-            required:
-              - name
-              - id
-            properties:
-              name:
-                type: string
-                description: The name of the word type unit
-                example: Part 1
-              id:
-                type: integer
-                format: int64
-                example: 123
-                description: The id of the word type unit
+            $ref: '#/components/schemas/WordTypeUnit'
+    WordTypeUnit:
+      description: The word type unit
+      type: object
+      required:
+        - name
+        - id
+      properties:
+        name:
+          type: string
+          description: The name of the word type unit
+          example: Part 1
+        id:
+          type: integer
+          format: int64
+          example: 123
+          description: The id of the word type unit
+    WordTypeUnitConnections:
+      type: object
+      description: The word type unit ids for which the word is connected
+      properties:
+        wordTypeUnitIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+            example: 123
+            description: The id of the word type unit, for where the word is added/connected
     WordTypeUnitLinkRequest:
       description: Word type unit link
       required:

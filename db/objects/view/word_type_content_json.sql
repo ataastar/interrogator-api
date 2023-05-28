@@ -65,7 +65,7 @@ SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_ag
                            (SELECT array_to_json(array_agg(wtu.word_type_unit_id))
                               FROM word_type_unit_link wtul
                                    JOIN word_type_unit wtu ON wtul.word_type_unit_id = wtu.word_type_unit_id
-                             WHERE wtfr.word_type_link_id = wtul.word_type_link_id) "wordTypeUnits"
+                             WHERE wtfr.word_type_link_id = wtul.word_type_link_id) "wordTypeUnitIds"
                     FROM word_type_from wtfr
                              JOIN phrase p ON wtfr.phrase_id = p.phrase_id
                              JOIN word_type_link wtl ON wtl.word_type_link_id = wtfr.word_type_link_id

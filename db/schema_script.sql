@@ -479,7 +479,7 @@ CREATE VIEW interrogator."UnitGroupJson" AS
                    FROM ( SELECT unit_1."Name" AS name,
                             unit_1."UnitTreeId" AS code
                            FROM interrogator."UnitTree" unit_1
-                          WHERE (unit_1."ParentUnitTreeId" = "UnitTree"."UnitTreeId")) unit) AS "group",
+                          WHERE (unit_1."ParentUnitTreeId" = "UnitTree"."UnitTreeId")) unit) AS "units",
             row_number() OVER () AS "order"
            FROM interrogator."UnitTree"
           WHERE ("UnitTree"."ParentUnitTreeId" = 1)) a;

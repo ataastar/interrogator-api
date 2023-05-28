@@ -5,7 +5,7 @@ FROM (SELECT unit_tree.name,
               FROM (SELECT unit_1.name,
                            unit_1.unit_tree_id AS code
                     FROM unit_tree unit_1
-                    WHERE unit_1.parent_unit_tree_id = unit_tree.unit_tree_id) unit) AS "group",
+                    WHERE unit_1.parent_unit_tree_id = unit_tree.unit_tree_id) unit) AS "units",
              row_number() OVER ()                                                    AS "order"
       FROM unit_tree
       WHERE unit_tree.parent_unit_tree_id = 19
