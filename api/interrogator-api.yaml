@@ -39,7 +39,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: '#/components/schemas/ReqLogin'
         required: true
       responses:
         '200':
@@ -47,7 +47,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                $ref: '#/components/schemas/ResLogin'
         '401':
           description: Unauthorized
   /api/refreshToken:
@@ -62,14 +62,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RefreshTokenRequest'
+              $ref: '#/components/schemas/ReqRefreshToken'
       responses:
         '200':
           description: Login response with tokens and roles
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                $ref: '#/components/schemas/ResLogin'
         '401':
           description: Unauthorized
       security:
@@ -88,7 +88,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TranslationSaveRequest'
+              $ref: '#/components/schemas/ReqTranslationSave'
       responses:
         '200':
           description: Successful operation return with the created translation id
@@ -144,7 +144,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PhrasesForUnitResponse'
+                $ref: '#/components/schemas/ResPhrasesForUnit'
         '405':
           description: Invalid input
       security:
@@ -171,7 +171,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TranslationsForUnitResponse'
+                $ref: '#/components/schemas/ResTranslationsForUnit'
         '405':
           description: Invalid input
       security:
@@ -190,7 +190,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnitTreeResponse'
+                $ref: '#/components/schemas/ResUnitTree'
       security:
         - jwt_auth:
             - use:API
@@ -229,7 +229,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WordTypeTranslationResponse'
+                $ref: '#/components/schemas/ResWordTypeTranslation'
       security:
         - jwt_auth:
             - use:API
@@ -261,7 +261,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WordTypeUnitTranslationResponse'
+                $ref: '#/components/schemas/ResWordTypeUnitTranslation'
       security:
         - jwt_auth:
             - use:API
@@ -297,7 +297,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddAnswerRequest'
+              $ref: '#/components/schemas/ReqAddAnswer'
       responses:
         '200':
           description: Success answer store
@@ -319,7 +319,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WordTypeUnitLinkRequest'
+              $ref: '#/components/schemas/ReqWordTypeUnitLink'
       responses:
         '200':
           description: Success answer store
@@ -357,81 +357,6 @@ paths:
           description: Un success deletion
 components:
   schemas:
-    AddAnswerRequest:
-      description: Add answer request
-      required:
-        - unitContentId
-        - right
-        - interrogationType
-      type: object
-      properties:
-        unitContentId:
-          type: integer
-          description: The id of the unit content
-          format: int64
-        right:
-          type: boolean
-          description: The success of the result of the translation
-        interrogationType:
-          type: string
-          description: The interrogation type. Currently just the WRITING enabled
-          enum:
-            - WRITING
-            - TO_BE_DECIDED
-    LoginRequest:
-      description: Login request
-      required:
-        - email
-        - password
-      type: object
-      properties:
-        email:
-          type: string
-        password:
-          type: string
-    LoginResponse:
-      description: Login response with tokens and roles
-      required:
-        - idToken
-        - refreshToken
-        - roles
-      type: object
-      properties:
-        idToken:
-          type: string
-          description: The JWT access token
-        refreshToken:
-          type: string
-          description: The JWT refresh token
-        roles:
-          type: array
-          items:
-            type: string
-            example:
-              - user
-              - admin
-        nickname:
-          type: string
-          example: Bob
-    PhrasesForUnitResponse:
-      description: The unit with the translations
-      allOf:
-        - $ref: '#/components/schemas/UnitLeaf'
-        - type: object
-          properties:
-            words:
-              type: array
-              description: The translations of the unit with example and calculated interrogation time
-              items:
-                $ref: '#/components/schemas/TranslationForPhrase'
-    RefreshTokenRequest:
-      type: object
-      description: Refresh token request
-      required:
-        - refreshToken
-      properties:
-        refreshToken:
-          type: string
     Translation:
       description: The translation of a phrase with example and calculated interrogation time
       required:
@@ -533,49 +458,6 @@ components:
           type: string
           format: date-time
           description: The last time when the translation was answered
-    TranslationSaveRequest:
-      description: Translation save request
-      required:
-        - id
-        - from
-        - to
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        example:
-          type: string
-          example: Example sentence
-        translatedExample:
-          type: string
-          example: The translated example sentence
-        from:
-          type: array
-          items:
-            type: string
-            example:
-              - phrase to be translated
-              - kutya
-        to:
-          type: array
-          items:
-            type: string
-            example:
-              - The translated phrase
-              - dog
-    TranslationsForUnitResponse:
-      description: The unit with the translations
-      allOf:
-        - $ref: '#/components/schemas/UnitLeaf'
-        - type: object
-          properties:
-            translations:
-              description: The translations of the unit with example and calculated interrogation time
-              type: array
-              items:
-                $ref: '#/components/schemas/Translation'
     UnitLeaf:
       type: object
       description: The unit leaf data
@@ -613,11 +495,6 @@ components:
           description: The unit leafs of the group
           items:
             $ref: '#/components/schemas/UnitLeaf'
-    UnitTreeResponse:
-      description: Response of the unit tree request
-      type: array
-      items:
-        $ref: '#/components/schemas/UnitGroup'
     WordTypeTranslation:
       description: The word type link translation data
       required:
@@ -652,7 +529,172 @@ components:
             example:
               - kap
               - megszerez
-    WordTypeTranslationResponse:
+    WordTypeUnit:
+      description: The word type unit
+      type: object
+      required:
+        - name
+        - id
+      properties:
+        name:
+          type: string
+          description: The name of the word type unit
+          example: Part 1
+        id:
+          type: integer
+          format: int64
+          example: 123
+          description: The id of the word type unit
+    WordTypeUnitConnections:
+      type: object
+      description: The word type unit ids for which the word is connected
+      properties:
+        wordTypeUnitIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+            example: 123
+            description: The id of the word type unit, for where the word is added/connected
+    ReqAddAnswer:
+      description: Add answer request
+      required:
+        - unitContentId
+        - right
+        - interrogationType
+      type: object
+      properties:
+        unitContentId:
+          type: integer
+          description: The id of the unit content
+          format: int64
+        right:
+          type: boolean
+          description: The success of the result of the translation
+        interrogationType:
+          type: string
+          description: The interrogation type. Currently just the WRITING enabled
+          enum:
+            - WRITING
+            - TO_BE_DECIDED
+    ReqLogin:
+      description: Login request
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    ReqRefreshToken:
+      type: object
+      description: Refresh token request
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+    ReqTranslationSave:
+      description: Translation save request
+      required:
+        - id
+        - from
+        - to
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        example:
+          type: string
+          example: Example sentence
+        translatedExample:
+          type: string
+          example: The translated example sentence
+        from:
+          type: array
+          items:
+            type: string
+            example:
+              - phrase to be translated
+              - kutya
+        to:
+          type: array
+          items:
+            type: string
+            example:
+              - The translated phrase
+              - dog
+    ReqWordTypeUnitLink:
+      description: Word type unit link
+      required:
+        - wordTypeUnitId
+        - wordTypeLinkId
+      type: object
+      properties:
+        wordTypeUnitId:
+          type: integer
+          description: The id of the word type unit
+          format: int64
+        wordTypeLinkId:
+          type: integer
+          description: The id of the word type link (word type translation)
+          format: int64
+    ResLogin:
+      description: Login response with tokens and roles
+      required:
+        - idToken
+        - refreshToken
+        - roles
+      type: object
+      properties:
+        idToken:
+          type: string
+          description: The JWT access token
+        refreshToken:
+          type: string
+          description: The JWT refresh token
+        roles:
+          type: array
+          items:
+            type: string
+            example:
+              - user
+              - admin
+        nickname:
+          type: string
+          example: Bob
+    ResPhrasesForUnit:
+      description: The unit with the translations
+      allOf:
+        - $ref: '#/components/schemas/UnitLeaf'
+        - type: object
+          properties:
+            words:
+              type: array
+              description: The translations of the unit with example and calculated interrogation time
+              items:
+                $ref: '#/components/schemas/TranslationForPhrase'
+    ResTranslationsForUnit:
+      description: The unit with the translations
+      allOf:
+        - $ref: '#/components/schemas/UnitLeaf'
+        - type: object
+          properties:
+            translations:
+              description: The translations of the unit with example and calculated interrogation time
+              type: array
+              items:
+                $ref: '#/components/schemas/Translation'
+    ResUnitTree:
+      description: Response of the unit tree request
+      type: array
+      items:
+        $ref: '#/components/schemas/UnitGroup'
+    ResWordTypeTranslation:
       description: Word type translation response
       required:
         - name
@@ -686,49 +728,7 @@ components:
           description: It is a list of the available unit for the word types, for which the words are connected/linked
           items:
             $ref: '#/components/schemas/WordTypeUnit'
-    WordTypeUnit:
-      description: The word type unit
-      type: object
-      required:
-        - name
-        - id
-      properties:
-        name:
-          type: string
-          description: The name of the word type unit
-          example: Part 1
-        id:
-          type: integer
-          format: int64
-          example: 123
-          description: The id of the word type unit
-    WordTypeUnitConnections:
-      type: object
-      description: The word type unit ids for which the word is connected
-      properties:
-        wordTypeUnitIds:
-          type: array
-          items:
-            type: integer
-            format: int64
-            example: 123
-            description: The id of the word type unit, for where the word is added/connected
-    WordTypeUnitLinkRequest:
-      description: Word type unit link
-      required:
-        - wordTypeUnitId
-        - wordTypeLinkId
-      type: object
-      properties:
-        wordTypeUnitId:
-          type: integer
-          description: The id of the word type unit
-          format: int64
-        wordTypeLinkId:
-          type: integer
-          description: The id of the word type link (word type translation)
-          format: int64
-    WordTypeUnitTranslationResponse:
+    ResWordTypeUnitTranslation:
       description: Word type unit translation response
       required:
         - name
