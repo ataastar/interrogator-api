@@ -661,12 +661,9 @@ components:
           type: string
           description: The JWT refresh token
         roles:
-          type: array
-          items:
-            type: string
-            example:
-              - user
-              - admin
+          type: string
+          description: The user roles. Currently concatenated with comma
+          example: user, admin
         nickname:
           type: string
           example: Bob
