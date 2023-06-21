@@ -105,6 +105,7 @@ function handleSimpleResult(promise, response, singleAttributeName) {
 }
 
 function simpleResult(result, response) {
+    // console.log(result);
     response.status(200).json(result);
 }
 

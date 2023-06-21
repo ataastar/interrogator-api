@@ -21,7 +21,7 @@ async function deleteUnitContent(unitContentId) {
 }
 
 async function getWordTypeContent(fromLanguageId, toLanguageId, wordTypeId) {
-    return (await db.pool.query('SELECT content FROM word_type_content_json WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId])).rows;
+    return (await db.pool.query('SELECT content FROM word_type_content_json WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId])).rows[0].content;
 }
 
 async function getTranslationDetail(translationLinkId) {
@@ -29,11 +29,11 @@ async function getTranslationDetail(translationLinkId) {
 }
 
 async function getWordTypeUnitContent(fromLanguageId, wordTypeUnitId) {
-    return (await db.pool.query('SELECT content FROM word_type_unit_content_json WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeUnitId])).rows
+    return (await db.pool.query('SELECT content FROM word_type_unit_content_json WHERE from_language_id = $1 AND word_type_unit_id = $2', [fromLanguageId, wordTypeUnitId])).rows[0].content
 }
 
 async function getWordTypeUnit() {
-    return (await db.pool.query('SELECT * FROM word_type_unit_json', [])).rows
+    return (await db.pool.query('SELECT groups FROM word_type_unit_json', [])).rows[0].groups
 }
 
 async function deleteWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId) {
