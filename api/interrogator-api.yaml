@@ -610,15 +610,19 @@ components:
         id:
           type: integer
           format: int64
+          description: The unit id
           example: 10
         example:
           type: string
+          description: The example sentence for the phrase
           example: Example sentence
         translatedExample:
           type: string
+          description: The translated example sentence for the phrase
           example: The translated example sentence
         from:
           type: array
+          description: The from language phrases
           items:
             type: string
             example:
@@ -626,6 +630,7 @@ components:
               - kutya
         to:
           type: array
+          description: The to language phrases
           items:
             type: string
             example:

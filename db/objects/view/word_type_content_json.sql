@@ -45,9 +45,15 @@ CREATE OR REPLACE VIEW word_type_content_json(content, from_language_id, to_lang
                   JOIN phrase p_from ON wtf.phrase_id = p_from.phrase_id
                   JOIN phrase p_to ON wtfp.phrase_id = p_to.phrase_id;*/
 
-SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_agg(name order by order_number)) AS forms FROM word_type_form wtfo WHERE wtfo.word_type_id = b_wt.word_type_id) forms)::jsonb ||
-       (SELECT row_to_json("wordTypeUnits".*) FROM (SELECT array_to_json(array_agg(json_build_object(wtu.word_type_unit_id, wtu.name))) AS "wordTypeUnits" FROM word_type_unit wtu) "wordTypeUnits")::jsonb ||
-       (SELECT row_to_json(wordtype.*) AS name FROM (SELECT name AS name FROM word_type wt WHERE wt.word_type_id = b_wt.word_type_id) wordtype)::JSONB ||
+SELECT (SELECT row_to_json(forms.*) AS forms
+        FROM (SELECT array_to_json(array_agg(name order by order_number)) AS forms
+              FROM word_type_form wtfo
+              WHERE wtfo.word_type_id = b_wt.word_type_id) forms)::jsonb ||
+       (SELECT row_to_json("wordTypeUnits".*)
+        FROM (SELECT array_to_json(array_agg(json_build_object('id', wtu.word_type_unit_id, 'name', wtu.name))) AS "wordTypeUnits"
+              FROM word_type_unit wtu) "wordTypeUnits")::jsonb ||
+       (SELECT row_to_json(wordtype.*) AS name
+        FROM (SELECT name AS name FROM word_type wt WHERE wt.word_type_id = b_wt.word_type_id) wordtype)::JSONB ||
        (SELECT row_to_json(from_phrase.*)
         FROM (SELECT COALESCE(array_to_json(array_agg(phrase.*)), '[]'::JSON) AS "rows"
               FROM (SELECT wtfr.word_type_link_id              id,
@@ -73,7 +79,7 @@ SELECT (SELECT row_to_json(forms.*) AS forms FROM (SELECT array_to_json(array_ag
                     GROUP BY wtfr.word_type_link_id) phrase
              ) AS from_phrase
        )::JSONB AS content ,
-    b_l.language_id from_languge_id, b_wt.language_id to_languge_id, b_wt.word_type_id
+       b_l.language_id from_languge_id,b_wt.language_id to_languge_id,b_wt.word_type_id
 FROM word_type b_wt
          CROSS JOIN language b_l;
 

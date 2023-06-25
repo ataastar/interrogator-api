@@ -10,6 +10,7 @@ async function getUnitContent(request, response) {
 }
 
 async function getUnitTranslation(request, response) {
+    //console.log('getUnitTranslation' + request.params.unitId);
     const unitId = parseInt(request.params.unitId)
     if (unitId == null) {
         simpleResult('{}', response);
@@ -71,7 +72,7 @@ async function addWordTypeUnitLink(request, response) {
 }
 
 async function addAnswer(request, response, userId) {
-    const unitContentId = request.body.id;
+    const unitContentId = request.body.unitContentId;
     const right = request.body.right;
     const interrogationType = request.body.interrogationType;
     handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType), response, 200, true);
@@ -105,11 +106,12 @@ function handleSimpleResult(promise, response, singleAttributeName) {
 }
 
 function simpleResult(result, response) {
-    // console.log(result);
+    //console.log(result);
     response.status(200).json(result);
 }
 
 function simpleError(error, response) {
+    //console.log(error);
     response.status(500).json(error)
 }
 

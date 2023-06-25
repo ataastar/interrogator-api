@@ -1,15 +1,15 @@
 const db = require('../db-util')
 
 async function getUnitContent(unitId) {
-    return (await db.pool.query('SELECT content FROM unit_content_json WHERE code = $1', [unitId])).rows;
+    return (await db.pool.query('SELECT content FROM unit_content_json WHERE code = $1', [unitId])).rows[0].content;
 }
 
 async function getUnitTranslation(unitId) {
-    return (await db.pool.query('SELECT content FROM unit_translation_json WHERE unit_id = $1', [unitId])).rows;
+    return (await db.pool.query('SELECT content FROM unit_translation_json WHERE unit_tree_id = $1', [unitId])).rows[0].content;
 }
 
 async function getUnitTreeGroup() {
-    return (await db.pool.query('SELECT * FROM unit_group_json', [])).rows;
+    return (await db.pool.query('SELECT groups FROM unit_group_json', [])).rows[0].groups;
 }
 
 async function insertUnitContent(content) {
@@ -45,6 +45,7 @@ async function addWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId) {
 }
 
 async function addAnswer(userId, unitContentId, right, interrogationType) {
+    //console.log('addAnswer: ' + userId + ', ' + unitContentId + ', ' + right + ', ' + interrogationType)
     return (await db.pool.query('SELECT add_answer($1, $2, $3, $4) AS res', [unitContentId, userId, right, interrogationType])).rows[0].res
 }
 
