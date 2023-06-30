@@ -42,7 +42,6 @@ app.route('/api/refreshToken').post(auth.refreshTokenResponse, auth.checkIfRefre
 app.get('/units', auth.checkIfAuthenticated, phrase.getUnitTreeGroup)
 
 // common phrases
-app.get('/word/:unitId', auth.checkIfAuthenticated, phrase.getUnitContent)
 app.get('/translation/:unitId', auth.checkIfAuthenticated, phrase.getUnitTranslation)
 app.post('/word', auth.checkIfAuthenticated, (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')

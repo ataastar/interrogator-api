@@ -1,14 +1,5 @@
 const repo = require('./phrase-repository.js')
 
-async function getUnitContent(request, response) {
-    const unitId = parseInt(request.params.unitId)
-    if (unitId == null) {
-        simpleResult('{}', response);
-        return
-    }
-    handleSimpleResult(repo.getUnitContent(unitId), response)
-}
-
 async function getUnitTranslation(request, response) {
     //console.log('getUnitTranslation' + request.params.unitId);
     const unitId = parseInt(request.params.unitId)
@@ -116,7 +107,6 @@ function simpleError(error, response) {
 }
 
 module.exports = {
-    getUnitContent,
     getUnitTranslation,
     getUnitTreeGroup,
     insertUnitContent,

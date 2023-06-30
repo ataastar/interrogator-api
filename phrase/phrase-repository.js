@@ -1,9 +1,5 @@
 const db = require('../db-util')
 
-async function getUnitContent(unitId) {
-    return (await db.pool.query('SELECT content FROM unit_content_json WHERE code = $1', [unitId])).rows[0].content;
-}
-
 async function getUnitTranslation(unitId) {
     return (await db.pool.query('SELECT content FROM unit_translation_json WHERE unit_tree_id = $1', [unitId])).rows[0].content;
 }
@@ -50,7 +46,6 @@ async function addAnswer(userId, unitContentId, right, interrogationType) {
 }
 
 module.exports = {
-    getUnitContent,
     getUnitTranslation,
     getUnitTreeGroup,
     insertUnitContent,
