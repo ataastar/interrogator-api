@@ -16,7 +16,7 @@ async function getUnitTreeGroup(request, response) {
 
 async function insertUnitContent(request, response) {
     const content = request.body;
-    handleSimpleResult(repo.insertUnitContent(content), response, 'unitContentId');
+    handleSimpleResult(repo.insertUnitContent(content), response);
 }
 
 async function deleteUnitContent(request, response) {
