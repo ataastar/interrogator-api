@@ -91,14 +91,11 @@ paths:
               $ref: '#/components/schemas/ReqTranslationSave'
       responses:
         '200':
-          description: Successful operation return with the created translation id
+          description: Successful operation return with the created translation
           content:
             application/json:
               schema:
-                type: integer
-                format: int64
-                description: The created translation id
-                example: 123
+                $ref: '#/components/schemas/Translation'
       security:
         - jwt_auth:
             - use:API

@@ -38,11 +38,15 @@ TODO tasks
  - improve delete on db level
  - plan user related db and connections
  - plan test results
- 
 
 # Environment variables
+
 - INTERROGATOR_API_PORT: eg. 3000
 - INTERROGATOR_API_HOST: eg. localhost
 - INTERROGATOR_WEB_URL: the web api url. eg. https://localhost:4200
 - INTERROGATOR_DATABASE_URL: the DB url connection. eg: postgres://%user%:%pw%@localhost:5432/interrogator
 - INTERROGATOR_DATABASE_CONN_UNSECURE: localhost it is true. no need to set if the connection is secure
+
+# API client generation
+
+Run the call_open_api_generator.bat file to generate the angular API client
