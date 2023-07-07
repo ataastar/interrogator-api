@@ -1,0 +1,140 @@
+@startuml
+' hide the spot
+' hide circle
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity answer {
+*answerId: number PK
+--
+*translationLinkId: number FK
+*userId: number FK
+*fromLanguageId: number FK
+--
+*rightAnswer: boolean
+*answerTime: date
+*interrogationType: enum
+}
+entity language {
+*languageId: number PK
+--
+*languageCode: string FK
+--
+*name: string
+}
+entity phrase {
+*phraseId: number PK
+--
+*languageId: number FK
+--
+*text: string
+audioUrl: string
+}
+entity translation {
+*translationId: number PK
+--
+*translationLinkId: number FK
+*phraseId: number FK
+--
+order: number
+}
+entity translation_link {
+*translationLinkId: number PK
+--
+example: string
+translatedExample: string
+imageUrl: string
+nextInterrogationDate: date
+}
+entity unit_content {
+*unitContentId: number PK
+--
+*unitTreeId: number FK
+*translationLinkId: number FK
+}
+entity unit_tree {
+*unitTreeId: number PK
+--
+*parentUnitTreeId: number FK
+*fromLanguageId: number FK
+*toLanguageId: number FK
+--
+*name: string
+}
+entity user {
+*userId: number PK
+--
+*email: string
+*alias: string
+}
+entity user_role {
+*userId: number PK
+--
+*role
+}
+entity word_type {
+*wordTypeId: number PK
+--
+*languageId: number FK
+--
+*name
+}
+entity word_type_from {
+*wordTypeFromId: number PK
+--
+*translationLinkId: number FK
+*wordTypeId: number FK
+*phraseId: number FK
+}
+entity word_type_form_phrase {
+*wordTypeFromPhraseId: number PK
+--
+*translationLinkId: number FK
+*wordTypeFormId: number FK
+*phraseId: number FK
+}
+entity word_type_form {
+*wordTypeFormId: number PK
+--
+*wordTypeId: number FK
+*name
+--
+orderNumber
+}
+entity word_type_unit {
+*wordTypeUnitId: number PK
+--
+*wordTypeId: number FK
+--
+*name
+}
+entity word_type_unit_link {
+*translationLinkId: number PK
+*wordTypeUnitId: number PK
+}
+
+    translation_link ||--o{ word_type_unit_link: unitTranslationLink
+    word_type_unit ||--o{ word_type_unit_link: unit
+    word_type ||--o{ word_type_unit: wordType
+    word_type ||--o{ word_type_form: wordType
+    word_type ||--o{ word_type_from: wordType
+    translation_link ||--o{ word_type_from: translationFromLink
+    phrase ||--o{ word_type_from: fromPhrase
+    phrase ||--o{ word_type_form_phrase: phrase
+    translation_link ||--o{ word_type_form_phrase: translationToLink
+    word_type_form ||--o{ word_type_form_phrase: wordTypeForm
+    language ||--o{ word_type
+    user ||--o{ answer: responder
+    translation_link ||--o{ answer: answered-translation
+    language ||--o{ answer: language-from
+    language ||--o{ phrase
+    phrase ||--o{ translation: translation-from
+    translation_link ||--o{ translation: translationLink
+    unit_tree ||--o{ unit_tree: parent-unit
+    language ||--o{ unit_tree: language-from
+    language ||--o{ unit_tree: language-to
+    unit_tree ||--o{ unit_content: unit
+    translation_link ||--o{ unit_content: translationLink
+    user ||--o{ user_role: user
+
+@enduml
