@@ -29,6 +29,7 @@ FEATURES
  - retrieves the unit content by unit id
  - inserts unit content
  - removes unit content (translation) from unit
+ - add answer right/false
 
 IN PROGRESS
  - update phrase, example sentence
@@ -49,4 +50,4 @@ TODO tasks
 
 # API client generation
 
-Run the call_open_api_generator.bat file to generate the angular API client
+In the call_open_api_generator.bat file update the `npmVersion` and run the batch file

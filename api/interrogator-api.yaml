@@ -119,34 +119,6 @@ paths:
           description: Success deletion
         '404':
           description: Un success deletion
-  /word/{unitId}:
-    get:
-      tags:
-        - translation
-      summary: Get the translations for a unit
-      description: Get the translations for a unit by unit id
-      operationId: getUnitPhrases
-      deprecated: true
-      parameters:
-        - name: unitId
-          in: path
-          required: true
-          description: The unit id
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: The unit with the translations
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResPhrasesForUnit'
-        '405':
-          description: Invalid input
-      security:
-        - jwt_auth:
-            - use:API
   /translation/{unitId}:
     get:
       tags:
@@ -357,19 +329,13 @@ paths:
           description: Un success deletion
 components:
   schemas:
-    Translation:
-      description: The translation of a phrase with example and calculated interrogation time
+    RawTranslation:
+      description: The translation of a phrase and the example sentence
       required:
-        - id
-        - from
-        - to
+        - translationLinkId
+        - phrasesByLanguageId
       type: object
       properties:
-        unitContentId:
-          type: integer
-          description: The id of the unit content
-          format: int64
-          example: 10
         translationLinkId:
           type: integer
           description: The id of the translation link
@@ -395,6 +361,22 @@ components:
           type: string
           description: The translation of the example sentence
           example: The dog barks
+    Translation:
+      description: The translation with example and calculated interrogation time and unit content id
+      allOf:
+        - $ref: '#/components/schemas/RawTranslation'
+        - $ref: '#/components/schemas/TranslationExt'
+    TranslationExt:
+      description: The translation extended with the interrogation data and unit content id
+      required:
+        - unitContentId
+      type: object
+      properties:
+        unitContentId:
+          type: integer
+          description: The id of the unit content
+          format: int64
+          example: 10
         nextInterrogationTime:
           type: string
           format: date-time
@@ -419,45 +401,6 @@ components:
           type: string
           description: The phrase (translation part)
           example: dog / kutya
-    TranslationForPhrase:
-      description: Translations for a phrase ('to' and 'from')
-      required:
-        - id
-        - from
-        - to
-      type: object
-      properties:
-        id:
-          type: integer
-          description: The id of the unit content
-          format: int64
-          example: 10
-        from:
-          type: array
-          description: The 'from' part translations
-          items:
-            $ref: '#/components/schemas/TranslationPart'
-        to:
-          type: array
-          description: The 'to' part translations
-          items:
-            $ref: '#/components/schemas/TranslationPart'
-        example:
-          type: string
-          description: An example sentence for the phrase
-          example: A kutya ugat
-        translatedExample:
-          type: string
-          description: The translation of the example sentence
-          example: The dog barks
-        nextInterrogationTime:
-          type: string
-          format: date-time
-          description: The time when the translation will be interrogated
-        lastAnswerTime:
-          type: string
-          format: date-time
-          description: The last time when the translation was answered
     UnitLeaf:
       type: object
       description: The unit leaf data
@@ -669,17 +612,6 @@ components:
         nickname:
           type: string
           example: Bob
-    ResPhrasesForUnit:
-      description: The unit with the translations
-      allOf:
-        - $ref: '#/components/schemas/UnitLeaf'
-        - type: object
-          properties:
-            words:
-              type: array
-              description: The translations of the unit with example and calculated interrogation time
-              items:
-                $ref: '#/components/schemas/TranslationForPhrase'
     ResTranslationsForUnit:
       description: The unit with the translations
       allOf:
