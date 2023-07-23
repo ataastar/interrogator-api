@@ -12,7 +12,7 @@ BEGIN
 
     with json_data as (
         select * from json_populate_record(
-                null::insert_unit_content_table,
+                null::json_input_insert_unit_content,
                 json_input)
     ),
          languages as (select root_from_language_id from_lang_id, root_to_language_id to_lang_id from json_data

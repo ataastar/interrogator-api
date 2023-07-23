@@ -13,16 +13,17 @@ async function insertUnitContent(content) {
     return (await db.pool.query('SELECT content FROM unit_content_translation_json WHERE unit_content_id = $1', [unitContentId])).rows[0].content;
 }
 
+async function updateTranslation(content) {
+    await db.pool.query('SELECT update_translation($1)', [content]);
+    return true;
+}
+
 async function deleteUnitContent(unitContentId) {
     return (await db.pool.query('SELECT delete_unit_content($1) AS delete_result', [unitContentId])).rows[0].delete_result
 }
 
 async function getWordTypeContent(fromLanguageId, toLanguageId, wordTypeId) {
     return (await db.pool.query('SELECT content FROM word_type_content_json WHERE from_language_id = $1 AND to_language_id = $2 AND word_type_id = $3', [fromLanguageId, toLanguageId, wordTypeId])).rows[0].content;
-}
-
-async function getTranslationDetail(translationLinkId) {
-    return null; // (await db.pool.query('SELECT content FROM translation_detail_json WHERE translation_link_id = $1', [translationLinkId])).rows;
 }
 
 async function getWordTypeUnitContent(fromLanguageId, wordTypeUnitId) {
@@ -53,9 +54,9 @@ module.exports = {
     deleteUnitContent,
     getWordTypeContent,
     getWordTypeUnitContent,
-    getTranslationDetail,
     getWordTypeUnit,
     addWordTypeUnitLink,
     deleteWordTypeUnitLink,
-    addAnswer
+    addAnswer,
+    updateTranslation
 }

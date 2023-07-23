@@ -19,6 +19,11 @@ async function insertUnitContent(request, response) {
     handleSimpleResult(repo.insertUnitContent(content), response);
 }
 
+async function updateTranslation(request, response) {
+    const content = request.body;
+    handleNoResult(repo.updateTranslation(content), response);
+}
+
 async function deleteUnitContent(request, response) {
     const unitContentId = parseInt(request.params.unitContentId)
     handleNoResult(repo.deleteUnitContent(unitContentId), response);
@@ -29,11 +34,6 @@ async function getWordTypeContent(request, response) {
     const toLanguageId = request.params.toLanguageId;
     const wordTypeId = request.params.wordTypeId;
     handleSimpleResult(repo.getWordTypeContent(fromLanguageId, toLanguageId, wordTypeId), response);
-}
-
-async function getTranslationDetail(request, response) {
-    const translationLinkId = request.params.translationLinkId;
-    handleSimpleResult(repo.getTranslationDetail(translationLinkId), response);
 }
 
 async function getWordTypeUnitContent(request, response) {
@@ -114,8 +114,8 @@ module.exports = {
     getWordTypeContent,
     getWordTypeUnitContent,
     getWordTypeUnit,
-    getTranslationDetail,
     addWordTypeUnitLink,
     deleteWordTypeUnitLink,
-    addAnswer
+    addAnswer,
+    updateTranslation
 }
