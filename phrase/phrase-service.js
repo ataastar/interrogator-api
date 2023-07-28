@@ -21,7 +21,7 @@ async function insertUnitContent(request, response) {
 
 async function updateTranslation(request, response) {
     const content = request.body;
-    handleNoResult(repo.updateTranslation(content), response);
+    handleSimpleResult(repo.updateTranslation(content), response);
 }
 
 async function deleteUnitContent(request, response) {

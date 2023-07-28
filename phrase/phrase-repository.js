@@ -10,12 +10,16 @@ async function getUnitTreeGroup() {
 
 async function insertUnitContent(content) {
     const unitContentId = (await db.pool.query('SELECT insert_unit_content($1) AS unit_content_id', [content])).rows[0].unit_content_id;
-    return (await db.pool.query('SELECT content FROM unit_content_translation_json WHERE unit_content_id = $1', [unitContentId])).rows[0].content;
+    return await getTranslation(unitContentId);
 }
 
 async function updateTranslation(content) {
     await db.pool.query('SELECT update_translation($1)', [content]);
-    return true;
+    return await getTranslation(content.unitContentId);
+}
+
+async function getTranslation(unitContentId) {
+    return (await db.pool.query('SELECT content FROM unit_content_translation_json WHERE unit_content_id = $1', [unitContentId])).rows[0].content;
 }
 
 async function deleteUnitContent(unitContentId) {

@@ -146,6 +146,30 @@ paths:
       security:
         - jwt_auth:
             - use:API
+  /translation/update:
+    post:
+      tags:
+        - translation
+      summary: Update the selected translation
+      description: Update new translation (phrases)
+      operationId: updateTranslation
+      requestBody:
+        required: true
+        description: The Translation
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Translation'
+      responses:
+        '200':
+          description: Successful operation return with the updated translation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Translation'
+      security:
+        - jwt_auth:
+            - use:API
   /units:
     get:
       tags:
