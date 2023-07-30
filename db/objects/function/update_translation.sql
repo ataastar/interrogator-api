@@ -13,6 +13,7 @@ DECLARE
 BEGIN
 
   SELECT json_input::jsonb ->> 'translationLinkId' INTO v_translation_link_id;
+  --call logging('translationLinkId: ' || v_translation_link_id);
 
   SELECT array_agg(json_populate_record(null::json_input_translation_phrase_with_language_id, p.a))
   INTO v_input_phrases
@@ -23,7 +24,7 @@ BEGIN
 
   select array_agg(l::json_input_translation_phrase)
   INTO v_db_phrases
-  from (select p.text as phrase, t.translation_link_id
+  from (select p.text as phrase, t.translation_id
         from translation t
                join phrase p on t.phrase_id = p.phrase_id
         where t.translation_link_id = v_translation_link_id) l;
@@ -31,8 +32,11 @@ BEGIN
   -- delete which are not in the input
   FOREACH v_db_phrase SLICE 0 IN ARRAY v_db_phrases
     LOOP
+      --call logging('db translationId 1: ' || v_db_phrase."translationId");
       FOREACH v_input_phrase SLICE 0 IN ARRAY v_input_phrases
         LOOP
+          /*call logging('db translationId 2: ' || v_db_phrase."translationId" || ' input' ||
+                       v_input_phrase."translationId");*/
           IF v_db_phrase."translationId" = v_input_phrase."translationId" THEN
             v_founded = TRUE;
           end if;
