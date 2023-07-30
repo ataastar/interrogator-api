@@ -102,7 +102,7 @@ function simpleResult(result, response) {
 }
 
 function simpleError(error, response) {
-    //console.log(error);
+    console.log(error);
     response.status(500).json(error)
 }
 
