@@ -4,21 +4,22 @@ create or replace function update_translation(json_input json) returns boolean
 as
 $$
 DECLARE
-  v_input_phrases       json_input_translation_phrase[];
-  v_input_phrase        json_input_translation_phrase;
+  v_input_phrases       json_input_translation_phrase_with_language_id[];
+  v_input_phrase        json_input_translation_phrase_with_language_id;
   v_db_phrases          json_input_translation_phrase[];
   v_db_phrase           json_input_translation_phrase;
   v_founded             boolean = false;
-  v_translation_link_id bigint  = false;
+  v_translation_link_id bigint;
 BEGIN
 
   SELECT json_input::jsonb ->> 'translationLinkId' INTO v_translation_link_id;
 
-  select array_agg(spec::json_input_translation_phrase)
+  SELECT array_agg(json_populate_record(null::json_input_translation_phrase_with_language_id, p.a))
   INTO v_input_phrases
-  from (select value::jsonb j
-        from jsonb_each_text((json_input::jsonb ->> 'phrasesByLanguageId')::jsonb)) as p,
-       jsonb_to_recordset(p.j) as spec(phrase varchar, "translationId" bigint);
+  FROM (SELECT json_build_object('languageId', language_id, 'phrase', phrase, 'translationId', "translationId") a
+        FROM (SELECT value::jsonb j, key as language_id
+              FROM jsonb_each_text((json_input::jsonb ->> 'phrasesByLanguageId')::jsonb)) AS p,
+             jsonb_to_recordset(p.j) AS spec(phrase varchar, "translationId" bigint)) p;
 
   select array_agg(l::json_input_translation_phrase)
   INTO v_db_phrases
@@ -46,7 +47,14 @@ BEGIN
   FOREACH v_input_phrase SLICE 0 IN ARRAY v_input_phrases
     LOOP
       IF v_input_phrase."translationId" IS NULL THEN
-        INSERT INTO translation (translation_link_id, phrase_id) VALUES (v_translation_link_id, v_input_phrase.phrase);
+        WITH insert_result as
+               (INSERT INTO phrase (language_id, text)
+                 VALUES (v_input_phrase."languageId", v_input_phrase.phrase)
+                 RETURNING phrase_id)
+        INSERT
+        INTO translation (translation_link_id, phrase_id)
+        SELECT v_translation_link_id, phrase_id
+        FROM insert_result;
       ELSE
         UPDATE phrase p
         SET text = v_input_phrase.phrase
