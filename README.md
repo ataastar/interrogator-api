@@ -1,12 +1,13 @@
 # interrogator-api
 interrogator-api for interrogator front end
 
-Technology
- - Node
+## Technology
+
+- Node JS
  - Express
- - Postgresql
- 
-RUN the sample.
+- Postgresql (JSON)
+
+## How to run the sample
  - npm install
  - node index.js or run start.bat with the following params
    - database user password
@@ -22,19 +23,19 @@ RUN the sample.
        - start.bat password 192.168.100.14 // lan
        - start.bat password 192.168.100.15 // wifi
  - Open a browser window and navigate to http:\\\\localhost:3000 to access the app.
- 
- 
-FEATURES
+
+## Features
  - retrieves the unit tree
  - retrieves the unit content by unit id
- - inserts unit content
+- inserts, update unit content
  - removes unit content (translation) from unit
  - add answer right/false
 
-IN PROGRESS
- - update phrase, example sentence
+## In progress
 
-TODO tasks
+- ...
+
+## TODO tasks
  - check data on insert, in db level
  - improve delete on db level
  - plan user related db and connections
