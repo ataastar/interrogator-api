@@ -43,12 +43,13 @@ interrogator-api for interrogator front end
 
 # Environment variables
 
-- INTERROGATOR_API_PORT: eg. 3000
-- INTERROGATOR_API_HOST: eg. localhost
-- INTERROGATOR_WEB_URL: the web api url. eg. https://localhost:4200
+- INTERROGATOR_API_PORT: e.g. 3000
+- INTERROGATOR_API_HOST: e.g. localhost
+- INTERROGATOR_WEB_URL: the web api url. e.g. https://localhost:4200
 - INTERROGATOR_DATABASE_URL: the DB url connection. eg: postgres://%user%:%pw%@localhost:5432/interrogator
 - INTERROGATOR_DATABASE_CONN_UNSECURE: localhost it is true. no need to set if the connection is secure
 
 # API client generation
 
-In the call_open_api_generator.bat file update the `npmVersion` and run the batch file
+In the [call_open_api_generator.bat](api/call_open_api_generator.bat) file, need to update the `npmVersion` and run the
+batch file
