@@ -1,4 +1,4 @@
-openapi: 3.0.9
+openapi: 3.1.0
 info:
   title: Interrogator API 1.0
   description: |-
@@ -302,6 +302,28 @@ paths:
       security:
         - jwt_auth:
             - use:API
+  /answer/cancel:
+    post:
+      tags:
+        - translation
+      summary: Cancel the last answer of the interrogation
+      description: Cancel the last answer of the interrogation
+      operationId: cancelAnswer
+      requestBody:
+        required: true
+        description: Cancel answer request (same as Add)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReqAddAnswer'
+      responses:
+        '200':
+          description: Success answer cancel
+        '404':
+          description: Un success answer cancel
+      security:
+        - jwt_auth:
+            - use:API
   /word_types/units/link:
     put:
       tags:
@@ -541,10 +563,10 @@ components:
           description: The success of the result of the translation
         interrogationType:
           type: string
-          description: The interrogation type. Currently just the WRITING enabled
+          description: The interrogation type. Currently just the WRITING, KNOW_NOT_KNOW enabled
           enum:
             - WRITING
-            - TO_BE_DECIDED
+            - KNOW_NOT_KNOW
         fromLanguageId:
           type: integer
           description: The id of the from language (the from-to can be changed)
