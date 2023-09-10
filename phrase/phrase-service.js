@@ -66,7 +66,8 @@ async function addAnswer(request, response, userId) {
     const unitContentId = request.body.unitContentId;
     const right = request.body.right;
     const interrogationType = request.body.interrogationType;
-    handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType), response, 200, true);
+    const fromLanguageId = request.body.fromLanguageId;
+    handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 200, true);
 }
 
 

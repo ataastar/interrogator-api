@@ -33,7 +33,8 @@ interrogator-api for interrogator front end
 
 ## In progress
 
-- ...
+- from-to language changeable
+- cancel answer
 
 ## TODO tasks
  - check data on insert, in db level

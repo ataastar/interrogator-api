@@ -284,8 +284,8 @@ paths:
     post:
       tags:
         - translation
-      summary: Store the result of the success of the translation
-      description: Store the answer (Store the result of the success of the translation)
+      summary: Store the result of the success of the interrogation
+      description: Store the answer (Store the result of the success of the interrogation)
       operationId: storeAnswer
       requestBody:
         required: true
@@ -529,6 +529,7 @@ components:
         - unitContentId
         - right
         - interrogationType
+        - fromLanguageId
       type: object
       properties:
         unitContentId:
@@ -544,6 +545,10 @@ components:
           enum:
             - WRITING
             - TO_BE_DECIDED
+        fromLanguageId:
+          type: integer
+          description: The id of the from language (the from-to can be changed)
+          format: int64
     ReqLogin:
       description: Login request
       required:
