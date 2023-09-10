@@ -57,6 +57,10 @@ app.delete('/word/:unitContentId', auth.checkIfAuthenticated, (req, res, next) =
 app.post('/answer', auth.checkIfAuthenticated, (req, res) => {
     phrase.addAnswer(req, res, auth.getUserId(req))
 })
+// cancel last answer
+app.post('/answer/cancel', auth.checkIfAuthenticated, (req, res) => {
+    phrase.cancelLastAnswer(req, res, auth.getUserId(req))
+})
 
 // word types e.g. Irregular verbs
 app.get('/word_types/words/:wordTypeId/:fromLanguageId/:toLanguageId', auth.checkIfAuthenticated, phrase.getWordTypeContent)

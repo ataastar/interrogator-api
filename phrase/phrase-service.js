@@ -70,6 +70,14 @@ async function addAnswer(request, response, userId) {
     handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 200, true);
 }
 
+async function cancelLastAnswer(request, response, userId) {
+    const unitContentId = request.body.unitContentId;
+    const right = request.body.right;
+    const interrogationType = request.body.interrogationType;
+    const fromLanguageId = request.body.fromLanguageId;
+    handleNoResult(repo.cancelLastAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 200, true);
+}
+
 
 function handleNoResult(promise, response, status = 204, ignoreEmptyResult = false) {
     promise.then(
