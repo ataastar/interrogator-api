@@ -11,7 +11,8 @@ DECLARE
 BEGIN
   IF NOT p_answer_is_right THEN
     UPDATE translation_link
-    SET next_interrogation_date = p_answer_time
+    SET previous_next_interrogation_date = next_interrogation_date,
+        next_interrogation_date          = p_answer_time
     WHERE translation_link_id = p_translation_link_id;
     RETURN;
   END IF;
@@ -44,7 +45,8 @@ BEGIN
   end if;*/
 
   UPDATE translation_link
-  SET next_interrogation_date =
+  SET previous_next_interrogation_date = next_interrogation_date,
+      next_interrogation_date          =
         CASE
           WHEN next_interrogation_date > p_answer_time
             THEN add_time(next_interrogation_date, v_next_interrogation_interval)
