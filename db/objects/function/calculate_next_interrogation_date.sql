@@ -1,6 +1,7 @@
 CREATE OR REPLACE PROCEDURE calculate_next_interrogation_date(p_translation_link_id bigint, p_user_id bigint,
                                                               p_answer_is_right boolean, p_interrogator_type text,
-                                                              p_answer_time TIMESTAMP WITHOUT TIME ZONE)
+                                                              p_answer_time TIMESTAMP WITHOUT TIME ZONE,
+                                                              p_cancel boolean DEFAULT FALSE)
   LANGUAGE plpgsql
 AS
 $$
@@ -11,7 +12,7 @@ DECLARE
 BEGIN
   IF NOT p_answer_is_right THEN
     UPDATE translation_link
-    SET previous_next_interrogation_date = next_interrogation_date,
+    SET previous_next_interrogation_date = CASE WHEN NOT p_cancel THEN next_interrogation_date END,
         next_interrogation_date          = p_answer_time
     WHERE translation_link_id = p_translation_link_id;
     RETURN;
