@@ -563,10 +563,10 @@ components:
           description: The success of the result of the translation
         interrogationType:
           type: string
-          description: The interrogation type. Currently just the WRITING, KNOW_NOT_KNOW enabled
+          description: The interrogation type. Currently just the WRITING, SELF_DECLARATION enabled
           enum:
             - WRITING
-            - KNOW_NOT_KNOW
+            - SELF_DECLARATION
         fromLanguageId:
           type: integer
           description: The id of the from language (the from-to can be changed)

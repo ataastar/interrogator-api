@@ -48,12 +48,12 @@ async function addWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId) {
 
 async function addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId) {
     //console.log('addAnswer: ' + userId + ', ' + unitContentId + ', ' + right + ', ' + interrogationType)
-    return (await db.pool.query('SELECT add_answer($1, $2, $3, $4) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId])).rows[0].res
+    return (await db.pool.query('SELECT add_answer($1, $2, $3, $4, $5) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId])).rows[0].res
 }
 
 async function cancelLastAnswer(userId, unitContentId, right, interrogationType, fromLanguageId) {
     //console.log('addAnswer: ' + userId + ', ' + unitContentId + ', ' + right + ', ' + interrogationType)
-    return (await db.pool.query('SELECT add_answer($1, $2, $3, $4) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId])).rows[0].res
+    return (await db.pool.query('SELECT add_answer($1, $2, $3, $4. $5) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId])).rows[0].res
 }
 
 module.exports = {
