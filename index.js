@@ -4,6 +4,13 @@ const app = express();
 const phrase = require('./phrase/phrase-service');
 const auth = require('./auth/auth');
 
+const RateLimit = require('express-rate-limit');
+const limiter = RateLimit({
+    windowMs: 1000, // 1 second
+    max: 10, // max 1 requests per windowMs
+});
+
+
 const port = process.env.INTERROGATOR_API_PORT ? process.env.INTERROGATOR_API_PORT : process.env.PORT
 const host = process.env.INTERROGATOR_API_HOST
 
@@ -33,6 +40,9 @@ app.use(
 app.get('/', (request, response) => {
     response.json({info: 'Node.js, Express, and Postgres API'})
 })
+
+// apply rate limiter to all requests
+app.use(limiter);
 
 // auth
 app.route('/api/login').post(auth.login);
