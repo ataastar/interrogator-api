@@ -67,7 +67,7 @@ async function addAnswer(request, response, userId) {
     const right = request.body.right;
     const interrogationType = request.body.interrogationType;
     const fromLanguageId = request.body.fromLanguageId;
-    handleNoResult(repo.addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 200, true);
+    handleSimpleResult(repo.addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 'nextInterrogationTime');
 }
 
 async function cancelLastAnswer(request, response, userId) {
@@ -75,7 +75,7 @@ async function cancelLastAnswer(request, response, userId) {
     const right = request.body.right;
     const interrogationType = request.body.interrogationType;
     const fromLanguageId = request.body.fromLanguageId;
-    handleNoResult(repo.cancelLastAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 200, true);
+    handleSimpleResult(repo.cancelLastAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 'nextInterrogationTime');
 }
 
 
@@ -126,5 +126,6 @@ module.exports = {
     addWordTypeUnitLink,
     deleteWordTypeUnitLink,
     addAnswer,
+    cancelLastAnswer,
     updateTranslation
 }
