@@ -296,7 +296,11 @@ paths:
               $ref: '#/components/schemas/ReqAddAnswer'
       responses:
         '200':
-          description: Success answer store
+          description: Success answer store (next interrogation time)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResAnswer'
         '404':
           description: Un success answer store
       security:
@@ -318,7 +322,11 @@ paths:
               $ref: '#/components/schemas/ReqAddAnswer'
       responses:
         '200':
-          description: Success answer cancel
+          description: Success answer cancel (next interrogation time or null)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResAnswer'
         '404':
           description: Un success answer cancel
       security:
@@ -641,6 +649,16 @@ components:
         wordTypeLinkId:
           type: integer
           description: The id of the word type link (word type translation)
+          format: int64
+    ResAnswer:
+      description: Answer response - the next interrogation time
+      required:
+        - nextInterrogationTime
+      type: object
+      properties:
+        nextInterrogationTime:
+          type: integer
+          description: The next interrogation time or null if the false answer was canceled
           format: int64
     ResLogin:
       description: Login response with tokens and roles
