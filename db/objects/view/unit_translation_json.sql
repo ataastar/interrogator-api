@@ -19,7 +19,7 @@ FROM (SELECT ut.unit_tree_id                           AS code,
               from (select tl.translation_link_id     AS                          "translationLinkId",
                            tl.example,
                            tl.translated_example      AS                          "translatedExample",
-                           tl.next_interrogation_date AS                          "nextInterrogationDate",
+                           tl.next_interrogation_date AS "nextInterrogationTime",
                            (SELECT MAX(answer_time)
                             FROM answer a
                             WHERE a.translation_link_id = tl.translation_link_id) "lastAnswerTime"
