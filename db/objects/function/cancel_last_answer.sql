@@ -14,8 +14,9 @@ DECLARE
   v_previous_next_interrogation_date TIMESTAMP;
   v_next_interrogation_time TIMESTAMP;
 BEGIN
-  /*call logging('add_answer: ' || p_unit_content_id || ' ' || p_user_id || ' ' || p_answer_is_right || ' ' ||
-               to_char(p_answer_time, 'YYYY.MM.DD H24:MISS.MS'));*/
+  /*call logging('cancel_last_answer: ' || p_unit_content_id || ' ' || p_user_id || ' ' || p_cancelled_answer_right ||
+               ' ' ||
+               to_char(p_answer_time, 'YYYY.MM.DD H24:MI:SS.MS'));*/
   --RAISE NOTICE 'p_answer_time: % ', p_answer_time;
   SELECT translation_link_id
   INTO v_translation_link_id
@@ -41,13 +42,20 @@ BEGIN
     RETURN NULL;
   END IF;
 
-  DELETE FROM answer WHERE answer_id = v_last_answer_id;
-
+  --call logging('cancel_last_answer2: ' || v_translation_link_id);
 
   --RAISE NOTICE 'now: %', current_timestamp;
   IF p_cancelled_answer_right THEN
+    call logging('cancel_last_answer: ' || 'update previous answer');
+    UPDATE answer SET right_answer = FALSE WHERE answer_id = v_last_answer_id;
+
     CALL calculate_next_interrogation_date(v_translation_link_id, p_user_id, NOT p_cancelled_answer_right,
                                            p_interrogator_type, p_answer_time, TRUE);
+
+    UPDATE translation_link
+    SET previous_next_interrogation_date = NULL
+    WHERE translation_link_id = v_translation_link_id;
+
     SELECT next_interrogation_date
     INTO v_next_interrogation_time
     FROM translation_link
@@ -55,12 +63,14 @@ BEGIN
     RETURN extract(epoch from v_next_interrogation_time);
 
   ELSE
+    call logging('cancel_last_answer: ' || 'delete previous answer');
+    DELETE FROM answer WHERE answer_id = v_last_answer_id;
 
     UPDATE translation_link
-    SET next_interrogation_date          = previous_next_interrogation_date,
+    SET next_interrogation_date = previous_next_interrogation_date,
         previous_next_interrogation_date = NULL
     WHERE translation_link_id = v_translation_link_id;
-    RETURN extract(epoch from v_previous_next_interrogation_date);
+    RETURN extract(epoch from current_timestamp);
 
   END IF;
 
