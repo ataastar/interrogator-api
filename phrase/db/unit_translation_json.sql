@@ -1,6 +1,4 @@
-CREATE OR REPLACE VIEW unit_translation_json(content, unit_tree_id) AS
-SELECT row_to_json(a.*) AS content,
-       a.code           AS unit_tree_id
+SELECT row_to_json(a.*) AS content
 FROM (SELECT ut.unit_tree_id                           AS code,
              ut.name,
              (select array_to_json(array_agg(row_to_json(tl.*)::jsonb
@@ -16,17 +14,15 @@ FROM (SELECT ut.unit_tree_id                           AS code,
                                                                                         where t.translation_link_id = tl."translationLinkId") c) g
                                                                             group by language_id) p))::jsonb
                || jsonb_build_object('unitContentId', uc.unit_content_id)))
-              from (select tl.translation_link_id     AS                          "translationLinkId",
+              from (select tl.translation_link_id      AS "translationLinkId",
                            tl.example,
-                           tl.translated_example      AS                          "translatedExample",
-                           tl.next_interrogation_date AS "nextInterrogationTime",
-                           (SELECT MAX(answer_time)
-                            FROM answer a
-                            WHERE a.translation_link_id = tl.translation_link_id) "lastAnswerTime"
-                    from translation_link tl) tl
+                           tl.translated_example       AS "translatedExample",
+                           utl.next_interrogation_time AS "nextInterrogationTime",
+                           utl.last_answer_time        AS "lastAnswerTime"
+                    from translation_link tl
+                           left join user_translation_link utl
+                                     on tl.translation_link_id = utl.translation_link_id and utl.user_id = $1) tl
                      join unit_content uc on tl."translationLinkId" = uc.translation_link_id
               where uc.unit_tree_id = ut.unit_tree_id) AS translations
-      from unit_tree ut) a;
-
-COMMENT ON VIEW unit_translation_json IS 'Returns the translations for the unit by unit tree id';
-
+      from unit_tree ut
+      where ut.unit_tree_id = $2) a

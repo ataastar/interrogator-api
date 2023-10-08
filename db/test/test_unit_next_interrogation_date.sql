@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE test_unit_next_interrogation_date()
+CREATE OR REPLACE PROCEDURE test_unit_next_interrogation_time()
   LANGUAGE plpgsql
 AS
 $$
@@ -46,14 +46,22 @@ BEGIN
 
   -- WRONG answer
   v_answer_id = add_answer(v_unit_content_id, v_user_id, false, 'X');
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time <= CURRENT_TIMESTAMP,
     'Next interrogation time can not be in the future for wrong answer!');
 
   -- 1 RIGHT answer
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X');
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   --RAISE NOTICE 'v_next_interrogation_time: % ', v_next_interrogation_time;
   --RAISE NOTICE 'CURRENT_TIMESTAMP: % ', CURRENT_TIMESTAMP;
@@ -62,21 +70,33 @@ BEGIN
 
   -- WRONG answer
   v_answer_id = add_answer(v_unit_content_id, v_user_id, false, 'X');
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time <= CURRENT_TIMESTAMP,
     'Next interrogation time can not be in the future for wrong answer!');
 
   -- 1 RIGHT answer
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X');
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(CURRENT_TIMESTAMP, CAST(58 AS BIGINT)) AND add_time(CURRENT_TIMESTAMP, CAST(62 AS BIGINT)),
     'Next interrogation time should be in the future for 1 right answer!');
 
   -- 2 RIGHT answer
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X');
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(CURRENT_TIMESTAMP, CAST(118 AS BIGINT)) AND add_time(CURRENT_TIMESTAMP, CAST(122 AS BIGINT)),
     'Next interrogation time should be in the future for 1 right answer!');
@@ -85,11 +105,18 @@ BEGIN
   -- remove all answers
   DELETE FROM answer WHERE translation_link_id = v_translation_link_id;
   -- set the next interrogation date to now (not to the future)
-  UPDATE translation_link SET next_interrogation_date = NULL WHERE translation_link.translation_link_id = v_translation_link_id;
+  UPDATE user_translation_link
+  SET next_interrogation_time = NULL
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   -- add right answer before an hour
   v_answer_time = CURRENT_TIMESTAMP - make_interval(mins => 1);
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   --RAISE NOTICE 'v_next_interrogation_time: % ', v_next_interrogation_time;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST(60-2 AS BIGINT)) AND add_time(v_answer_time, CAST(60+2 AS BIGINT)),
@@ -98,7 +125,11 @@ BEGIN
   -- add RIGHT now (first is a minutes ago)
   v_answer_time = CURRENT_TIMESTAMP;
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST((60*60)-2 AS BIGINT)) AND add_time(v_answer_time, CAST((60*60)+2 AS BIGINT)),
     'Next interrogation time should be 2 hour later, if the first RIGHT answer was 1 minute before and we have now right answer!');
@@ -106,7 +137,11 @@ BEGIN
   -- add RIGHT now (first is a minutes ago)
   v_answer_time = CURRENT_TIMESTAMP;
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST((60*60*2)-2 AS BIGINT)) AND add_time(v_answer_time, CAST((60*60*2)+2 AS BIGINT)),
     'Next interrogation time should be 2 hours after now! (first is 1 minute ago and we have 2 right now)!');
@@ -115,11 +150,18 @@ BEGIN
   -- remove all answers
   DELETE FROM answer WHERE translation_link_id = v_translation_link_id;
   -- set the next interrogation date to null (not to the future)
-  UPDATE translation_link SET next_interrogation_date = NULL WHERE translation_link.translation_link_id = v_translation_link_id;
+  UPDATE user_translation_link
+  SET next_interrogation_time = NULL
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   -- add right answer before 5 days
   v_answer_time = CURRENT_TIMESTAMP - make_interval(days => 5);
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST(60-2 AS BIGINT)) AND add_time(v_answer_time, CAST(60+2 AS BIGINT)),
     'Next interrogation time should be 1 hour if the first RIGHT answer was 1 minute before!');
@@ -127,7 +169,11 @@ BEGIN
   -- add RIGHT now
   v_answer_time = CURRENT_TIMESTAMP;
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST((5 * day_in_seconds() * 5) -1 AS BIGINT)) AND add_time(v_answer_time, CAST((5 * day_in_seconds() * 5) + 1 AS BIGINT)),
     'Next interrogation time should be 5 days later then the first answer, if the first RIGHT answer was 1 minute before and we have now right answer!');
@@ -136,7 +182,11 @@ BEGIN
   v_answer_time = CURRENT_TIMESTAMP;
   v_previous_interrogation_time = v_next_interrogation_time;
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   /*RAISE NOTICE 'v_next_interrogation_time: %', v_next_interrogation_time;
   RAISE NOTICE 'v_answer_time: %', v_answer_time;
   RAISE NOTICE 'v_previous_interrogation_time: %', v_previous_interrogation_time;
@@ -151,11 +201,18 @@ BEGIN
   -- remove all answers
   DELETE FROM answer WHERE translation_link_id = v_translation_link_id;
   -- set the next interrogation date to null (not to the future)
-  UPDATE translation_link SET next_interrogation_date = NULL WHERE translation_link.translation_link_id = v_translation_link_id;
+  UPDATE user_translation_link
+  SET next_interrogation_time = NULL
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   -- add right answer before 5 days
   v_answer_time = CURRENT_TIMESTAMP - make_interval(hours => 15);
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST(60-2 AS BIGINT)) AND add_time(v_answer_time, CAST(60+2 AS BIGINT)),
     'Next interrogation time should be 1 hour if the first RIGHT answer was 1 minute before!');
@@ -163,12 +220,16 @@ BEGIN
   -- add RIGHT now
   v_answer_time = CURRENT_TIMESTAMP;
   v_answer_id = add_answer(v_unit_content_id, v_user_id, true, 'X', v_answer_time);
-  SELECT next_interrogation_date INTO v_next_interrogation_time FROM translation_link WHERE translation_link_id = v_translation_link_id;
+  SELECT next_interrogation_time
+  INTO v_next_interrogation_time
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = v_user_id;
   call test_assert(v_next_interrogation_time IS NOT NULL, 'Next interrogation time should not be null!');
   call test_assert(v_next_interrogation_time BETWEEN add_time(v_answer_time, CAST(week_in_seconds() -1 AS BIGINT)) AND add_time(v_answer_time, CAST(week_in_seconds() + 1 AS BIGINT)),
     'Next interrogation time should be 1 week later then the first answer, if the first RIGHT answer was 15 days before and we have now right answer!');
 
-  RAISE NOTICE 'test_unit_next_interrogation_date was SUCCESS!';
+  RAISE NOTICE 'test_unit_next_interrogation_time was SUCCESS!';
 
   ROLLBACK;
 END;

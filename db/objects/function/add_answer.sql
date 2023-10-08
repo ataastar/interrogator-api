@@ -23,13 +23,14 @@ BEGIN
   INSERT INTO answer(translation_link_id, user_id, from_language_id, right_answer, interrogation_type, answer_time)
   VALUES (v_translation_link_id, p_user_id, p_from_language_id, p_answer_is_right, p_interrogator_type, p_answer_time);
   --RAISE NOTICE 'now: %', current_timestamp;
-  call calculate_next_interrogation_date(v_translation_link_id, p_user_id, p_answer_is_right, p_interrogator_type,
+  call calculate_next_interrogation_time(v_translation_link_id, p_user_id, p_answer_is_right, p_interrogator_type,
                                          p_answer_time);
 
-  SELECT next_interrogation_date
+  SELECT next_interrogation_time
   INTO v_next_interrogation_time
-  FROM translation_link
-  WHERE translation_link_id = v_translation_link_id;
+  FROM user_translation_link
+  WHERE translation_link_id = v_translation_link_id
+    and user_id = p_user_id;
 
   /*if v_next_interrogation_time is null then
     call logging('v_next_interrogation_time is null');

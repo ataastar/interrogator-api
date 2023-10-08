@@ -59,7 +59,7 @@ BEGIN
 */
   v_next_interrogation_interval = LEAST(v_elapsed_time * ( (v_elapsed_time - v_i1) * (cast((v_m1 - v_m2) as decimal) / (v_i1 - v_i2)) + v_m1), v_i2 * v_m2);
   --RAISE NOTICE 'v_next_interrogation_interval: %', v_next_interrogation_interval;
-  --RAISE NOTICE 'v_next_interrogation_date: %', (add_time(p_answer_time, v_next_interrogation_interval));
+  --RAISE NOTICE 'v_next_interrogation_time: %', (add_time(p_answer_time, v_next_interrogation_interval));
 
   RETURN v_next_interrogation_interval;
 

@@ -11,7 +11,7 @@ DECLARE
   v_last_answer_id                   BIGINT;
   v_last_right_answer                BOOLEAN;
   v_last_interrogation_type          TEXT;
-  v_previous_next_interrogation_date TIMESTAMP;
+  v_previous_next_interrogation_time TIMESTAMP;
   v_next_interrogation_time TIMESTAMP;
 BEGIN
   /*call logging('cancel_last_answer: ' || p_unit_content_id || ' ' || p_user_id || ' ' || p_cancelled_answer_right ||
@@ -25,12 +25,12 @@ BEGIN
   WHERE uc.unit_content_id = p_unit_content_id;
 
   --call logging(v_translation_link_id || ' ' || v_from_language_id);
-  SELECT interrogation_type, right_answer, answer_id, tl.previous_next_interrogation_date
-  INTO v_last_interrogation_type, v_last_right_answer, v_last_answer_id, v_previous_next_interrogation_date
+  SELECT interrogation_type, right_answer, answer_id, tl.previous_next_interrogation_time
+  INTO v_last_interrogation_type, v_last_right_answer, v_last_answer_id, v_previous_next_interrogation_time
   FROM answer a
-         JOIN translation_link tl ON tl.translation_link_id = a.translation_link_id
+         JOIN user_translation_link tl ON tl.translation_link_id = a.translation_link_id and tl.user_id = p_user_id
   WHERE a.translation_link_id = v_translation_link_id
-    AND user_id = p_user_id
+    AND a.user_id = p_user_id
     AND from_language_id = p_from_language_id
   ORDER BY answer_id DESC
   LIMIT 1;
@@ -38,7 +38,7 @@ BEGIN
   -- check that the last answer type and right are the same as the inputs or the previous interrogation is null
   IF v_last_interrogation_type != p_interrogator_type || (v_last_right_answer =
                                                           p_cancelled_answer_right) ||
-                                  v_previous_next_interrogation_date IS NULL THEN
+                                  v_previous_next_interrogation_time IS NULL THEN
     RETURN NULL;
   END IF;
 
@@ -46,30 +46,28 @@ BEGIN
 
   --RAISE NOTICE 'now: %', current_timestamp;
   IF p_cancelled_answer_right THEN
-    call logging('cancel_last_answer: ' || 'update previous answer');
+    --call logging('cancel_last_answer: ' || 'update previous answer');
     UPDATE answer SET right_answer = FALSE WHERE answer_id = v_last_answer_id;
 
-    CALL calculate_next_interrogation_date(v_translation_link_id, p_user_id, NOT p_cancelled_answer_right,
+    CALL calculate_next_interrogation_time(v_translation_link_id, p_user_id, FALSE,
                                            p_interrogator_type, p_answer_time, TRUE);
 
-    UPDATE translation_link
-    SET previous_next_interrogation_date = NULL
-    WHERE translation_link_id = v_translation_link_id;
-
-    SELECT next_interrogation_date
+    SELECT next_interrogation_time
     INTO v_next_interrogation_time
-    FROM translation_link
-    WHERE translation_link_id = v_translation_link_id;
+    FROM user_translation_link
+    WHERE translation_link_id = v_translation_link_id
+      and user_id = p_user_id;
     RETURN extract(epoch from v_next_interrogation_time);
 
   ELSE
     call logging('cancel_last_answer: ' || 'delete previous answer');
     DELETE FROM answer WHERE answer_id = v_last_answer_id;
 
-    UPDATE translation_link
-    SET next_interrogation_date = previous_next_interrogation_date,
-        previous_next_interrogation_date = NULL
-    WHERE translation_link_id = v_translation_link_id;
+    UPDATE user_translation_link
+    SET next_interrogation_time          = previous_next_interrogation_time,
+        previous_next_interrogation_time = NULL
+    WHERE translation_link_id = v_translation_link_id
+      and user_id = p_user_id;
     RETURN extract(epoch from current_timestamp);
 
   END IF;

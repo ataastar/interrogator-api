@@ -52,7 +52,9 @@ app.route('/api/refreshToken').post(auth.refreshTokenResponse, auth.checkIfRefre
 app.get('/units', auth.checkIfAuthenticated, phrase.getUnitTreeGroup)
 
 // translation
-app.get('/translation/:unitId', auth.checkIfAuthenticated, phrase.getUnitTranslation)
+app.get('/translation/:unitId', auth.checkIfAuthenticated, (req, res) => {
+    phrase.getUnitTranslation(req, res, auth.getUserId(req))
+})
 app.post('/translation/update', auth.checkIfAuthenticated, (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
 }, phrase.updateTranslation)

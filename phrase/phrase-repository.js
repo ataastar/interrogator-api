@@ -1,7 +1,11 @@
 const db = require('../db-util')
+const fs = require('fs');
+const path = require('path');
 
-async function getUnitTranslation(unitId) {
-    return (await db.pool.query('SELECT content FROM unit_translation_json WHERE unit_tree_id = $1', [unitId])).rows[0].content;
+const unit_translation_json = fs.readFileSync(path.join(__dirname, 'db') + '/unit_translation_json.sql').toString();
+
+async function getUnitTranslation(unitId, userId) {
+    return (await db.pool.query(unit_translation_json, [userId, unitId])).rows[0].content;
 }
 
 async function getUnitTreeGroup() {
@@ -16,10 +20,6 @@ async function insertUnitContent(content) {
 async function updateTranslation(content) {
     await db.pool.query('SELECT update_translation($1)', [content]);
     return await getTranslation(content.unitContentId);
-}
-
-async function getTranslation(unitContentId) {
-    return (await db.pool.query('SELECT content FROM unit_content_translation_json WHERE unit_content_id = $1', [unitContentId])).rows[0].content;
 }
 
 async function deleteUnitContent(unitContentId) {

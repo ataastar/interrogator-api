@@ -1,13 +1,13 @@
 const repo = require('./phrase-repository.js')
 
-async function getUnitTranslation(request, response) {
+async function getUnitTranslation(request, response, userId) {
     //console.log('getUnitTranslation' + request.params.unitId);
     const unitId = parseInt(request.params.unitId)
     if (unitId == null) {
         simpleResult('{}', response);
         return
     }
-    handleSimpleResult(repo.getUnitTranslation(unitId), response)
+    handleSimpleResult(repo.getUnitTranslation(unitId, userId), response)
 }
 
 async function getUnitTreeGroup(request, response) {
