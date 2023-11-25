@@ -12,8 +12,8 @@ DECLARE
 BEGIN
   IF NOT p_answer_is_right THEN
     INSERT INTO user_translation_link (user_id, translation_link_id, next_interrogation_time,
-                                       previous_next_interrogation_time, last_answer_time)
-    VALUES (p_user_id, p_translation_link_id, p_answer_time, null, p_answer_time)
+                                       previous_next_interrogation_time, last_answer_time, last_answer_right)
+    VALUES (p_user_id, p_translation_link_id, p_answer_time, null, p_answer_time, p_answer_is_right)
     ON CONFLICT (user_id, translation_link_id)
       DO UPDATE
       SET previous_next_interrogation_time = CASE
@@ -21,7 +21,8 @@ BEGIN
           next_interrogation_time          = p_answer_time,
           last_answer_time                 = CASE
                                                WHEN p_cancel THEN user_translation_link.last_answer_time
-                                               ELSE p_answer_time END;
+                                               ELSE p_answer_time END,
+          last_answer_right                = p_answer_is_right;
     RETURN;
   END IF;
 
@@ -53,9 +54,9 @@ BEGIN
   end if;*/
 
   INSERT INTO user_translation_link (user_id, translation_link_id, next_interrogation_time,
-                                     previous_next_interrogation_time, last_answer_time)
+                                     previous_next_interrogation_time, last_answer_time, last_answer_right)
   VALUES (p_user_id, p_translation_link_id, add_time(p_answer_time, v_next_interrogation_interval),
-          null, p_answer_time)
+          null, p_answer_time, p_answer_is_right)
   ON CONFLICT (user_id, translation_link_id)
     DO UPDATE
     SET previous_next_interrogation_time = user_translation_link.next_interrogation_time,
@@ -68,7 +69,8 @@ BEGIN
             END,
         last_answer_time                 = CASE
                                              WHEN p_cancel THEN user_translation_link.last_answer_time
-                                             ELSE p_answer_time END;
+                                             ELSE p_answer_time END,
+        last_answer_right                = p_answer_is_right;
 
 END
 $$;

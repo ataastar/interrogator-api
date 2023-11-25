@@ -18,7 +18,8 @@ FROM (SELECT ut.unit_tree_id                           AS code,
                            tl.example,
                            tl.translated_example       AS "translatedExample",
                            utl.next_interrogation_time AS "nextInterrogationTime",
-                           utl.last_answer_time        AS "lastAnswerTime"
+                           utl.last_answer_time  AS "lastAnswerTime",
+                           utl.last_answer_right AS "lastAnswerRight"
                     from translation_link tl
                            left join user_translation_link utl
                                      on tl.translation_link_id = utl.translation_link_id and utl.user_id = $1) tl

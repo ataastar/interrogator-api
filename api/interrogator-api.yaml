@@ -419,8 +419,8 @@ components:
       description: The translation with example and calculated interrogation time and unit content id
       allOf:
         - $ref: '#/components/schemas/RawTranslation'
-        - $ref: '#/components/schemas/TranslationExt'
-    TranslationExt:
+        - $ref: '#/components/schemas/UserTranslation'
+    UserTranslation:
       description: The translation extended with the interrogation data and unit content id
       required:
         - unitContentId
@@ -439,6 +439,9 @@ components:
           type: string
           format: date-time
           description: The last time when the translation was answered
+        lastAnswerRight:
+          type: boolean
+          description: The last answer was right
     TranslationPart:
       description: A translation part for phrase ('to' or 'from' part)
       required:
