@@ -55,13 +55,17 @@ app.get('/units', auth.checkIfAuthenticated, phrase.getUnitTreeGroup)
 app.get('/translation/:unitId', auth.checkIfAuthenticated, (req, res) => {
     phrase.getUnitTranslation(req, res, auth.getUserId(req))
 })
-app.post('/translation/update', auth.checkIfAuthenticated, (req, res, next) => {
+app.post('/translation/update', (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
-}, phrase.updateTranslation)
-app.post('/word', auth.checkIfAuthenticated, (req, res, next) => {
+}, (req, res) => {
+    phrase.updateTranslation(req, res, auth.getUserId(req))
+})
+app.post('/word', (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
-}, phrase.insertUnitContent)
-app.delete('/word/:unitContentId', auth.checkIfAuthenticated, (req, res, next) => {
+}, (req, res) => {
+    phrase.insertUnitContent(req, res, auth.getUserId(req))
+})
+app.delete('/word/:unitContentId', (req, res, next) => {
     auth.hasRole(req, res, next, 'admin')
 }, phrase.deleteUnitContent)
 

@@ -14,14 +14,14 @@ async function getUnitTreeGroup(request, response) {
     handleSimpleResult(repo.getUnitTreeGroup(), response);
 }
 
-async function insertUnitContent(request, response) {
+async function insertUnitContent(request, response, userId) {
     const content = request.body;
-    handleSimpleResult(repo.insertUnitContent(content), response);
+    handleSimpleResult(repo.insertUnitContent(content, userId), response);
 }
 
-async function updateTranslation(request, response) {
+async function updateTranslation(request, response, userId) {
     const content = request.body;
-    handleSimpleResult(repo.updateTranslation(content), response);
+    handleSimpleResult(repo.updateTranslation(content, userId), response);
 }
 
 async function deleteUnitContent(request, response) {

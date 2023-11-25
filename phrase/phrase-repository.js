@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const unit_translation_json = fs.readFileSync(path.join(__dirname, 'db') + '/unit_translation_json.sql').toString();
+const unit_content_translation_json = fs.readFileSync(path.join(__dirname, 'db') + '/unit_content_translation_json.sql').toString();
 
 async function getUnitTranslation(unitId, userId) {
     return (await db.pool.query(unit_translation_json, [userId, unitId])).rows[0].content;
@@ -12,14 +13,18 @@ async function getUnitTreeGroup() {
     return (await db.pool.query('SELECT groups FROM unit_group_json', [])).rows[0].groups;
 }
 
-async function insertUnitContent(content) {
+async function insertUnitContent(content, userId) {
     const unitContentId = (await db.pool.query('SELECT insert_unit_content($1) AS unit_content_id', [content])).rows[0].unit_content_id;
-    return await getTranslation(unitContentId);
+    return await getTranslation(unitContentId, userId);
 }
 
-async function updateTranslation(content) {
+async function updateTranslation(content, userId) {
     await db.pool.query('SELECT update_translation($1)', [content]);
-    return await getTranslation(content.unitContentId);
+    return await getTranslation(content.unitContentId, userId);
+}
+
+async function getTranslation(unitContentId, userId) {
+    return (await db.pool.query(unit_content_translation_json, [unitContentId, userId])).rows[0].content;
 }
 
 async function deleteUnitContent(unitContentId) {
