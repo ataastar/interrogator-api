@@ -22,7 +22,9 @@ BEGIN
           last_answer_time                 = CASE
                                                WHEN p_cancel THEN user_translation_link.last_answer_time
                                                ELSE p_answer_time END,
-          last_answer_right                = p_answer_is_right;
+          last_answer_right = CASE
+                                WHEN p_cancel THEN NOT p_answer_is_right
+                                ELSE p_answer_is_right END;
     RETURN;
   END IF;
 
@@ -70,7 +72,9 @@ BEGIN
         last_answer_time                 = CASE
                                              WHEN p_cancel THEN user_translation_link.last_answer_time
                                              ELSE p_answer_time END,
-        last_answer_right                = p_answer_is_right;
+        last_answer_right = CASE
+                              WHEN p_cancel THEN NOT p_answer_is_right
+                              ELSE p_answer_is_right END;
 
 END
 $$;

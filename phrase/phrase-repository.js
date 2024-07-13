@@ -4,6 +4,7 @@ const path = require('path');
 
 const unit_translation_json = fs.readFileSync(path.join(__dirname, 'db') + '/unit_translation_json.sql').toString();
 const unit_content_translation_json = fs.readFileSync(path.join(__dirname, 'db') + '/unit_content_translation_json.sql').toString();
+const user_translation_json = fs.readFileSync(path.join(__dirname, 'db') + '/user_translation_json.sql').toString();
 
 async function getUnitTranslation(unitId, userId) {
     return (await db.pool.query(unit_translation_json, [userId, unitId])).rows[0].content;
@@ -25,6 +26,10 @@ async function updateTranslation(content, userId) {
 
 async function getTranslation(unitContentId, userId) {
     return (await db.pool.query(unit_content_translation_json, [unitContentId, userId])).rows[0].content;
+}
+
+async function getUserTranslation(unitContentId, userId) {
+    return (await db.pool.query(user_translation_json, [unitContentId, userId])).rows[0].content;
 }
 
 async function deleteUnitContent(unitContentId) {
@@ -53,12 +58,14 @@ async function addWordTypeUnitLink(wordTypeUnitId, wordTypeLinkId) {
 
 async function addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId) {
     //console.log('addAnswer: ' + userId + ', ' + unitContentId + ', ' + right + ', ' + interrogationType)
-    return (await db.pool.query('SELECT add_answer($1, $2, $3, $4, $5) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId])).rows[0].res
+    db.pool.query('SELECT add_answer($1, $2, $3, $4, $5) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId]);
+    return await getUserTranslation(unitContentId, userId);
 }
 
 async function cancelLastAnswer(userId, unitContentId, right, interrogationType, fromLanguageId) {
     //console.log('addAnswer: ' + userId + ', ' + unitContentId + ', ' + right + ', ' + interrogationType)
-    return (await db.pool.query('SELECT cancel_last_answer ($1, $2, $3, $4, $5) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId])).rows[0].res
+    db.pool.query('SELECT cancel_last_answer ($1, $2, $3, $4, $5) AS res', [unitContentId, userId, right, interrogationType, fromLanguageId]);
+    return await getUserTranslation(unitContentId, userId);
 }
 
 module.exports = {

@@ -67,7 +67,7 @@ async function addAnswer(request, response, userId) {
     const right = request.body.right;
     const interrogationType = request.body.interrogationType;
     const fromLanguageId = request.body.fromLanguageId;
-    handleSimpleResult(repo.addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 'nextInterrogationTime');
+    handleSimpleResult(repo.addAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response);
 }
 
 async function cancelLastAnswer(request, response, userId) {
@@ -75,7 +75,7 @@ async function cancelLastAnswer(request, response, userId) {
     const right = request.body.right;
     const interrogationType = request.body.interrogationType;
     const fromLanguageId = request.body.fromLanguageId;
-    handleSimpleResult(repo.cancelLastAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response, 'nextInterrogationTime');
+    handleSimpleResult(repo.cancelLastAnswer(userId, unitContentId, right, interrogationType, fromLanguageId), response);
 }
 
 

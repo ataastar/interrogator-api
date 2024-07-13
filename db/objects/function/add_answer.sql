@@ -26,11 +26,11 @@ BEGIN
   call calculate_next_interrogation_time(v_translation_link_id, p_user_id, p_answer_is_right, p_interrogator_type,
                                          p_answer_time);
 
-  SELECT next_interrogation_time
+  /*SELECT next_interrogation_time
   INTO v_next_interrogation_time
   FROM user_translation_link
   WHERE translation_link_id = v_translation_link_id
-    and user_id = p_user_id;
+    and user_id = p_user_id;*/
 
   /*if v_next_interrogation_time is null then
     call logging('v_next_interrogation_time is null');
@@ -38,7 +38,7 @@ BEGIN
     call logging('v_next_interrogation_time is not null: ' || v_next_interrogation_time);
   end if;*/
 
-  RETURN extract(epoch from v_next_interrogation_time);
+  RETURN NULL; -- extract(epoch from v_next_interrogation_time);
 END
 $$;
 
