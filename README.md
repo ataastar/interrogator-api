@@ -41,6 +41,7 @@ interrogator-api for interrogator front end
  - improve delete on db level
  - plan user related db and connections
  - plan test results
+ - using liquibase to manage database script and create database on the fly
 
 # Environment variables
 
